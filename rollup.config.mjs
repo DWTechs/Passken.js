@@ -7,7 +7,12 @@ const config =  {
     file: "build/passken.js",
     format: "es"
   },
-  external: [],
+  external: [
+    // "@types/bcrypt",
+    "@dwtechs/checkard",
+    "bcrypt",
+    "generate-password"
+  ],
   plugins: [
     babel({
       // exclude: "node_modules/**" // only transpile our source code
