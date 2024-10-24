@@ -1,6 +1,6 @@
 import { isValidInteger, isString } from "@dwtechs/checkard";
 import { createHmac } from "node:crypto";
-import bcrypt from "bcrypt";
+import * as bcrypt from "bcrypt";
 
 const hashFunc = "sha256";
 let saltRounds = 12;
@@ -23,7 +23,8 @@ function getSaltRounds(): number {
  * @return {integer} The number of salt rounds.
  */
 function setSaltRounds(r: number): number {
-  return saltRounds = isValidInteger(r, 12, 100) ? r : saltRounds;
+  saltRounds = isValidInteger(r, 12, 100) ? r : saltRounds;
+  return saltRounds;
 }
 
 
