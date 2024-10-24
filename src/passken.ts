@@ -44,7 +44,7 @@ function hash(pwd: string, secret: string): string {
  * @param {type} pwd - The password to encrypt
  * @return {type} The encrypted password hash
  */
-function encrypt(pwd: string, secret: string): string {
+function encrypt(pwd: string, secret: string): string | false {
   return (isString(pwd, true) && isString(secret, true)) ? bcrypt.hashSync(hash(pwd, secret), saltRounds) : false;
 }
 

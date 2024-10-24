@@ -122,7 +122,7 @@ getSaltRounds(): number {}
 
 setSaltRounds(r: number): number {} // between 12 and 100
 
-encrypt(pwd: string, secret: string): string {}
+encrypt(pwd: string, secret: string): string | false {}
 
 compare(pwd: string, dbHash: string, secret: string): boolean {}
 
