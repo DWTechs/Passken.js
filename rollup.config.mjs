@@ -4,7 +4,7 @@ const config =  {
   input: "build/es6/passken.js",
   output: {
     name: "passken",
-    file: "build/passken.js",
+    file: "build/passken.mjs",
     format: "es"
   },
   external: [
