@@ -6,15 +6,13 @@
 [![minified size](https://img.shields.io/bundlephobia/min/@dwtechs/passken?color=brightgreen)](https://www.npmjs.com/package/@dwtechs/passken)
 
 - [Synopsis](#synopsis)
-- [Browsers](#browsers)
+- [Support](#support)
 - [Installation](#installation)
 - [Usage](#usage)
   - [ES6](#es6)
   - [CommonJS](#commonjs)
-  - [IIFE](#iife)
 - [API Reference](#api-reference)
 - [Contributors](#contributors)
-- [License](#license)
 - [Stack](#stack)
 
 
@@ -34,7 +32,7 @@ Safe pass encryption and other useful tools in Javascript
 
 ## Support
 
-- node: x.x
+- Node.js: 14
 
 This is the oldest targeted versions. The library should work properly on older versions of Node.js but we do not support it officially.  
 
@@ -54,7 +52,7 @@ $ npm i @dwtechs/passken
 Example of use with Express.js in Javascript using CommonJS format 
 
 ```javascript
-const pass = require("@dwtechs/passken/dist/passken.cjs");
+const pass = require("@dwtechs/passken");
 
 /**
  * This function checks if a user-provided password matches a stored hashed password in a database.

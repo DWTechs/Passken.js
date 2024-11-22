@@ -1,4 +1,4 @@
-import { compare } from "../dist/passken";
+import { compare } from "../dist/passken.cjs";
 
 const password = "mySecret!/;6[à}Pwd";
 const wrongPassword = "wrongPassword";

@@ -1,4 +1,4 @@
-import { setSaltRounds } from "../dist/passken";
+import { setSaltRounds } from "../dist/passken.cjs";
 
 const password = "mySecret!/;6[à}Pwd";
 const wrongPassword = "wrongPassword";
