@@ -47,12 +47,13 @@ $ npm i @dwtechs/passken
 ## Usage
 
 
-### CommonJS
+### ES6 / TypeScript
 
-Example of use with Express.js in Javascript using CommonJS format 
+Import of the Passken.js module into a Typescript file
 
 ```javascript
-const pass = require("@dwtechs/passken");
+
+import { compare, create } from "@dwtechs/passken";
 
 /**
  * This function checks if a user-provided password matches a stored hashed password in a database.
@@ -61,32 +62,71 @@ const pass = require("@dwtechs/passken");
  * If the password is incorrect or missing, it calls next() with an error status and message.
  */
 function compare(req, res, next) {
+  
   const pwd = req.body.pwd; // from request
-  const dbHash = res.rows[0].password; //from db
-  if (pass.compare(pwd, dbHash))
+  const dbHash = req.dbHash; //from db
+  if (compare(pwd, dbHash))
     return next();
   
   return next({ status: 401, msg: "Wrong password" });
+
 }
 
 /**
- * Generates random passwords for multiple users and encrypts them.
+ * Generates random passwords for a user and encrypts it.
+ */
+function createPAssword(req, res, next) {
+
+  const user = req.body.user;
+  const pwd = create();
+  const encryptedPwd = pk.encrypt(pwd);
+  next();
+
+}
+
+export {
+  compare,
+  create,
+};
+
+
+```
+
+
+### CommonJS
+
+Example of use with Express.js in Javascript using CommonJS format 
+
+```javascript
+const pk = require("@dwtechs/passken");
+
+/**
+ * This function checks if a user-provided password matches a stored hashed password in a database.
+ * It takes a request object req and a response object res as input, and uses a pass service to compare the password.
+ * If the password is correct, it calls the next() function to proceed with the request.
+ * If the password is incorrect or missing, it calls next() with an error status and message.
+ */
+function compare(req, res, next) {
+  
+  const pwd = req.body.pwd; // from request
+  const dbHash = req.dbHash; //from db
+  if (pk.compare(pwd, dbHash))
+    return next();
+  
+  return next({ status: 401, msg: "Wrong password" });
+
+}
+
+/**
+ * Generates random passwords for a user and encrypts it.
  */
 function create(req, res, next) {
 
-  for (const u of req.body.rows) {
-    u.pwd = passwordGen.generate({
-      length: PWD_AUTO_LENGTH,
-      numbers: PWD_AUTO_NUMBERS,
-      uppercase: PWD_AUTO_UPPERCASE,
-      lowercase: PWD_AUTO_LOWERCASE,
-      symbols: PWD_AUTO_SYMBOLS,
-      strict: PWD_AUTO_STRICT,
-      excludeSimilarCharacters: PWD_AUTO_EXCLUDE_SIMILAR_CHARS,
-    });
-    u.encryptedPwd = pass.encrypt(u.pwd);
-  }
+  const user = req.body.user;
+  const pwd = pk.create();
+  const encryptedPwd = pk.encrypt(pwd);
   next();
+
 }
 
 
@@ -98,19 +138,27 @@ module.exports = {
 ```
 
 
-### ES6 / TypeScript
+## API Reference
 
-Import of the Passken.js module into a Typescript file
+
+### Types
 
 ```javascript
 
-import { encrypt } from "@dwtechs/passken";
+type Options = {
+  length: number,
+  numbers: boolean,
+  uppercase: boolean,
+  lowercase: boolean,
+  symbols: boolean,
+  strict: boolean,
+  excludeSimilarCharacters: boolean,
+};
 
 ```
 
 
-## API Reference
-
+### Methods
 
 ```javascript
 
@@ -124,7 +172,25 @@ encrypt(pwd: string, secret: string): string | false {}
 
 compare(pwd: string, dbHash: string, secret: string): boolean {}
 
+create(options: Partial<Options> = defaultOptions): string {}
+
 ```
+
+## Available options for password generation
+
+Any of these can be passed into the options object for each function.
+
+| Name            |               Description                    |  Default value  |  
+| :-------------- | :------------------------------------------ | :-------------- |
+| length	| Integer, length of password.  |   12 |
+| numbers*	| Boolean, put numbers in password.  |  true |
+| symbols*	| Boolean or String, put symbols in password.  |	true |
+| lowercase*	| Boolean, put lowercase in password   |  true |
+| uppercase*	| Boolean, use uppercase letters in password.   |	  true |
+| excludeSimilarCharacters	| Boolean, exclude similar chars, like 'i' and 'l'.	 |  true | 
+| strict	| Boolean, password must include at least one character from each pool.	 |  true |
+
+*At least one should be true.
 
 
 ## Contributors
@@ -135,7 +201,7 @@ To contribute please read **[contributor.md](https://github.com/DWTechs/Passken.
 
 ## Stack
 
-| Purpose         |                    Choice                    |                                                     Motivation |
+| Purpose         |                    Choice                    |                             Motivation |
 | :-------------- | :------------------------------------------: | -------------------------------------------------------------: |
 | repository      |        [Github](https://github.com/)         |     hosting for software development version control using Git |
 | package manager |     [npm](https://www.npmjs.com/get-npm)     |                                default node.js package manager |

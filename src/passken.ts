@@ -1,10 +1,25 @@
-import { isValidInteger, isString } from "@dwtechs/checkard";
+import type { Options } from "./types";
+import { isValidInteger, isBoolean,isString } from "@dwtechs/checkard";
 import { createHmac } from "node:crypto";
 import * as bcrypt from "bcrypt";
 
 const hashFunc = "sha256";
 let saltRounds = 12;
-
+const defaultOptions: Options = {
+  length: 12,
+  numbers: true,
+  uppercase: true,
+  lowercase: true,
+  symbols: false,
+  strict: true,
+  excludeSimilarCharacters: true,
+};
+const list = {
+  lowercase: 'abcdefghijklmnopqrstuvwxyz',
+  uppercase: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
+  numbers: '0123456789',
+  symbols: '!@#$%&*_-+:;?><,./',
+};
 /**
  * Returns the number of salt rounds used for the bcrypt hash.
  *
@@ -61,9 +76,81 @@ function compare(pwd: string, dbHash: string, secret: string): boolean {
   return (isString(pwd, true) && isString(secret, true)) ? bcrypt.compareSync(hash(pwd, secret), dbHash) : false;
 }
 
+/**
+ * Generates random passwords for multiple users and encrypts them.
+ */
+function create(options: Partial<Options> = defaultOptions): string {
+  const length = isValidInteger(options.length, 12, 64, true) ? options.length : defaultOptions.length;
+  const numbers = isBoolean(options.numbers) ? options.numbers : defaultOptions.numbers;
+  const uppercase = isBoolean(options.uppercase) ? options.uppercase : defaultOptions.uppercase;
+  const symbols = isBoolean(options.symbols) ? options.symbols : defaultOptions.symbols;
+  const strict = isBoolean(options.strict) ? options.strict : defaultOptions.strict;
+  const excludeSimilarCharacters = options.excludeSimilarCharacters ? options.excludeSimilarCharacters : defaultOptions.excludeSimilarCharacters;
+  let lowercase = isBoolean(options.lowercase) ? options.lowercase : defaultOptions.lowercase;
+
+  if (!lowercase && !numbers) lowercase = true;
+
+  const chars: string[] = [];
+
+  if (lowercase) chars.push(...list.lowercase);
+  if (uppercase) chars.push(...list.uppercase);
+  if (numbers) chars.push(...list.numbers);
+  if (symbols) chars.push(...list.symbols);
+
+  if (excludeSimilarCharacters) {
+    chars.splice(chars.indexOf('l'), 1);
+    chars.splice(chars.indexOf('I'), 1);
+    chars.splice(chars.indexOf('1'), 1);
+    chars.splice(chars.indexOf('o'), 1);
+    chars.splice(chars.indexOf('O'), 1);
+    chars.splice(chars.indexOf('0'), 1);
+  }
+
+  if (strict) {
+    // Ensure password includes at least one of each required character type
+    const password: string[] = [];
+    if (lowercase) password.push(getRandomChar(list.lowercase));
+    if (uppercase) password.push(getRandomChar(list.uppercase));
+    if (numbers) password.push(getRandomChar(list.numbers));
+    if (symbols) password.push(getRandomChar(list.symbols));
+
+    // Fill the rest of the password length with random characters
+    for (let i = password.length; i < length; i++) {
+      password.push(getRandomChar(chars.join('')));
+    }
+
+    return shuffleArray(password).join('');
+  }
+  // Generate a password with random characters
+  return Array(length)
+    .fill(null)
+    .map(() => getRandomChar(chars.join('')))
+    .join('');
+}
+
+// Helper functions
+function getRandomChar(str: string) {
+  return str.charAt(Math.floor(Math.random() * str.length));
+}
+
+/**
+* This is a function that shuffles the elements of an input array in place, 
+* using the Fisher-Yates shuffle algorithm. It randomly swaps each element 
+* with another element at a lower index, effectively rearranging the array 
+* in a random order.
+*/
+function shuffleArray(arr: string[]) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
 export {
   getSaltRounds,
   setSaltRounds,
   encrypt,
   compare,
+  create,
 };

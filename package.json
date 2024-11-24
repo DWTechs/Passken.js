@@ -25,7 +25,7 @@
   "contributors": [],
   "scripts": {
     "start": "",
-    "build": "node ./scripts/clear && tsc && npm run rollup && npm run uglify && node ./scripts/copy && npm run test",
+    "build": "node ./scripts/clear && tsc && npm run rollup && node ./scripts/copy && npm run test",
     "rollup:mjs": "rollup --config rollup.config.mjs",
     "rollup:cjs": "rollup --config rollup.config.cjs.mjs",
     "rollup": "npm run rollup:mjs && npm run rollup:cjs",
@@ -35,10 +35,9 @@
     "dist/"
   ],
   "dependencies": {
+    "@dwtechs/checkard": "2.27.0",
     "@types/bcrypt": "5.0.2",
-    "@dwtechs/checkard": "2.25.0",
-    "bcrypt": "5.1.1",
-    "generate-password": "1.7.1"
+    "bcrypt": "5.1.1"
   },
   "devDependencies": {
     "@babel/core": "7.23.2",

@@ -8,7 +8,7 @@ const config =  {
     format: "es"
   },
   external: [
-    // "@types/bcrypt",
+    "@types/bcrypt",
     "@dwtechs/checkard",
     "bcrypt",
     "generate-password"
