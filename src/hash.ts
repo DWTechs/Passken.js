@@ -30,8 +30,10 @@ function getSaltRounds(): number {
  * @param {integer} rounds - The number of salt rounds.
  * @return {integer} The number of salt rounds.
  */
-function setSaltRounds(rnds: number): number {
-  saltRnds = isValidInteger(rnds, 12, 100) ? rnds : saltRnds;
+function setSaltRounds(rnds: number): number | false {
+  if (!isValidInteger(rnds, 12, 100, true)) return false;
+
+  saltRnds = rnds;
   return saltRnds;
 }
 
@@ -51,8 +53,10 @@ function getKeyLen(): number {
  * @param {integer} len - The key length.
  * @return {integer} The key length.
  */
-function setKeyLen(len: number): number {
-  keyLen = isValidInteger(len, 2, 256) ? len : keyLen;
+function setKeyLen(len: number): number | false {
+  if (!isValidInteger(len, 2, 256, true)) return false;
+
+  keyLen = len;
   return keyLen;
 }
 
@@ -65,15 +69,18 @@ function getDigest(): string {
   return digest;
 }
 
+
 /**
  * Sets the hash function used for the HMAC hash.
- * If the given value is not a valid hash function, the current value is kept.
+ * If the given value is not in the list of available hash functions, the current value is kept.
  *
  * @param {string} func - The hash function.
- * @return {string} The hash function.
+ * @return {string|false} The current hash function or `false` if the given value is not valid.
  */
-function setDigest(func: string): string {
-  if (digests.includes(func)) digest = func;
+function setDigest(func: string): string | false {
+  if (!digests.includes(func)) return false;
+     
+  digest = func;
   return digest;
 }
 
