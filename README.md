@@ -22,7 +22,7 @@ Safe pass encryption and other useful tools in Javascript
 
 **[Passken.js](https://github.com/DWTechs/Passken.js)** is an open source xx library for Node.js to  (...)
 
-- Only 3 dependencies to check inputs variables, encrypt passwords and generate passwords
+- Only 1 dependency to check inputs variables
 - Very lightweight
 - Thoroughly tested
 - Works in Node.js
@@ -32,9 +32,9 @@ Safe pass encryption and other useful tools in Javascript
 
 ## Support
 
-- Node.js: 14
+- Node.js: 16
 
-This is the oldest targeted versions. The library should work properly on older versions of Node.js but we do not support it officially.  
+This is the oldest targeted versions. The library should not work properly on older versions of Node.js because of the use of node:crypto.  
 
 
 ## Installation
@@ -162,11 +162,24 @@ type Options = {
 
 ```javascript
 
-let saltRounds = 12 //Default value
+// Default values
+let saltRounds = 12
+let digest = "sha256";
+let keyLen = 64;
 
 getSaltRounds(): number {}
 
 setSaltRounds(r: number): number {} // between 12 and 100
+
+getKeyLen(): number {}
+
+setKeyLen(r: number): number {} // between 2 and 256
+
+getDigest(): string {}
+
+setDigest(d: string): string {} // the list of available digests can be given by getDigests()
+
+getDigests(): string[] {}
 
 encrypt(pwd: string, secret: string): string | false {}
 
