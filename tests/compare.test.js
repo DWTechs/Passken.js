@@ -1,23 +1,24 @@
-import { compare } from "../dist/passken.cjs";
+const { compare } = require("../dist/passken.cjs");
 
 const password = "mySecret!/;6[à}Pwd";
 const wrongPassword = "wrongPassword";
 const emptyPassword = "";
+const secret = "mySuperFancySecret";
 // const objectPassword = { password };
 // const regexPassword = /mySecret!\/;6\[à}Pwd/;
 // const booleanPassword = true;
-const hashedPassword = encrypt(password, getSaltRounds()); // Using the same saltRounds as in the encrypt function
+const hashedPassword = encrypt(password, secret);
 
 test("compare the right password", () => {
-  expect(compare(password, hashedPassword)).toBe(true);
+  expect(compare(password, hashedPassword, secret)).toBe(true);
 });
 
 test("compare a wrong password", () => {
-  expect(compare(wrongPassword, hashedPassword)).toBe(false);
+  expect(compare(wrongPassword, hashedPassword, secret)).toBe(false);
 });
 
 test("compare an empty password", () => {
-  expect(compare(emptyPassword, hashedPassword)).toBe(false);
+  expect(compare(emptyPassword, hashedPassword, secret)).toBe(false);
 });
 
 // test("compare an object password", () => {

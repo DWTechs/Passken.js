@@ -17,10 +17,9 @@
 
 
 ## Synopsis
-Safe pass encryption and other useful tools in Javascript
 
 
-**[Passken.js](https://github.com/DWTechs/Passken.js)** is an open source xx library for Node.js to  (...)
+**[Passken.js](https://github.com/DWTechs/Passken.js)** is an open source password management library for Node.js to create, encrypt and compare passwords safely.
 
 - Only 1 dependency to check inputs variables
 - Very lightweight
@@ -34,7 +33,7 @@ Safe pass encryption and other useful tools in Javascript
 
 - Node.js: 16
 
-This is the oldest targeted versions. The library should not work properly on older versions of Node.js because of the use of node:crypto.  
+This is the oldest targeted versions. The library should not work properly on older versions of Node.js because it uses node:crypto in order to not depend on external dependencies.  
 
 
 ## Installation
@@ -49,7 +48,7 @@ $ npm i @dwtechs/passken
 
 ### ES6 / TypeScript
 
-Import of the Passken.js module into a Typescript file
+Example of use with Express.js in Typescript using ES6 module format
 
 ```javascript
 
@@ -64,8 +63,8 @@ import { compare, create } from "@dwtechs/passken";
 function compare(req, res, next) {
   
   const pwd = req.body.pwd; // from request
-  const dbHash = req.dbHash; //from db
-  if (compare(pwd, dbHash))
+  const hash = req.user.hash; //from db
+  if (compare(pwd, hash))
     return next();
   
   return next({ status: 401, msg: "Wrong password" });
@@ -109,8 +108,8 @@ const pk = require("@dwtechs/passken");
 function compare(req, res, next) {
   
   const pwd = req.body.pwd; // from request
-  const dbHash = req.dbHash; //from db
-  if (pk.compare(pwd, dbHash))
+  const hash = req.user.hash; //from db
+  if (pk.compare(pwd, hash))
     return next();
   
   return next({ status: 401, msg: "Wrong password" });
@@ -146,13 +145,13 @@ module.exports = {
 ```javascript
 
 type Options = {
-  length: number,
-  numbers: boolean,
-  uppercase: boolean,
-  lowercase: boolean,
-  symbols: boolean,
+  len: number,
+  num: boolean,
+  ucase: boolean,
+  lcase: boolean,
+  sym: boolean,
   strict: boolean,
-  excludeSimilarCharacters: boolean,
+  exclSimilarChars: boolean,
 };
 
 ```
@@ -163,13 +162,13 @@ type Options = {
 ```javascript
 
 // Default values
-let saltRounds = 12
+let saltRnds = 12
 let digest = "sha256";
 let keyLen = 64;
 
 getSaltRounds(): number {}
 
-setSaltRounds(r: number): number {} // between 12 and 100
+setSaltRounds(rnds: number): number {} // between 12 and 100
 
 getKeyLen(): number {}
 
@@ -183,24 +182,24 @@ getDigests(): string[] {}
 
 encrypt(pwd: string, secret: string): string | false {}
 
-compare(pwd: string, dbHash: string, secret: string): boolean {}
+compare(pwd: string, hash: string, secret: string): boolean {}
 
-create(options: Partial<Options> = defaultOptions): string {}
+create(opts: Partial<Options> = defOpts): string {}
 
 ```
 
-## Available options for password generation
+### Available options for password generation
 
 Any of these can be passed into the options object for each function.
 
 | Name            |               Description                    |  Default value  |  
 | :-------------- | :------------------------------------------ | :-------------- |
-| length	| Integer, length of password.  |   12 |
-| numbers*	| Boolean, put numbers in password.  |  true |
-| symbols*	| Boolean or String, put symbols in password.  |	true |
-| lowercase*	| Boolean, put lowercase in password   |  true |
-| uppercase*	| Boolean, use uppercase letters in password.   |	  true |
-| excludeSimilarCharacters	| Boolean, exclude similar chars, like 'i' and 'l'.	 |  true | 
+| len	| Integer, length of password.  |   12 |
+| num*	| Boolean, put numbers in password.  |  true |
+| sym*	| Boolean or String, put symbols in password.  |	true |
+| lcase*	| Boolean, put lowercase in password   |  true |
+| ucase*	| Boolean, use uppercase letters in password.   |	  true |
+| exclSimilarChars	| Boolean, exclude similar chars, like 'i' and 'l'.	 |  true | 
 | strict	| Boolean, password must include at least one character from each pool.	 |  true |
 
 *At least one should be true.

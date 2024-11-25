@@ -8,10 +8,7 @@ const config =  {
     format: "es"
   },
   external: [
-    "@types/bcrypt",
     "@dwtechs/checkard",
-    "bcrypt",
-    "generate-password"
   ],
   plugins: [
     babel({

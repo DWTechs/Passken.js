@@ -1,7 +1,7 @@
 {
   "name": "@dwtechs/passken",
   "version": "0.1.0",
-  "description": "Safe pass encryption and other useful tools in Javascript",
+  "description": "an open source password management library for Node.js to create, encrypt and compare passwords safely",
   "keywords": [
     "passwords"
   ],
@@ -38,12 +38,9 @@
     "@dwtechs/checkard": "2.27.0"
   },
   "devDependencies": {
-    "@babel/core": "7.23.2",
-    "@babel/preset-env": "7.23.2",
     "@rollup/plugin-babel": "6.0.4",
     "@rollup/plugin-commonjs": "28.0.1",
     "@rollup/plugin-node-resolve": "15.3.0",
-    "babel-jest": "29.7.0",
     "core-js": "3.33.0",
     "jest": "29.7.0",
     "rollup": "4.24.0",

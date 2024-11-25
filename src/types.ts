@@ -1,9 +1,9 @@
 export type Options = {
-  length: number,
-  numbers: boolean,
-  uppercase: boolean,
-  lowercase: boolean,
-  symbols: boolean,
+  len: number,
+  num: boolean,
+  ucase: boolean,
+  lcase: boolean,
+  sym: boolean,
   strict: boolean,
-  excludeSimilarCharacters: boolean,
+  exclSimilarChars: boolean,
 };
