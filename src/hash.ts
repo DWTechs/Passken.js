@@ -90,8 +90,8 @@ function getDigests(): string[] {
  * Generates a hash of the given password with the secret using the HMAC algorithm.
  * Also known as peppering.
  *
- * @param {string} pwd - The password to be hashed.
- * @return {string} The hashed password.
+ * @param {string} pwd - The password to be peppered.
+ * @return {string} The hashed pepper.
  */
 function hash(pwd: string, secret: string): string {
   return createHmac(digest, secret).update(pwd).digest("hex");
