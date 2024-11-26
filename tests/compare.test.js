@@ -1,12 +1,9 @@
-const { compare } = require("../dist/passken.cjs");
+const { compare, encrypt } = require("../dist/passken.cjs");
 
 const password = "mySecret!/;6[à}Pwd";
 const wrongPassword = "wrongPassword";
 const emptyPassword = "";
 const secret = "mySuperFancySecret";
-// const objectPassword = { password };
-// const regexPassword = /mySecret!\/;6\[à}Pwd/;
-// const booleanPassword = true;
 const hashedPassword = encrypt(password, secret);
 
 test("returns true when comparing with the right password", () => {
@@ -28,15 +25,3 @@ test('returns false when secret is empty', () => {
 test('returns false when hashed password is empty', () => {
   expect(compare(password, '', secret)).toBe(false);
 });
-
-// test("compare an object password", () => {
-//   expect(compare(objectPassword, hashedPassword)).toBe(false);
-// });
-
-// test("compare a regex password", () => {
-//   expect(compare(regexPassword, hashedPassword)).toBe(false);
-// });
-
-// test("compare a boolean password", () => {
-//   expect(compare(booleanPassword, hashedPassword)).toBe(false);
-// });

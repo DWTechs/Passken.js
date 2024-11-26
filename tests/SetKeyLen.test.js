@@ -24,7 +24,7 @@ test('returns false when setting an invalid number key length', () => {
   expect(setKeyLen(-1)).toBe(false);
   expect(setKeyLen(1)).toBe(false);
   expect(setKeyLen(257)).toBe(false);
-  expect(setKeyLen(3,5)).toBe(false);
+  expect(setKeyLen(3.5)).toBe(false);
 });
 
 test('returns false when setting a null or undefined key length', () => {

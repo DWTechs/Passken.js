@@ -5,7 +5,7 @@ const secret = "mySuperFancySecret";
 // const objectPassword = { password };
 // const regexPassword = /mySecret!\/;6\[à}Pwd/;
 // const booleanPassword = true;
-const hashedPassword = encrypt(password, secret()); // Using the same saltRounds as in the encrypt function
+const hashedPassword = encrypt(password, secret); // Using the same saltRounds as in the encrypt function
 
 test('returns a string when password and secret are valid', () => {
   expect(typeof encrypt(password, secret)).toBe('string');
