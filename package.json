@@ -38,7 +38,6 @@
     "@dwtechs/checkard": "2.27.0"
   },
   "devDependencies": {
-    "@rollup/plugin-babel": "6.0.4",
     "@rollup/plugin-commonjs": "28.0.1",
     "@rollup/plugin-node-resolve": "15.3.0",
     "core-js": "3.33.0",
