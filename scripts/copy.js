@@ -17,7 +17,7 @@ const files   = [
   },
   {
     src:  `${src}passken.mjs`,
-    dest: `${dest}passken.mjs`
+    dest: `${dest}passken.js`
   },
 ];
 
