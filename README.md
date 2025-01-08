@@ -196,7 +196,7 @@ Any of these can be passed into the options object for each function.
 | :-------------- | :------------------------------------------ | :-------------- |
 | len	| Integer, length of password.  |   12 |
 | num*	| Boolean, put numbers in password.  |  true |
-| sym*	| Boolean or String, put symbols in password.  |	true |
+| sym*	| Boolean, put symbols in password.  |	true |
 | lcase*	| Boolean, put lowercase in password   |  true |
 | ucase*	| Boolean, use uppercase letters in password.   |	  true |
 | exclSimilarChars	| Boolean, exclude similar chars, like 'i' and 'l'.	 |  true | 
