@@ -74,7 +74,7 @@ function compare(req, res, next) {
 /**
  * Generates random passwords for a user and encrypts it.
  */
-function createPAssword(req, res, next) {
+function createPassword(req, res, next) {
 
   const user = req.body.user;
   const pwd = create();
