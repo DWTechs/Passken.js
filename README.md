@@ -53,7 +53,9 @@ Example of use with Express.js in Typescript using ES6 module format
 
 ```javascript
 
-import { compare, create } from "@dwtechs/passken";
+import { compare, create, encrypt } from "@dwtechs/passken";
+
+const { PWD_SECRET } = process.env;
 
 /**
  * This function checks if a user-provided password matches a stored hashed password in a database.
@@ -61,11 +63,11 @@ import { compare, create } from "@dwtechs/passken";
  * If the password is correct, it calls the next() function to proceed with the request.
  * If the password is incorrect or missing, it calls next() with an error status and message.
  */
-function compare(req, res, next) {
+function comparePwd(req, res, next) {
   
   const pwd = req.body.pwd; // from request
   const hash = req.user.hash; //from db
-  if (compare(pwd, hash))
+  if (compare(pwd, hash, PWD_SECRET))
     return next();
   
   return next({ status: 401, msg: "Wrong password" });
@@ -75,18 +77,18 @@ function compare(req, res, next) {
 /**
  * Generates random passwords for a user and encrypts it.
  */
-function createPAssword(req, res, next) {
+function createPwd(req, res, next) {
 
   const user = req.body.user;
   const pwd = create();
-  const encryptedPwd = pk.encrypt(pwd);
+  const encryptedPwd = encrypt(pwd, PWD_SECRET);
   next();
 
 }
 
 export {
-  compare,
-  create,
+  comparePwd,
+  createPwd,
 };
 
 
@@ -100,6 +102,7 @@ Example of use with Express.js in Javascript using CommonJS format
 ```javascript
 const pk = require("@dwtechs/passken");
 
+const { PWD_SECRET } = process.env;
 /**
  * This function checks if a user-provided password matches a stored hashed password in a database.
  * It takes a request object req and a response object res as input, and uses a pass service to compare the password.
@@ -110,7 +113,7 @@ function compare(req, res, next) {
   
   const pwd = req.body.pwd; // from request
   const hash = req.user.hash; //from db
-  if (pk.compare(pwd, hash))
+  if (pk.compare(pwd, hash, PWD_SECRET))
     return next();
   
   return next({ status: 401, msg: "Wrong password" });
@@ -124,7 +127,7 @@ function create(req, res, next) {
 
   const user = req.body.user;
   const pwd = pk.create();
-  const encryptedPwd = pk.encrypt(pwd);
+  const encryptedPwd = pk.encrypt(pwd, PWD_SECRET);
   next();
 
 }
@@ -197,7 +200,7 @@ Any of these can be passed into the options object for each function.
 | :-------------- | :------------------------------------------ | :-------------- |
 | len	| Integer, length of password.  |   12 |
 | num*	| Boolean, put numbers in password.  |  true |
-| sym*	| Boolean or String, put symbols in password.  |	true |
+| sym*	| Boolean, put symbols in password.  |	true |
 | lcase*	| Boolean, put lowercase in password   |  true |
 | ucase*	| Boolean, use uppercase letters in password.   |	  true |
 | exclSimilarChars	| Boolean, exclude similar chars, like 'i' and 'l'.	 |  true | 
