@@ -1,11 +1,4 @@
 
-// let crypto;
-// try {
-//   crypto = await import('node:crypto');
-// } catch (err) {
-//   console.error('crypto support is disabled!');
-// }
-
 import { randomBytes, createHmac, getHashes, pbkdf2Sync } from "node:crypto";
 import { isValidInteger, isString } from "@dwtechs/checkard";
 

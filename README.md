@@ -12,6 +12,7 @@
   - [ES6](#es6)
   - [CommonJS](#commonjs)
 - [API Reference](#api-reference)
+- [Express.js](#expressjs)
 - [Contributors](#contributors)
 - [Stack](#stack)
 
@@ -203,6 +204,11 @@ Any of these can be passed into the options object for each function.
 | strict	| Boolean, password must include at least one character from each pool.	 |  true |
 
 *At least one should be true.
+
+
+## Express.js
+
+You can use Passken directly as Express.js middlewares using [@dwtechs/passken-express library](https://www.npmjs.com/package/@dwtechs/passken-express)
 
 
 ## Contributors
