@@ -139,7 +139,6 @@ module.exports = {
 
 ```
 
-
 ## API Reference
 
 
@@ -210,7 +209,48 @@ Any of these can be passed into the options object for each function.
 
 ## Express.js
 
-You can use Passken directly as Express.js middlewares using [@dwtechs/passken-express library](https://www.npmjs.com/package/@dwtechs/passken-express)
+You can use Passken directly as Express.js middlewares using [@dwtechs/passken-express library](https://www.npmjs.com/package/@dwtechs/passken-express).
+This way you do not have to write express controllers yourself to use **Passken**.
+
+How to use : 
+
+```javascript
+
+import pwd from "@dwtechs/passken-express";
+import express from "express";
+const router = express.Router();
+
+import user from "../controllers/user.js";
+import mail from "../controllers/mail.js";
+import token from "../controllers/token.js";
+
+// middleware sub-stacks
+
+// add users
+const addMany = [
+  user.validate,
+  pwd.create,
+  user.addMany,
+  mail.sendRegistration,
+];
+
+// Login user
+const login = [
+  token.validate,
+  user.getPwd,
+  pwd.compare,
+  user.isActive,
+];
+
+// Routes
+
+// log a user with his email & password
+router.post("/", login);
+
+// Add new users
+router.post("/", addMany);
+
+```
 
 
 ## Contributors
