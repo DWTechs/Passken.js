@@ -2,20 +2,32 @@
 import type { Options } from "./types";
 import { isValidInteger, isBoolean } from "@dwtechs/checkard";
 
-const defOpts: Options = {
-  len: 12,
-  num: true,
-  ucase: true,
-  lcase: true,
-  sym: false,
-  strict: true,
-  exclSimilarChars: true,
-};
 const list = {
   lcase: 'abcdefghijklmnopqrstuvwxyz',
   ucase: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
   num: '0123456789',
   sym: '!@#$%&*_-+:;?><,./',
+};
+
+// check for env variables
+const {   
+  PWD_AUTO_LENGTH,
+  PWD_AUTO_NUMBERS,
+  PWD_AUTO_UPPERCASE,
+  PWD_AUTO_LOWERCASE,
+  PWD_AUTO_SYMBOLS,
+  PWD_AUTO_STRICT,
+  PWD_AUTO_EXCLUDE_SIMILAR_CHARS,
+} = process?.env;
+
+const defOpts: Options = {
+  len: PWD_AUTO_LENGTH || 12,
+  num: PWD_AUTO_NUMBERS || true,
+  ucase: PWD_AUTO_UPPERCASE || true,
+  lcase: PWD_AUTO_LOWERCASE || true,
+  sym: PWD_AUTO_SYMBOLS || false,
+  strict: PWD_AUTO_STRICT || true,
+  exclSimilarChars: PWD_AUTO_EXCLUDE_SIMILAR_CHARS || true,
 };
 
 /**

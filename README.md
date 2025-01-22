@@ -11,6 +11,7 @@
 - [Usage](#usage)
   - [ES6](#es6)
   - [CommonJS](#commonjs)
+  - [Configure](#configure)
 - [API Reference](#api-reference)
 - [Express.js](#expressjs)
 - [Contributors](#contributors)
@@ -104,7 +105,6 @@ const pk = require("@dwtechs/passken");
 const { PWD_SECRET } = process.env;
 /**
  * This function checks if a user-provided password matches a stored hashed password in a database.
- * It takes a request object req and a response object res as input, and uses a pass service to compare the password.
  * If the password is correct, it calls the next() function to proceed with the request.
  * If the password is incorrect or missing, it calls next() with an error status and message.
  */
@@ -125,6 +125,15 @@ function compare(req, res, next) {
 function create(req, res, next) {
 
   const user = req.body.user;
+  const Options = {
+  len: 12,
+  num: true,
+  ucase: true,
+  lcase: true,
+  sym: false,
+  strict: true,
+  exclSimilarChars: true,
+};
   const pwd = pk.create();
   const encryptedPwd = pk.encrypt(pwd, PWD_SECRET);
   next();
@@ -138,6 +147,45 @@ module.exports = {
 };
 
 ```
+
+
+### Configure
+
+Passken will start with the following default password configuration : 
+
+```Javascript
+  Options = {
+    len: 12,
+    num: true,
+    ucase: true,
+    lcase: true,
+    sym: false,
+    strict: true,
+    exclSimilarChars: true,
+  };
+```
+
+### Environment variables
+
+You can update password configuration using the following environment variables :  
+
+```bash
+  PWD_AUTO_LENGTH,
+  PWD_AUTO_NUMBERS,
+  PWD_AUTO_UPPERCASE,
+  PWD_AUTO_LOWERCASE,
+  PWD_AUTO_SYMBOLS,
+  PWD_AUTO_STRICT,
+  PWD_AUTO_EXCLUDE_SIMILAR_CHARS,
+  PWD_SECRET,
+```
+
+These environment variables will update the default values of the lib at start up.
+So you do not need to init the library in the code.
+
+Note that **PWD_SECRET** is mandatory.
+
+
 
 ## API Reference
 
