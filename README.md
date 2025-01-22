@@ -125,7 +125,7 @@ function compare(req, res, next) {
 function create(req, res, next) {
 
   const user = req.body.user;
-  const Options = {
+  const options = {
   len: 12,
   num: true,
   ucase: true,
@@ -134,7 +134,7 @@ function create(req, res, next) {
   strict: true,
   exclSimilarChars: true,
 };
-  const pwd = pk.create();
+  const pwd = pk.create(options);
   const encryptedPwd = pk.encrypt(pwd, PWD_SECRET);
   next();
 
