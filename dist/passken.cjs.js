@@ -54,36 +54,35 @@ SOFTWARE.
 https://github.com/DWTechs/Checkard.js
 */
 
+function isNumeric(n) {
+    return !isNaN(n - parseFloat(n));
+}
 function getTag(t) {
-  return t == null ? t === undefined ? '[object Undefined]' : '[object Null]' : toString.call(t);
+    return t == null ? t === undefined ? '[object Undefined]' : '[object Null]' : toString.call(t);
 }
 
 function isBoolean(b) {
-  return typeof b === "boolean";
+    return typeof b === "boolean";
 }
-function isString(s, required) {
-  return typeof s === "string" && (!!s );
-}
-function isNumber(n, type) {
-  return !isSymbol(n) && !((n === null || n === void 0 ? void 0 : n.constructor) === Array) && (Number(n) === n );
+function isNumber(n, type = true) {
+    return !isSymbol(n) && !((n === null || n === void 0 ? void 0 : n.constructor) === Array) && (type ? Number(n) === n : isNumeric(n));
 }
 function isSymbol(s) {
-  var type = typeof s;
-  return type === 'symbol' || type === 'object' && s != null && getTag(s) === '[object Symbol]';
+    const type = typeof s;
+    return type === 'symbol' || (type === 'object' && s != null && getTag(s) === '[object Symbol]');
 }
-function isInteger(n, type) {
-  if (!isNumber(n)) return false;
-  var _int = Number.parseInt(String(n), 10);
-  return n === _int ;
+function isInteger(n, type = true) {
+    if (!isNumber(n, type))
+        return false;
+    const int = Number.parseInt(String(n), 10);
+    return type ? n === int : n == int;
 }
-function isValidInteger(n, min, max, type) {
-  if (min === void 0) {
-    min = -999999999;
-  }
-  if (max === void 0) {
-    max = 999999999;
-  }
-  return isInteger(n) && n >= min && n <= max;
+function isValidInteger(n, min = -999999999, max = 999999999, type = true) {
+    return isInteger(n, type) && n >= min && n <= max;
+}
+
+function isString(s, required = false) {
+    return typeof s === "string" && (required ? !!s : true);
 }
 
 const digests = node_crypto.getHashes();
@@ -94,7 +93,7 @@ function getSaltRounds() {
     return saltRnds;
 }
 function setSaltRounds(rnds) {
-    if (!isValidInteger(rnds, 12, 100))
+    if (!isValidInteger(rnds, 12, 100, true))
         return false;
     saltRnds = rnds;
     return saltRnds;
@@ -103,7 +102,7 @@ function getKeyLen() {
     return keyLen;
 }
 function setKeyLen(len) {
-    if (!isValidInteger(len, 2, 256))
+    if (!isValidInteger(len, 2, 256, true))
         return false;
     keyLen = len;
     return keyLen;
@@ -127,36 +126,37 @@ function pbkdf2(pwd, secret, salt) {
     return node_crypto.pbkdf2Sync(hash(pwd, secret), salt, saltRnds, keyLen, digest).toString("hex");
 }
 function encrypt(pwd, secret) {
-    if (!isString(pwd) || !isString(secret))
+    if (!isString(pwd, true) || !isString(secret, true))
         return false;
     const salt = node_crypto.randomBytes(16).toString('hex');
     return salt + pbkdf2(pwd, secret, salt);
 }
 function compare(pwd, hash, secret) {
-    if (!isString(pwd) || !isString(secret))
+    if (!isString(pwd, true) || !isString(secret, true))
         return false;
     const hashedPwd = pbkdf2(pwd, secret, hash.slice(0, 32));
     const storedHash = hash.slice(32);
     return hashedPwd === storedHash;
 }
 
-const defOpts = {
-    len: 12,
-    num: true,
-    ucase: true,
-    lcase: true,
-    sym: false,
-    strict: true,
-    exclSimilarChars: true,
-};
 const list = {
     lcase: 'abcdefghijklmnopqrstuvwxyz',
     ucase: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
     num: '0123456789',
     sym: '!@#$%&*_-+:;?><,./',
 };
+const { PWD_AUTO_LENGTH, PWD_AUTO_NUMBERS, PWD_AUTO_UPPERCASE, PWD_AUTO_LOWERCASE, PWD_AUTO_SYMBOLS, PWD_AUTO_STRICT, PWD_AUTO_EXCLUDE_SIMILAR_CHARS, } = process === null || process === void 0 ? void 0 : process.env;
+const defOpts = {
+    len: PWD_AUTO_LENGTH || 12,
+    num: PWD_AUTO_NUMBERS || true,
+    ucase: PWD_AUTO_UPPERCASE || true,
+    lcase: PWD_AUTO_LOWERCASE || true,
+    sym: PWD_AUTO_SYMBOLS || false,
+    strict: PWD_AUTO_STRICT || true,
+    exclSimilarChars: PWD_AUTO_EXCLUDE_SIMILAR_CHARS || true,
+};
 function create(opts = defOpts) {
-    const len = isValidInteger(opts.len, 12, 64) ? opts.len : defOpts.len;
+    const len = isValidInteger(opts.len, 12, 64, true) ? opts.len : defOpts.len;
     const num = isBoolean(opts.num) ? opts.num : defOpts.num;
     const ucase = isBoolean(opts.ucase) ? opts.ucase : defOpts.ucase;
     const sym = isBoolean(opts.sym) ? opts.sym : defOpts.sym;

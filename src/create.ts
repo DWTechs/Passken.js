@@ -21,13 +21,13 @@ const {
 } = process?.env;
 
 const defOpts: Options = {
-  len: PWD_AUTO_LENGTH || 12,
-  num: PWD_AUTO_NUMBERS || true,
-  ucase: PWD_AUTO_UPPERCASE || true,
-  lcase: PWD_AUTO_LOWERCASE || true,
-  sym: PWD_AUTO_SYMBOLS || false,
-  strict: PWD_AUTO_STRICT || true,
-  exclSimilarChars: PWD_AUTO_EXCLUDE_SIMILAR_CHARS || true,
+  len: PWD_AUTO_LENGTH as unknown as number || 12,
+  num: PWD_AUTO_NUMBERS as unknown as boolean || true,
+  ucase: PWD_AUTO_UPPERCASE as unknown as boolean || true,
+  lcase: PWD_AUTO_LOWERCASE as unknown as boolean || true,
+  sym: PWD_AUTO_SYMBOLS as unknown as boolean || false,
+  strict: PWD_AUTO_STRICT as unknown as boolean || true,
+  exclSimilarChars: PWD_AUTO_EXCLUDE_SIMILAR_CHARS as unknown as boolean || true,
 };
 
 /**

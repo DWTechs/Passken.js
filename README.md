@@ -181,10 +181,6 @@ You can update password configuration using the following environment variables 
 ```
 
 These environment variables will update the default values of the lib at start up.
-So you do not need to init the library in the code.
-
-Note that **PWD_SECRET** is mandatory.
-
 
 
 ## API Reference
