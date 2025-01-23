@@ -80,7 +80,16 @@ function comparePwd(req, res, next) {
 function createPwd(req, res, next) {
 
   const user = req.body.user;
-  const pwd = create();
+  const options = {
+    len: 12,
+    num: true,
+    ucase: true,
+    lcase: true,
+    sym: false,
+    strict: true,
+    exclSimilarChars: true,
+  };
+  const pwd = create(options);
   const encryptedPwd = encrypt(pwd, PWD_SECRET);
   next();
 
@@ -126,14 +135,14 @@ function create(req, res, next) {
 
   const user = req.body.user;
   const options = {
-  len: 12,
-  num: true,
-  ucase: true,
-  lcase: true,
-  sym: false,
-  strict: true,
-  exclSimilarChars: true,
-};
+    len: 12,
+    num: true,
+    ucase: true,
+    lcase: true,
+    sym: false,
+    strict: true,
+    exclSimilarChars: true,
+  };
   const pwd = pk.create(options);
   const encryptedPwd = pk.encrypt(pwd, PWD_SECRET);
   next();
