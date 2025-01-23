@@ -186,7 +186,6 @@ You can update password configuration using the following environment variables 
   PWD_AUTO_SYMBOLS,
   PWD_AUTO_STRICT,
   PWD_AUTO_EXCLUDE_SIMILAR_CHARS,
-  PWD_SECRET,
 ```
 
 These environment variables will update the default values of the lib at start up.
