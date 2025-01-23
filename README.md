@@ -81,11 +81,11 @@ function createPwd(req, res, next) {
 
   const user = req.body.user;
   const options = {
-    len: 12,
+    len: 14,
     num: true,
     ucase: true,
     lcase: true,
-    sym: false,
+    sym: true,
     strict: true,
     exclSimilarChars: true,
   };
@@ -135,11 +135,11 @@ function create(req, res, next) {
 
   const user = req.body.user;
   const options = {
-    len: 12,
+    len: 14,
     num: true,
     ucase: true,
     lcase: true,
-    sym: false,
+    sym: true,
     strict: true,
     exclSimilarChars: true,
   };
