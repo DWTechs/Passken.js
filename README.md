@@ -181,6 +181,7 @@ You can update password configuration using the following environment variables 
 ```
 
 These environment variables will update the default values of the lib at start up.
+With this strategy you do not need to send options parameter in the create() method anymore.
 
 
 ## API Reference
@@ -248,7 +249,7 @@ Any of these can be passed into the options object for each function.
 | exclSimilarChars	| Boolean, exclude similar chars, like 'i' and 'l'.	 |  true | 
 | strict	| Boolean, password must include at least one character from each pool.	 |  true |
 
-*At least one should be true.
+*At least one of those options must be true.
 
 
 ## Express.js
