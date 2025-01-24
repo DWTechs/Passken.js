@@ -1,7 +1,7 @@
 {
   "name": "@dwtechs/passken",
   "version": "0.2.0",
-  "description": "Open source password management library for Node.js to create, encrypt and compare passwords safely",
+  "description": "Open source password management library for Node.js to create, encrypt and compare passwords safely.",
   "keywords": [
     "passwords"
   ],
