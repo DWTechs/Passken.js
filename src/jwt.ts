@@ -1,9 +1,10 @@
 import { createHmac } from "node:crypto";
+import type { BinaryLike, KeyObject } from "node:crypto";
 import type { Header, Payload } from "./types";
 
 const { TOKEN_SECRET } = process.env;
   
-let b64Secret: string | null = null;
+let b64Secret: BinaryLike | KeyObject;
 const header: Header = {
   alg: "HS256",
   typ: "JWT",
@@ -71,4 +72,5 @@ function encodeBase64(data: string): string {
 export {
   setSecret,
   sign,
+  encodeBase64,
 };

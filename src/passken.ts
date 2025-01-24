@@ -9,3 +9,5 @@ export {  getSaltRounds,
           compare } from './hash';
 
 export {  create } from './create';
+
+export {  sign, setSecret, encodeBase64 } from './jwt';

@@ -155,4 +155,36 @@ function shuffleArray(a) {
     return a;
 }
 
-export { compare, create, encrypt, getDigest, getDigests, getKeyLen, getSaltRounds, setDigest, setKeyLen, setSaltRounds };
+const { TOKEN_SECRET } = process.env;
+let b64Secret;
+const header = {
+    alg: "HS256",
+    typ: "JWT",
+    kid: null,
+};
+if (TOKEN_SECRET)
+    setSecret(TOKEN_SECRET);
+function setSecret(secret) {
+    b64Secret = encodeBase64(secret);
+}
+function sign(iss, duration) {
+    const iat = Math.floor(Date.now() / 1000);
+    const payload = { iss, iat };
+    if (duration)
+        payload.exp = iat + duration;
+    header.kid = iss;
+    const encodedHeader = encodeBase64(JSON.stringify(header));
+    const encodedPayload = encodeBase64(JSON.stringify(payload));
+    const signature = createHmac('sha256', b64Secret)
+        .update(`${encodedHeader}.${encodedPayload}`)
+        .digest('base64')
+        .replace(/=/g, '')
+        .replace(/\+/g, '-')
+        .replace(/\//g, '_');
+    return `${encodedHeader}.${encodedPayload}.${signature}`;
+}
+function encodeBase64(data) {
+    return Buffer.from(data).toString("base64");
+}
+
+export { compare, create, encodeBase64, encrypt, getDigest, getDigests, getKeyLen, getSaltRounds, setDigest, setKeyLen, setSaltRounds, setSecret, sign };

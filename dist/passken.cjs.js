@@ -213,8 +213,41 @@ function shuffleArray(a) {
     return a;
 }
 
+const { TOKEN_SECRET } = process.env;
+let b64Secret;
+const header = {
+    alg: "HS256",
+    typ: "JWT",
+    kid: null,
+};
+if (TOKEN_SECRET)
+    setSecret(TOKEN_SECRET);
+function setSecret(secret) {
+    b64Secret = encodeBase64(secret);
+}
+function sign(iss, duration) {
+    const iat = Math.floor(Date.now() / 1000);
+    const payload = { iss, iat };
+    if (duration)
+        payload.exp = iat + duration;
+    header.kid = iss;
+    const encodedHeader = encodeBase64(JSON.stringify(header));
+    const encodedPayload = encodeBase64(JSON.stringify(payload));
+    const signature = node_crypto.createHmac('sha256', b64Secret)
+        .update(`${encodedHeader}.${encodedPayload}`)
+        .digest('base64')
+        .replace(/=/g, '')
+        .replace(/\+/g, '-')
+        .replace(/\//g, '_');
+    return `${encodedHeader}.${encodedPayload}.${signature}`;
+}
+function encodeBase64(data) {
+    return Buffer.from(data).toString("base64");
+}
+
 exports.compare = compare;
 exports.create = create;
+exports.encodeBase64 = encodeBase64;
 exports.encrypt = encrypt;
 exports.getDigest = getDigest;
 exports.getDigests = getDigests;
@@ -223,3 +256,5 @@ exports.getSaltRounds = getSaltRounds;
 exports.setDigest = setDigest;
 exports.setKeyLen = setKeyLen;
 exports.setSaltRounds = setSaltRounds;
+exports.setSecret = setSecret;
+exports.sign = sign;
