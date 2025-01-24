@@ -13,6 +13,7 @@
   - [CommonJS](#commonjs)
   - [Configure](#configure)
 - [API Reference](#api-reference)
+- [options](#options)
 - [Express.js](#expressjs)
 - [Contributors](#contributors)
 - [Stack](#stack)
@@ -211,7 +212,6 @@ type Options = {
 
 ```
 
-
 ### Methods
 
 ```javascript
@@ -243,7 +243,7 @@ create(opts: Partial<Options> = defOpts): string {}
 
 ```
 
-### Available options for password generation
+## options
 
 Any of these can be passed into the options object for each function.
 
@@ -269,7 +269,7 @@ How to use :
 
 ```javascript
 
-import pwd from "@dwtechs/passken-express";
+import * as pk from "@dwtechs/passken-express";
 import express from "express";
 const router = express.Router();
 
@@ -277,12 +277,23 @@ import user from "../controllers/user.js";
 import mail from "../controllers/mail.js";
 import token from "../controllers/token.js";
 
+const passwordOptions = {
+  len: 14,
+  num: true,
+  ucase: false,
+  lcase: false,
+  sym: false,
+  strict: true,
+  exclSimilarChars: true,
+};
+pk.init(passwordOptions);
+
 // middleware sub-stacks
 
 // add users
 const addMany = [
   user.validate,
-  pwd.create,
+  pk.create,
   user.addMany,
   mail.sendRegistration,
 ];
@@ -291,7 +302,7 @@ const addMany = [
 const login = [
   token.validate,
   user.getPwd,
-  pwd.compare,
+  pk.compare,
   user.isActive,
 ];
 
