@@ -1,32 +1,20 @@
 import { createHmac } from "node:crypto";
-import type { BinaryLike, KeyObject } from "node:crypto";
 import type { Header, Payload } from "./types";
 
-const { TOKEN_SECRET } = process.env;
-  
-let b64Secret: BinaryLike | KeyObject;
 const header: Header = {
   alg: "HS256",
   typ: "JWT",
   kid: null,
 };
 
-if (TOKEN_SECRET)
-  setSecret(TOKEN_SECRET);
-
-function setSecret(secret: string): void {
-  b64Secret = encodeBase64(secret);
-}
-
-/**
- * Create a JSON Web Token.
- *
- * @param {Object} payload - The payload to include in the token.
- * @param {string} secret - The secret key to sign the token.
- * @param {Object} [options] - Optional settings for the token (e.g., algorithm, expiresIn).
- * @return {string} The signed JWT.
- */
-function sign(iss: number | string, duration: number): string {
+  /**
+   * Generate a JWT token
+   *
+   * @param iss - The issuer of the token, can be a number or a string
+   * @param duration - The duration of the token in seconds, if not given, the token will not expire
+   * @returns The generated JWT token
+   */
+function sign(iss: number | string, duration: number, secret: string): string {
 
   const iat = Math.floor(Date.now() / 1000); // Current time in seconds
   const payload: Payload = { iss, iat };
@@ -36,28 +24,28 @@ function sign(iss: number | string, duration: number): string {
 
   header.kid = iss;
 
-  const encodedHeader = encodeBase64(JSON.stringify(header));
-  const encodedPayload = encodeBase64(JSON.stringify(payload));
+  const b64Header = toBase64(JSON.stringify(header));
+  const b64Payload = toBase64(JSON.stringify(payload));
 
   const signature =
-    createHmac('sha256', b64Secret)
-    .update(`${encodedHeader}.${encodedPayload}`)
+    createHmac('sha256', secret)
+    .update(`${b64Header}.${b64Payload}`)
     .digest('base64')
     .replace(/=/g, '')
     .replace(/\+/g, '-')
     .replace(/\//g, '_');
 
-  return `${encodedHeader}.${encodedPayload}.${signature}`;
+  return `${b64Header}.${b64Payload}.${signature}`;
 
 }
 
 /**
- * Encrypts the given data and returns it as a base64 string.
+ * Encodes the given data and returns it as a base64 string.
  *
  * @param {string} data - The data to be encrypted.
  * @return {string} The encrypted data in base64 format.
  */
-function encodeBase64(data: string): string {
+function toBase64(data: string): string {
   return Buffer.from(data).toString("base64");
 }
 
@@ -70,7 +58,5 @@ function encodeBase64(data: string): string {
 // console.log('Signed Token:', token);
 
 export {
-  setSecret,
   sign,
-  encodeBase64,
 };

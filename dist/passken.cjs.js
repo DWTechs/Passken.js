@@ -141,11 +141,14 @@ function compare(pwd, hash, secret) {
 
 const list = {
     lcase: 'abcdefghijklmnopqrstuvwxyz',
+    slcase: 'abcdefghijkmnpqrstuvwxyz',
     ucase: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
+    sucase: 'ABCDEFGHJKLMNPQRSTUVWXYZ',
     num: '0123456789',
+    snum: '23456789',
     sym: '!@#$%&*_-+:;?><,./',
 };
-const { PWD_AUTO_LENGTH, PWD_AUTO_NUMBERS, PWD_AUTO_UPPERCASE, PWD_AUTO_LOWERCASE, PWD_AUTO_SYMBOLS, PWD_AUTO_STRICT, PWD_AUTO_EXCLUDE_SIMILAR_CHARS, } = process === null || process === void 0 ? void 0 : process.env;
+const { PWD_AUTO_LENGTH, PWD_AUTO_NUMBERS, PWD_AUTO_UPPERCASE, PWD_AUTO_LOWERCASE, PWD_AUTO_SYMBOLS, PWD_AUTO_STRICT, PWD_AUTO_SIMILAR_CHARS, } = process === null || process === void 0 ? void 0 : process.env;
 const defOpts = {
     len: PWD_AUTO_LENGTH || 12,
     num: PWD_AUTO_NUMBERS || true,
@@ -153,7 +156,7 @@ const defOpts = {
     lcase: PWD_AUTO_LOWERCASE || true,
     sym: PWD_AUTO_SYMBOLS || false,
     strict: PWD_AUTO_STRICT || true,
-    exclSimilarChars: PWD_AUTO_EXCLUDE_SIMILAR_CHARS || true,
+    similarChars: PWD_AUTO_SIMILAR_CHARS || false,
 };
 function create(opts = defOpts) {
     const len = isValidInteger(opts.len, 12, 64, true) ? opts.len : defOpts.len;
@@ -161,35 +164,27 @@ function create(opts = defOpts) {
     const ucase = isBoolean(opts.ucase) ? opts.ucase : defOpts.ucase;
     const sym = isBoolean(opts.sym) ? opts.sym : defOpts.sym;
     const strict = isBoolean(opts.strict) ? opts.strict : defOpts.strict;
-    const exclSimilarChars = opts.exclSimilarChars ? opts.exclSimilarChars : defOpts.exclSimilarChars;
+    const similarChars = opts.similarChars ? opts.similarChars : defOpts.similarChars;
     let lcase = isBoolean(opts.lcase) ? opts.lcase : defOpts.lcase;
-    if (!lcase && !num)
+    if (!lcase && !num && !ucase && !sym)
         lcase = true;
     const chars = [];
     if (lcase)
-        chars.push(...list.lcase);
+        chars.push(...(similarChars ? list.slcase : list.lcase));
     if (ucase)
-        chars.push(...list.ucase);
+        chars.push(...(similarChars ? list.sucase : list.ucase));
     if (num)
-        chars.push(...list.num);
+        chars.push(...similarChars ? list.snum : list.num);
     if (sym)
         chars.push(...list.sym);
-    if (exclSimilarChars) {
-        chars.splice(chars.indexOf('l'), 1);
-        chars.splice(chars.indexOf('I'), 1);
-        chars.splice(chars.indexOf('1'), 1);
-        chars.splice(chars.indexOf('o'), 1);
-        chars.splice(chars.indexOf('O'), 1);
-        chars.splice(chars.indexOf('0'), 1);
-    }
     if (strict) {
         const pwd = [];
         if (lcase)
-            pwd.push(getRandChar(list.lcase));
+            pwd.push(getRandChar(list.slcase));
         if (ucase)
-            pwd.push(getRandChar(list.ucase));
+            pwd.push(getRandChar(list.sucase));
         if (num)
-            pwd.push(getRandChar(list.num));
+            pwd.push(getRandChar(list.snum));
         if (sym)
             pwd.push(getRandChar(list.sym));
         for (let i = pwd.length; i < len; i++) {
@@ -213,41 +208,33 @@ function shuffleArray(a) {
     return a;
 }
 
-const { TOKEN_SECRET } = process.env;
-let b64Secret;
 const header = {
     alg: "HS256",
     typ: "JWT",
     kid: null,
 };
-if (TOKEN_SECRET)
-    setSecret(TOKEN_SECRET);
-function setSecret(secret) {
-    b64Secret = encodeBase64(secret);
-}
-function sign(iss, duration) {
+function sign(iss, duration, secret) {
     const iat = Math.floor(Date.now() / 1000);
     const payload = { iss, iat };
     if (duration)
         payload.exp = iat + duration;
     header.kid = iss;
-    const encodedHeader = encodeBase64(JSON.stringify(header));
-    const encodedPayload = encodeBase64(JSON.stringify(payload));
-    const signature = node_crypto.createHmac('sha256', b64Secret)
-        .update(`${encodedHeader}.${encodedPayload}`)
+    const b64Header = toBase64(JSON.stringify(header));
+    const b64Payload = toBase64(JSON.stringify(payload));
+    const signature = node_crypto.createHmac('sha256', secret)
+        .update(`${b64Header}.${b64Payload}`)
         .digest('base64')
         .replace(/=/g, '')
         .replace(/\+/g, '-')
         .replace(/\//g, '_');
-    return `${encodedHeader}.${encodedPayload}.${signature}`;
+    return `${b64Header}.${b64Payload}.${signature}`;
 }
-function encodeBase64(data) {
+function toBase64(data) {
     return Buffer.from(data).toString("base64");
 }
 
 exports.compare = compare;
 exports.create = create;
-exports.encodeBase64 = encodeBase64;
 exports.encrypt = encrypt;
 exports.getDigest = getDigest;
 exports.getDigests = getDigests;
@@ -256,5 +243,4 @@ exports.getSaltRounds = getSaltRounds;
 exports.setDigest = setDigest;
 exports.setKeyLen = setKeyLen;
 exports.setSaltRounds = setSaltRounds;
-exports.setSecret = setSecret;
 exports.sign = sign;

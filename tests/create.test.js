@@ -32,8 +32,8 @@ describe('create', () => {
     expect(/[^a-zA-Z0-9]/.test(password)).toBe(true);
   });
 
-  test('should exclude similar characters', () => {
-    const password = create({ exclSimilarChars: true });
+  test('should exclude similar characters lI1oO0', () => {
+    const password = create({ similarChars: true });
     expect(!/[lI1oO0]/.test(password)).toBe(true);
   });
 

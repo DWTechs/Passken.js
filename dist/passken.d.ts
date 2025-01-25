@@ -31,19 +31,10 @@ type Options = {
   lcase: boolean,
   sym: boolean,
   strict: boolean,
-  exclSimilarChars: boolean,
+  similarChars: boolean,
 };
-type Header = {
-  alg: string;
-  typ: string;
-  kid: number | string | null;
-};
-type Payload = {
-  iss: number | string;
-  iat: number;
-  exp?: number;
-};
-export type { Options, Header, Payload };
+
+export type { Options };
 
 declare function getSaltRounds(): number;
 declare function setSaltRounds(rnds: number): number | false;
@@ -57,7 +48,6 @@ declare function compare(pwd: string, hash: string, secret: string): boolean;
 declare function create(opts?: Partial<Options>): string;
 declare function setSecret(secret: string): void;
 declare function sign(iss: number | string, duration: number): string;
-declare function encodeBase64(data: string): string;
 
 export { 
   getSaltRounds,
@@ -71,6 +61,5 @@ export {
   compare,
   create,
   setSecret, 
-  sign, 
-  encodeBase64,
+  sign,
 };

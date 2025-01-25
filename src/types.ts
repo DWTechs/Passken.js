@@ -5,7 +5,7 @@ export type Options = {
   lcase: boolean,
   sym: boolean,
   strict: boolean,
-  exclSimilarChars: boolean,
+  similarChars: boolean,
 };
 
 export type Header = {

@@ -10,7 +10,6 @@
 - [Installation](#installation)
 - [Usage](#usage)
   - [ES6](#es6)
-  - [CommonJS](#commonjs)
   - [Configure](#configure)
 - [API Reference](#api-reference)
 - [options](#options)
@@ -27,13 +26,13 @@
 - Very lightweight
 - Thoroughly tested
 - Works in Node.js
-- Can be used as CommonJS or EcmaScrypt module
+- EcmaScrypt module
 - Written in Typescript
 
 
 ## Support
 
-- Node.js: 16
+- Node.js: 22
 
 This is the oldest targeted versions. The library should not work properly on older versions of Node.js because it uses node:crypto in order to not depend on external dependencies.  
 
@@ -50,13 +49,13 @@ $ npm i @dwtechs/passken
 
 ### ES6 / TypeScript
 
-Example of use with Express.js in Typescript using ES6 module format
+Example of use with Express.js using ES6 module format
 
 ```javascript
 
-import { compare, create, encrypt } from "@dwtechs/passken";
+import { compare, create, encrypt, setSecret, sign } from "@dwtechs/passken";
 
-const { PWD_SECRET } = process.env;
+const { PWD_SECRET, TOKEN_SECRET } = process.env;
 
 /**
  * This function checks if a user-provided password matches a stored hashed password in a database.
@@ -88,72 +87,23 @@ function createPwd(req, res, next) {
     lcase: true,
     sym: true,
     strict: true,
-    exclSimilarChars: true,
+    similarChars: true,
   };
-  const pwd = create(options);
-  const encryptedPwd = encrypt(pwd, PWD_SECRET);
+  user.pwd = create(options);
+  user.pwdHash = encrypt(user.pwd, PWD_SECRET);
   next();
 
+}
+
+function signToken(req, res, next) {
+  res.jwt = sign(req.userId, 3600, TOKEN_SECRET);
+  next();
 }
 
 export {
   comparePwd,
   createPwd,
-};
-
-
-```
-
-
-### CommonJS
-
-Example of use with Express.js in Javascript using CommonJS format 
-
-```javascript
-const pk = require("@dwtechs/passken");
-
-const { PWD_SECRET } = process.env;
-/**
- * This function checks if a user-provided password matches a stored hashed password in a database.
- * If the password is correct, it calls the next() function to proceed with the request.
- * If the password is incorrect or missing, it calls next() with an error status and message.
- */
-function compare(req, res, next) {
-  
-  const pwd = req.body.pwd; // from request
-  const hash = req.user.hash; //from db
-  if (pk.compare(pwd, hash, PWD_SECRET))
-    return next();
-  
-  return next({ status: 401, msg: "Wrong password" });
-
-}
-
-/**
- * Generates random passwords for a user and encrypts it.
- */
-function create(req, res, next) {
-
-  const user = req.body.user;
-  const options = {
-    len: 14,
-    num: true,
-    ucase: true,
-    lcase: true,
-    sym: true,
-    strict: true,
-    exclSimilarChars: true,
-  };
-  const pwd = pk.create(options);
-  const encryptedPwd = pk.encrypt(pwd, PWD_SECRET);
-  next();
-
-}
-
-
-module.exports = {
-  compare,
-  create,
+  signToken,
 };
 
 ```
@@ -171,7 +121,7 @@ Passken will start with the following default password configuration :
     lcase: true,
     sym: false,
     strict: true,
-    exclSimilarChars: true,
+    similarChars: false,
   };
 ```
 
@@ -180,13 +130,13 @@ Passken will start with the following default password configuration :
 You can update password configuration using the following environment variables :  
 
 ```bash
-  PWD_AUTO_LENGTH,
-  PWD_AUTO_NUMBERS,
-  PWD_AUTO_UPPERCASE,
-  PWD_AUTO_LOWERCASE,
-  PWD_AUTO_SYMBOLS,
-  PWD_AUTO_STRICT,
-  PWD_AUTO_EXCLUDE_SIMILAR_CHARS,
+  PWD_LENGTH,
+  PWD_NUMBERS,
+  PWD_UPPERCASE,
+  PWD_LOWERCASE,
+  PWD_SYMBOLS,
+  PWD_STRICT,
+  PWD_SIMILAR_CHARS,
 ```
 
 These environment variables will update the default values of the lib at start up.
@@ -207,12 +157,14 @@ type Options = {
   lcase: boolean,
   sym: boolean,
   strict: boolean,
-  exclSimilarChars: boolean,
+  similarChars: boolean,
 };
 
 ```
 
 ### Methods
+
+#### Password
 
 ```javascript
 
@@ -235,11 +187,33 @@ setDigest(d: string): string {} // the list of available digests can be given by
 
 getDigests(): string[] {}
 
+// Encrypt a string peppered with a secret
 encrypt(pwd: string, secret: string): string | false {}
 
+// Compare a string with a hash
 compare(pwd: string, hash: string, secret: string): boolean {}
 
+// Create a random password
 create(opts: Partial<Options> = defOpts): string {}
+
+```
+
+#### JWT
+
+```javascript
+
+// Default values
+const header {
+  alg: "HS256",
+  typ: "JWT",
+  kid: null,
+};
+
+// Create a JWT
+sign( iss: number | string, 
+      duration: number, 
+      secret: string
+    ): string;
 
 ```
 
@@ -247,15 +221,15 @@ create(opts: Partial<Options> = defOpts): string {}
 
 Any of these can be passed into the options object for each function.
 
-| Name            |               Description                    |  Default value  |  
-| :-------------- | :------------------------------------------ | :-------------- |
-| len	| Integer, length of password.  |   12 |
-| num*	| Boolean, put numbers in password.  |  true |
-| sym*	| Boolean, put symbols in password.  |	true |
-| lcase*	| Boolean, put lowercase in password   |  true |
-| ucase*	| Boolean, use uppercase letters in password.   |	  true |
-| exclSimilarChars	| Boolean, exclude similar chars, like 'i' and 'l'.	 |  true | 
-| strict	| Boolean, password must include at least one character from each pool.	 |  true |
+| Name         | type    |              Description                                     | Default |  
+| :----------- | :------ | ------------------------------------------------------------ | :------ |
+| len	         | Integer | length of password.                                          | 12      |
+| num*	       | Boolean | put numbers in password.                                     | true    |
+| sym*	       | Boolean | put symbols in password.                                     | true    |
+| lcase*	     | Boolean | put lowercase in password                                    | true    |
+| ucase*	     | Boolean | use uppercase letters in password.                           | true    |
+| similarChars | Boolean | allow close looking chars like 'l', 'I', '1', 'o', 'O', '0'. | false   | 
+| strict	     | Boolean | password must include at least one character from each pool.	| true    |
 
 *At least one of those options must be true.
 
@@ -284,7 +258,7 @@ const passwordOptions = {
   lcase: false,
   sym: false,
   strict: true,
-  exclSimilarChars: true,
+  similarChars: true,
 };
 pk.init(passwordOptions);
 

@@ -4,10 +4,14 @@ import { isValidInteger, isBoolean } from "@dwtechs/checkard";
 
 const list = {
   lcase: 'abcdefghijklmnopqrstuvwxyz',
+  slcase: 'abcdefghijkmnpqrstuvwxyz',
   ucase: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
+  sucase: 'ABCDEFGHJKLMNPQRSTUVWXYZ',
   num: '0123456789',
+  snum: '23456789',
   sym: '!@#$%&*_-+:;?><,./',
 };
+// sxxx lists are free of similar looking characters, e.g. "lI1oO0" characters
 
 // check for env variables
 const {   
@@ -17,7 +21,7 @@ const {
   PWD_AUTO_LOWERCASE,
   PWD_AUTO_SYMBOLS,
   PWD_AUTO_STRICT,
-  PWD_AUTO_EXCLUDE_SIMILAR_CHARS,
+  PWD_AUTO_SIMILAR_CHARS,
 } = process?.env;
 
 const defOpts: Options = {
@@ -27,7 +31,7 @@ const defOpts: Options = {
   lcase: PWD_AUTO_LOWERCASE as unknown as boolean || true,
   sym: PWD_AUTO_SYMBOLS as unknown as boolean || false,
   strict: PWD_AUTO_STRICT as unknown as boolean || true,
-  exclSimilarChars: PWD_AUTO_EXCLUDE_SIMILAR_CHARS as unknown as boolean || true,
+  similarChars: PWD_AUTO_SIMILAR_CHARS as unknown as boolean || false,
 };
 
 /**
@@ -43,33 +47,26 @@ function create(opts: Partial<Options> = defOpts): string {
   const ucase = isBoolean(opts.ucase) ? opts.ucase : defOpts.ucase;
   const sym = isBoolean(opts.sym) ? opts.sym : defOpts.sym;
   const strict = isBoolean(opts.strict) ? opts.strict : defOpts.strict;
-  const exclSimilarChars = opts.exclSimilarChars ? opts.exclSimilarChars : defOpts.exclSimilarChars;
+  const similarChars = opts.similarChars ? opts.similarChars : defOpts.similarChars;
   let lcase = isBoolean(opts.lcase) ? opts.lcase : defOpts.lcase;
 
-  if (!lcase && !num) lcase = true; // At least one of lowercase or numbers must be true. if not, set lowercase to true
+  // At least one must be true. if not, set lowercase to true
+  if (!lcase && !num && !ucase && !sym) 
+    lcase = true;
 
   const chars: string[] = [];
 
-  if (lcase) chars.push(...list.lcase);
-  if (ucase) chars.push(...list.ucase);
-  if (num) chars.push(...list.num);
+  if (lcase) chars.push(...(similarChars ? list.slcase : list.lcase));
+  if (ucase) chars.push(...(similarChars ? list.sucase : list.ucase));
+  if (num) chars.push(...similarChars ? list.snum : list.num);
   if (sym) chars.push(...list.sym);
-
-  if (exclSimilarChars) {
-    chars.splice(chars.indexOf('l'), 1);
-    chars.splice(chars.indexOf('I'), 1);
-    chars.splice(chars.indexOf('1'), 1);
-    chars.splice(chars.indexOf('o'), 1);
-    chars.splice(chars.indexOf('O'), 1);
-    chars.splice(chars.indexOf('0'), 1);
-  }
 
   if (strict) {
     // Ensure password includes at least one of each required character type
     const pwd: string[] = [];
-    if (lcase) pwd.push(getRandChar(list.lcase));
-    if (ucase) pwd.push(getRandChar(list.ucase));
-    if (num) pwd.push(getRandChar(list.num));
+    if (lcase) pwd.push(getRandChar(list.slcase));
+    if (ucase) pwd.push(getRandChar(list.sucase));
+    if (num) pwd.push(getRandChar(list.snum));
     if (sym) pwd.push(getRandChar(list.sym));
 
     // Fill the rest of the password length with random characters
@@ -79,6 +76,7 @@ function create(opts: Partial<Options> = defOpts): string {
 
     return shuffleArray(pwd).join('');
   }
+
   // Generate a password with random characters
   return Array(len)
     .fill(null)
