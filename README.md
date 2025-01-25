@@ -25,8 +25,8 @@
 - Only 1 dependency to check inputs variables
 - Very lightweight
 - Thoroughly tested
-- Works in Node.js
-- EcmaScrypt module
+- Imported as EcmaScrypt module
+- Works in Javascript and Typescript
 - Written in Typescript
 
 
