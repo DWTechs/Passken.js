@@ -1,5 +1,5 @@
 // const path = require('path');
-const fs      = require('fs');
+const fs      = require('node:fs');
 
 const mail    = 'https://github.com/DWTechs/Passken.js';
 const CRLF    = '\r\n';
@@ -10,10 +10,6 @@ const files   = [
   {
     src:  `${rel}src/passken.d.ts`,
     dest: `${dest}passken.d.ts`
-  },
-  {
-    src:  `${src}passken.cjs.js`,
-    dest: `${dest}passken.cjs.js`
   },
   {
     src:  `${src}passken.mjs`,

@@ -26,9 +26,7 @@
   "scripts": {
     "start": "",
     "build": "node ./scripts/clear && tsc && npm run rollup && node ./scripts/copy && npm run test",
-    "rollup:mjs": "rollup --config rollup.config.mjs",
-    "rollup:cjs": "rollup --config rollup.config.cjs.mjs",
-    "rollup": "npm run rollup:mjs && npm run rollup:cjs",
+    "rollup": "rollup --config rollup.config.mjs",
     "test": "jest --coverage"
   },
   "files": [
@@ -38,14 +36,7 @@
     "@dwtechs/checkard": "2.29.2"
   },
   "devDependencies": {
-    "@babel/core": "7.26.0",
     "@babel/preset-env": "7.26.0",
-    "@types/node": "22.10.10",
-    "@types/express": "5.0.0",
-    "@types/jest": "29.5.14",
-    "@rollup/plugin-commonjs": "28.0.1",
-    "@rollup/plugin-node-resolve": "15.3.0",
-    "core-js": "3.33.0",
     "jest": "29.7.0",
     "rollup": "4.24.0",
     "typescript": "5.6.3"
