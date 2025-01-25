@@ -233,8 +233,8 @@ Any of these can be passed into the options object for each function.
 | sym*	       | Boolean | put symbols in password.                                     | true    |
 | lcase*	     | Boolean | put lowercase in password                                    | true    |
 | ucase*	     | Boolean | use uppercase letters in password.                           | true    |
-| similarChars | Boolean | allow close looking chars like 'l', 'I', '1', 'o', 'O', '0'. | false   | 
 | strict	     | Boolean | password must include at least one character from each pool.	| true    |
+| similarChars | Boolean | allow close looking chars like 'l', 'I', '1', 'o', 'O', '0'. | false   | 
 
 *At least one of those options must be true.
 
