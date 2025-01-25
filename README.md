@@ -173,33 +173,33 @@ let saltRnds = 12
 let digest = "sha256";
 let keyLen = 64;
 
-getSaltRounds(): number {}
+function getSaltRounds(): number {}
 
-setSaltRounds(rnds: number): number {} // between 12 and 100
+function setSaltRounds(rnds: number): number {} // between 12 and 100
 
-getKeyLen(): number {}
+function getKeyLen(): number {}
 
-setKeyLen(r: number): number {} // between 2 and 256
+function setKeyLen(r: number): number {} // between 2 and 256
 
-getDigest(): string {}
+function getDigest(): string {}
 
-setDigest(d: string): string {} // the list of available digests can be given by getDigests()
+function setDigest(d: string): string {} // the list of available digests can be given by getDigests()
 
-getDigests(): string[] {}
+function getDigests(): string[] {}
 
 // Encrypt a string peppered with a secret
-encrypt( pwd: string, 
-         secret: string
-       ): string | false {}
+function encrypt( pwd: string, 
+                  secret: string
+                ): string | false {}
 
 // Compare a string with a hash
-compare( pwd: string, 
-         hash: string,
-         secret: string
-       ): boolean {}
+function compare( pwd: string, 
+                  hash: string,
+                  secret: string
+                ): boolean {}
 
 // Create a random password
-create(opts: Partial<Options> = defOpts): string {}
+function create(opts: Partial<Options> = defOpts): string {}
 
 ```
 
@@ -215,10 +215,10 @@ const header {
 };
 
 // Create a JWT
-sign( iss: number | string, 
-      duration: number, 
-      secret: string
-    ): string;
+function sign( iss: number | string, 
+               duration: number, 
+               secret: string
+             ): string;
 
 ```
 
@@ -298,7 +298,7 @@ router.post("/", addMany);
 
 ## Contributors
 
-Passken.js is still in development and we would be glad to get all the help you can provide.
+**Passken.js** is still in development and we would be glad to get all the help you can provide.
 To contribute please read **[contributor.md](https://github.com/DWTechs/Passken.js/blob/main/contributor.md)** for detailed installation guide.
 
 
