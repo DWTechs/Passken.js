@@ -229,9 +229,9 @@ Any of these can be passed into the options object for each function.
 | Name         | type    |              Description                                     | Default |  
 | :----------- | :------ | ------------------------------------------------------------ | :------ |
 | len	         | Integer | length of password.                                          | 12      |
-| num*	       | Boolean | put numbers in password.                                     | true    |
-| sym*	       | Boolean | put symbols in password.                                     | true    |
-| lcase*	     | Boolean | put lowercase in password                                    | true    |
+| num*	       | Boolean | use numbers in password.                                     | true    |
+| sym*	       | Boolean | use symbols in password.                                     | true    |
+| lcase*	     | Boolean | use lowercase in password                                    | true    |
 | ucase*	     | Boolean | use uppercase letters in password.                           | true    |
 | strict	     | Boolean | password must include at least one character from each pool.	| true    |
 | similarChars | Boolean | allow close looking chars like 'l', 'I', '1', 'o', 'O', '0'. | false   | 
