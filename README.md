@@ -20,7 +20,7 @@
 
 ## Synopsis
 
-**[Passken.js](https://github.com/DWTechs/Passken.js)** is an open source password management library for Node.js to create, encrypt and compare passwords safely.
+**[Passken.js](https://github.com/DWTechs/Passken.js)** is an open source password and JWT management library for Node.js to create, encrypt safely.
 
 - Only 1 dependency to check inputs variables
 - Very lightweight
