@@ -188,10 +188,15 @@ setDigest(d: string): string {} // the list of available digests can be given by
 getDigests(): string[] {}
 
 // Encrypt a string peppered with a secret
-encrypt(pwd: string, secret: string): string | false {}
+encrypt( pwd: string, 
+         secret: string
+       ): string | false {}
 
 // Compare a string with a hash
-compare(pwd: string, hash: string, secret: string): boolean {}
+compare( pwd: string, 
+         hash: string,
+         secret: string
+       ): boolean {}
 
 // Create a random password
 create(opts: Partial<Options> = defOpts): string {}
