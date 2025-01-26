@@ -17,5 +17,6 @@ export type Header = {
 export type Payload = {
   iss: number | string,
   iat: number,
-  exp?: number,
+  nbf: number,
+  exp: number,
 }
