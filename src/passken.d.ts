@@ -21,7 +21,9 @@ declare function encrypt(pwd: string, secret: string): string | false;
 declare function compare(pwd: string, hash: string, secret: string): boolean;
 declare function create(opts?: Partial<Options>): string;
 declare function setSecret(secret: string): void;
-declare function sign(iss: number | string, duration: number): string;
+declare function sign(iss: number | string, duration: number, b64Secrets: string[]): string;
+declare function verify(token: string, b64Secrets: string[]): boolean
+declare function generateSecret(length: number): string
 
 export { 
   getSaltRounds,
@@ -36,4 +38,6 @@ export {
   create,
   setSecret, 
   sign,
+  verify,
+  generateSecret
 };

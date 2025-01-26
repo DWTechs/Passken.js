@@ -11,7 +11,7 @@ export type Options = {
 export type Header = {
   alg: string,
   typ: string,
-  kid: number | string | null,
+  kid: number,
 };
 
 export type Payload = {

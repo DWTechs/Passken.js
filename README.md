@@ -217,10 +217,20 @@ const header {
 // Create a JWT
 function sign( iss: number | string, 
                duration: number, 
-               secret: string
+               b64Secrets: string[]
              ): string;
 
 ```
+
+#### Utility
+
+```javascript
+
+// Generate a random 256-bit secret
+generateSecret(length = 32): string
+
+```
+
 
 ## options
 

@@ -1,11 +1,13 @@
 import { createHmac, timingSafeEqual } from "node:crypto";
-import { isNumber, isString } from "@dwtechs/checkard";
+import { isNumber, isString, isStringOfLength, isArray, isValidInteger } from "@dwtechs/checkard";
+import * as base64 from "./base64";
 import type { Header, Payload } from "./types";
 
+const secretMinLength = 32;
 const header: Header = {
   alg: "HS256",
   typ: "JWT",
-  kid: null,
+  kid: 0,
 };
 
 /**
@@ -15,19 +17,34 @@ const header: Header = {
  * @param duration - The duration of the token in seconds, if not given, the token will not expire
  * @returns The generated JWT token
  */
-function sign(iss: number | string, duration: number, secret: string): string {
+function sign(iss: number | string, duration: number, b64Secrets: string[]): string | false {
+
+  if (!isString(iss, true) || !isNumber(iss, true))
+    return false;
+
+  if (!isArray(b64Secrets, '>=', 1))
+    return false;
+    
+  const b64Secret = randomSecret(b64Secrets);
+
+  if (!isBase64(b64Secret))
+    return false;
+
+  const secret = base64.decode(b64Secret);
+
+  if(!isStringOfLength(secret, secretMinLength, undefined))
+    return false; 
 
   const iat = Math.floor(Date.now() / 1000); // Current time in seconds
   const nbf = iat + 1;
-  const exp = duration && duration > 60 ? iat + duration : iat + 60 * 15;
+  const exp = (duration && duration > 60) ? iat + duration : iat + 60 * 15;
   const payload: Payload = { iss, iat, nbf, exp };
 
   header.kid = iss;
 
-  const b64Header = toBase64(JSON.stringify(header));
-  const b64Payload = toBase64(JSON.stringify(payload));
-
-  const signature =
+  const b64Header = base64.encode(JSON.stringify(header));
+  const b64Payload = base64.encode(JSON.stringify(payload));
+  const b64Signature =
     createHmac('sha256', secret)
     .update(`${b64Header}.${b64Payload}`)
     .digest('base64')
@@ -35,24 +52,27 @@ function sign(iss: number | string, duration: number, secret: string): string {
     .replace(/\+/g, '-')
     .replace(/\//g, '_');
 
-  return `${b64Header}.${b64Payload}.${signature}`;
+  return `${b64Header}.${b64Payload}.${b64Signature}`;
 
 }
 
-function verify(token: string, secret: string): boolean {
+function verify(token: string, b64Secrets: string[]): boolean {
 
   const segments = token.split('.');
   if (segments.length !== 3)
     return false;
 
   // Split the token into its parts
-  const [ headerB64, payloadB64, signatureB64 ] = segments;
-  if (!headerB64 || !payloadB64 || !signatureB64)
+  const [ B64Header, B64Payload, B64Signature ] = segments;
+  if (!B64Header || !B64Payload || !B64Signature)
     return false;
   
+  if (!isArray(b64Secrets, '>=', 1))
+    return false;
+
   // Decode and parse the header and payload
-  const header = JSON.parse(fromBase64(headerB64));
-  const payload = JSON.parse(fromBase64(payloadB64));
+  const header = JSON.parse(base64.decode(B64Header));
+  const payload = JSON.parse(base64.decode(B64Payload));
 
   // Ensure the algorithm in the header is what we expect (HS256)
   if (header.alg !== 'HS256')
@@ -62,8 +82,9 @@ function verify(token: string, secret: string): boolean {
   if (header.typ !== 'JWT')
     return false;
 
+  const secretsLen = b64Secrets.length;
   // Ensure the kid in the header is what we expect (string or number)
-  if (!isString(header.kid, true) || !isNumber(header.kid, false))
+  if (!isValidInteger(header.kid, 0, secretsLen, true))
     return false;
 
   const now = Math.floor(Date.now() / 1000); // Current time in seconds since epoch
@@ -78,9 +99,14 @@ function verify(token: string, secret: string): boolean {
   if (payload.exp && payload.exp < now)
     return false;
 
+  const b64Secret = b64Secrets[header.kid];
+  if (!isStringOfLength(b64Secret, 44, undefined) && !isBase64(b64Secret))
+    return false;
+  const secret = base64.decode(b64Secret);
+
   // Verify the signature
-  const expectedSignature = createHmac('sha256', secret).update(`${headerB64}.${payloadB64}`).digest('base64');
-  if (!safeCompare(expectedSignature, signatureB64))
+  const expectedSignature = createHmac('sha256', secret).update(`${B64Header}.${B64Payload}`).digest('base64');
+  if (!safeCompare(expectedSignature, B64Signature))
     return false;
 
   return payload;
@@ -99,29 +125,15 @@ function safeCompare(a: string, b: string): boolean {
   return timingSafeEqual(safeA, safeB);
 }
 
-/**
- * Decodes Base64Url encoded strings.
- * @param {string} str 
- * @returns {string} Decoded string.
- */
-function fromBase64(str: string): string {
-  const base64 = str.replace(/-/g, '+').replace(/_/g, '/');
-  const padding = '='.repeat((4 - (base64.length % 4)) % 4);
-  return Buffer.from(base64 + padding, "base64").toString();
+// Generate a random index based on the array length
+function randomSecret(array: string[]): string {
+  const i = Math.floor(Math.random() * array.length);
+  return array[i];
 }
 
-/**
- * Encodes the given data and returns it as a base64 string.
- *
- * @param {string} data - The data to be encrypted.
- * @return {string} The encrypted data in base64 format.
- */
-function toBase64(str: string): string {
-  return Buffer.from(str)
-    .toString("base64")
-    .replace(/\+/g, '-')
-    .replace(/\//g, '_')
-    .replace(/=+$/, '');
+function isBase64(str: string): boolean {
+  const regex = /^(?:[A-Za-z0-9+\/]{4})*(?:[A-Za-z0-9+\/]{2}==|[A-Za-z0-9+\/]{3}=|[A-Za-z0-9+\/]{4})$/;
+  return regex.test(str);
 }
 
 // Example usage:
