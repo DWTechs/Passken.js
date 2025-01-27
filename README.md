@@ -220,6 +220,11 @@ function sign( iss: number | string,
                b64Secrets: string[]
              ): string;
 
+// Verify a JWT
+function verify( token: string, 
+                 b64Secrets: string[]
+               ): object | false;
+
 ```
 
 #### Utility
