@@ -53,7 +53,7 @@ Example of use with Express.js using ES6 module format
 
 ```javascript
 
-import { compare, create, encrypt, setSecret, sign } from "@dwtechs/passken";
+import { compare, create, encrypt, sign, verify } from "@dwtechs/passken";
 
 const { PWD_SECRET, TOKEN_SECRET } = process.env;
 
@@ -100,10 +100,16 @@ function signToken(req, res, next) {
   next();
 }
 
+function verifyToken(req, res, next) {
+  res.jwt = sign(req.userId, 3600, TOKEN_SECRET);
+  next();
+}
+
 export {
   comparePwd,
   createPwd,
   signToken,
+  verifyToken,
 };
 
 ```
