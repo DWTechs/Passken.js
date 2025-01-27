@@ -45,9 +45,12 @@ declare function setDigest(func: string): string | false;
 declare function getDigests(): string[];
 declare function encrypt(pwd: string, secret: string): string | false;
 declare function compare(pwd: string, hash: string, secret: string): boolean;
-declare function create(opts?: Partial<Options>): string;
-declare function setSecret(secret: string): void;
-declare function sign(iss: number | string, duration: number): string;
+declare function randPwd(opts?: Partial<Options>): string;
+declare function randSecret(length?: number): string;
+declare function sign(iss: number | string, duration: number, b64Secrets: string[]): string | false;
+declare function verify(token: string, b64Secrets: string[]): boolean;
+declare function decode(str: string): string;
+declare function encode(str: string): string;
 
 export { 
   getSaltRounds,
@@ -59,7 +62,10 @@ export {
   getDigests,
   encrypt,
   compare,
-  create,
-  setSecret, 
+  randPwd,
+  randSecret,
   sign,
+  verify,
+  decode,
+  encode,
 };
