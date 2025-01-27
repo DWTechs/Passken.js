@@ -268,57 +268,6 @@ Similar characters : l, I, 1, o, O, 0
 You can use Passken directly as Express.js middlewares using [@dwtechs/passken-express library](https://www.npmjs.com/package/@dwtechs/passken-express).
 This way you do not have to write express controllers yourself to use **Passken**.
 
-How to use : 
-
-```javascript
-
-import * as pk from "@dwtechs/passken-express";
-import express from "express";
-const router = express.Router();
-
-import user from "../controllers/user.js";
-import mail from "../controllers/mail.js";
-import token from "../controllers/token.js";
-
-const passwordOptions = {
-  len: 14,
-  num: true,
-  ucase: false,
-  lcase: false,
-  sym: false,
-  strict: true,
-  similarChars: true,
-};
-pk.init(passwordOptions);
-
-// middleware sub-stacks
-
-// add users
-const addMany = [
-  user.validate,
-  pk.create,
-  user.addMany,
-  mail.sendRegistration,
-];
-
-// Login user
-const login = [
-  token.validate,
-  user.getPwd,
-  pk.compare,
-  user.isActive,
-];
-
-// Routes
-
-// log a user with his email & password
-router.post("/", login);
-
-// Add new users
-router.post("/", addMany);
-
-```
-
 
 ## Contributors
 
