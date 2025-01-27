@@ -8,5 +8,5 @@ export {  getSaltRounds,
           encrypt,
           compare } from './hash';
 export {  create as randPwd } from './pwd';
-export {  sign } from './jwt';
+export {  sign, verify } from './jwt';
 export {  create as randSecret } from './secret';
