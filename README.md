@@ -205,7 +205,7 @@ function compare( pwd: string,
                 ): boolean {}
 
 // Create a random password
-function create(opts: Partial<Options> = defOpts): string {}
+function randPwd(opts: Partial<Options> = defOpts): string {}
 
 ```
 
@@ -233,12 +233,12 @@ function verify( token: string,
 
 ```
 
-#### Utility
+#### Secret
 
 ```javascript
 
 // Generate a random 256-bit secret
-generateSecret(length = 32): string
+randSecret(length = 32): string
 
 ```
 
