@@ -19,19 +19,24 @@ const header: Header = {
  */
 function sign(iss: number | string, duration: number, b64Secrets: string[]): string | false {
 
+  // Check iss is a string or a number
   if (!isString(iss, true) || !isNumber(iss, true))
     return false;
 
+  // Check b64Secrets is an array
   if (!isArray(b64Secrets, '>=', 1))
     return false;
     
-  const b64Secret = randomSecret(b64Secrets);
+  header.kid = randomSecret(b64Secrets);
+  const b64Secret = b64Secrets[header.kid];
 
+  // Check selected secret is base64
   if (!isBase64(b64Secret))
     return false;
 
   const secret = base64.decode(b64Secret);
 
+  // Check selected secret has the proper length
   if(!isStringOfLength(secret, secretMinLength, undefined))
     return false; 
 
@@ -39,8 +44,6 @@ function sign(iss: number | string, duration: number, b64Secrets: string[]): str
   const nbf = iat + 1;
   const exp = (duration && duration > 60) ? iat + duration : iat + 60 * 15;
   const payload: Payload = { iss, iat, nbf, exp };
-
-  header.kid = iss;
 
   const b64Header = base64.encode(JSON.stringify(header));
   const b64Payload = base64.encode(JSON.stringify(payload));
@@ -67,6 +70,7 @@ function verify(token: string, b64Secrets: string[]): boolean {
   if (!B64Header || !B64Payload || !B64Signature)
     return false;
   
+  // Check b64Secrets is an array
   if (!isArray(b64Secrets, '>=', 1))
     return false;
 
@@ -126,9 +130,8 @@ function safeCompare(a: string, b: string): boolean {
 }
 
 // Generate a random index based on the array length
-function randomSecret(array: string[]): string {
-  const i = Math.floor(Math.random() * array.length);
-  return array[i];
+function randomSecret(array: string[]): number {
+  return Math.floor(Math.random() * array.length);
 }
 
 function isBase64(str: string): boolean {

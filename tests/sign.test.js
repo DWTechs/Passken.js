@@ -1,7 +1,7 @@
 import { sign } from "../dist/passken.js";
 
 describe('encodeBase64', () => {
-  const secret = "fjkldmfq4543REfndjkldrGtfvCgbGhNhgFdCvFdSERD";
+  const secret = ["fjkldmfq4543REfndjkldrGtfvCgbGhNhgFdCvFdSERD"];
   test('generates a token string with valid inputs', () => {
     const token = sign('user123', 3600, secret); // Assuming duration is in seconds
     expect(typeof token).toBe('string');

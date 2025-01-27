@@ -9,8 +9,9 @@ const list = {
   sucase: 'ABCDEFGHJKLMNPQRSTUVWXYZ',
   num: '0123456789',
   snum: '23456789',
-  sym: '!@#$%&*_-+:;?><,./',
+  sym: '!@#%*_-+=:;?><,./()',
 };
+
 // sxxx lists are free of similar looking characters, e.g. "lI1oO0" characters
 
 // check for env variables

@@ -1,29 +1,71 @@
-import { sign } from "../dist/passken.js";
+import { verify } from "../dist/passken.js";
 
-describe('encodeBase64', () => {
-  const secret = "fjkldmfq4543REfndjkldrGtfvCgbGhNhgFdCvFdSERD";
-  test('generates a token string with valid inputs', () => {
-    const token = sign('user123', 3600, secret); // Assuming duration is in seconds
-    expect(typeof token).toBe('string');
-    expect(token.split('.').length).toBe(3); // Basic check for JWT structure
+// Mock data
+const validToken = 'valid.token.signature';
+const invalidToken = 'invalid.token.signature';
+const b64Secrets = ['your-base64-secret'];
+
+jest.mock('./base64', () => ({
+  decode: jest.fn((str) => {
+    if (str === 'valid.token') {
+      return JSON.stringify({ alg: 'HS256', typ: 'JWT', kid: 0 });
+    }
+    if (str === 'valid.payload') {
+      return JSON.stringify({ iss: 'issuer', iat: 1610000000, exp: 1610003600 });
+    }
+    return '';
+  }),
+}));
+
+describe('verify', () => {
+  it('should return false for a token with invalid segments', () => {
+    const result = verify('invalid.token', b64Secrets);
+    expect(result).toBe(false);
   });
 
-  // test('throws an error with invalid issuer type', () => {
-  //   expect(() => sign(undefined, 3600)).toThrow();
-  //   expect(() => sign(null, 3600)).toThrow();
-  // });
+  it('should return false for a token with invalid header', () => {
+    const result = verify(invalidToken, b64Secrets);
+    expect(result).toBe(false);
+  });
 
-  // More detailed JWT structure and expiration validation can be done
-  // using a JWT library to decode and inspect the payload.
-  test('correctly sets the expiration based on duration', () => {
-    const currentTime = Math.floor(Date.now() / 1000);
-    const duration = 3600; // 1 hour
-    const token = sign('user123', duration, secret);
-    const payload = JSON.parse(Buffer.from(token.split('.')[1], 'base64').toString());
-    
-    expect(payload.exp).toBeDefined();
-    expect(payload.exp).toBeGreaterThan(currentTime);
-    expect(payload.exp - currentTime).toBeCloseTo(duration, -1); // Allowing some leeway for execution time
+  it('should return false for a token with invalid payload', () => {
+    const result = verify('valid.token.invalidPayload', b64Secrets);
+    expect(result).toBe(false);
+  });
+
+  it('should return false for a token with invalid algorithm', () => {
+    const invalidAlgToken = 'invalidAlg.token.signature';
+    const result = verify(invalidAlgToken, b64Secrets);
+    expect(result).toBe(false);
+  });
+
+  it('should return false for a token with invalid typ', () => {
+    const invalidTypToken = 'invalidTyp.token.signature';
+    const result = verify(invalidTypToken, b64Secrets);
+    expect(result).toBe(false);
+  });
+
+  it('should return false for a token with invalid kid', () => {
+    const invalidKidToken = 'invalidKid.token.signature';
+    const result = verify(invalidKidToken, b64Secrets);
+    expect(result).toBe(false);
+  });
+
+  it('should return false for a token with nbf claim in the future', () => {
+    const futureNbfToken = 'futureNbf.token.signature';
+    const result = verify(futureNbfToken, b64Secrets);
+    expect(result).toBe(false);
+  });
+
+  it('should return false for a token with exp claim in the past', () => {
+    const pastExpToken = 'pastExp.token.signature';
+    const result = verify(pastExpToken, b64Secrets);
+    expect(result).toBe(false);
+  });
+
+  it('should return true for a valid token', () => {
+    const result = verify(validToken, b64Secrets);
+    expect(result).toBe(true);
   });
 
 });

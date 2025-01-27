@@ -1,29 +1,54 @@
-import { sign } from "../dist/passken.js";
+import { generateSecret } from "../dist/passken.js";
 
-describe('encodeBase64', () => {
-  const secret = "fjkldmfq4543REfndjkldrGtfvCgbGhNhgFdCvFdSERD";
-  test('generates a token string with valid inputs', () => {
-    const token = sign('user123', 3600, secret); // Assuming duration is in seconds
-    expect(typeof token).toBe('string');
-    expect(token.split('.').length).toBe(3); // Basic check for JWT structure
+describe('generateSecret', () => {
+  it('should generate a secret of the default length (32 bytes)', () => {
+    const secret = generateSecret();
+    // Base64 encoding of 32 bytes results in a string of length 44
+    expect(secret).toHaveLength(43); // 44 - 1 (due to padding removal)
   });
 
-  // test('throws an error with invalid issuer type', () => {
-  //   expect(() => sign(undefined, 3600)).toThrow();
-  //   expect(() => sign(null, 3600)).toThrow();
-  // });
-
-  // More detailed JWT structure and expiration validation can be done
-  // using a JWT library to decode and inspect the payload.
-  test('correctly sets the expiration based on duration', () => {
-    const currentTime = Math.floor(Date.now() / 1000);
-    const duration = 3600; // 1 hour
-    const token = sign('user123', duration, secret);
-    const payload = JSON.parse(Buffer.from(token.split('.')[1], 'base64').toString());
-    
-    expect(payload.exp).toBeDefined();
-    expect(payload.exp).toBeGreaterThan(currentTime);
-    expect(payload.exp - currentTime).toBeCloseTo(duration, -1); // Allowing some leeway for execution time
+  it('should generate a secret of the specified length (16 bytes)', () => {
+    const secret = generateSecret(16);
+    // Base64 encoding of 16 bytes results in a string of length 24
+    expect(secret).toHaveLength(22); // 24 - 2 (due to padding removal)
   });
 
+  it('should generate a secret of the specified length (64 bytes)', () => {
+    const secret = generateSecret(64);
+    // Base64 encoding of 64 bytes results in a string of length 88
+    expect(secret).toHaveLength(86); // 88 - 2 (due to padding removal)
+  });
+
+  it('should not contain "+" characters', () => {
+    const secret = generateSecret();
+    expect(secret).not.toContain('+');
+  });
+
+  it('should not contain "/" characters', () => {
+    const secret = generateSecret();
+    expect(secret).not.toContain('/');
+  });
+
+  it('should not contain "=" characters', () => {
+    const secret = generateSecret();
+    expect(secret).not.toContain('=');
+  });
+
+  it('should generate unique secrets 1', () => {
+    const secret1 = generateSecret();
+    const secret2 = generateSecret();
+    expect(secret1).not.toEqual(secret2);
+  });
+
+  it('should generate unique secrets 2', () => {
+    const secret1 = generateSecret(64);
+    const secret2 = generateSecret(64);
+    expect(secret1).not.toEqual(secret2);
+  });
+
+  it('should generate unique secrets 3', () => {
+    const secret1 = generateSecret(128);
+    const secret2 = generateSecret(128);
+    expect(secret1).not.toEqual(secret2);
+  });
 });
