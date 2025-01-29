@@ -12,7 +12,6 @@ function create(length = 32): string {
 }
 
 function checkSecret(b64Secret: string): string | false {
-	console.error(b64Secret);
 	// Check selected secret is base64
 	if (!isBase64(b64Secret, true)) return false;
 	const secret = base64.decode(b64Secret);
