@@ -9,8 +9,8 @@ import {
 } from "@dwtechs/checkard";
 import * as base64 from "./base64";
 import type { Header, Payload } from "./types";
+import { checkSecret } from "./secret";
 
-const secretMinLength = 30;
 const header: Header = {
 	alg: "HS256",
 	typ: "JWT",
@@ -38,13 +38,8 @@ function sign(
 	header.kid = randomSecret(b64Secrets);
 	const b64Secret = b64Secrets[header.kid];
 
-	// Check selected secret is base64
-	if (!isBase64(b64Secret, true)) return false;
-
-	const secret = base64.decode(b64Secret);
-
-	// Check selected secret has the proper length
-	if (!isStringOfLength(secret, secretMinLength, undefined)) return false;
+	const secret = checkSecret(b64Secret);
+	if (!secret) return false;
 
 	const iat = Math.floor(Date.now() / 1000); // Current time in seconds
 	const nbf = iat + 1;
@@ -153,4 +148,4 @@ function isBase64(str: string, urlEncoded = false): boolean {
 // const token = signToken(payload, secret, options);
 // console.log('Signed Token:', token);
 
-export { sign, verify };
+export { sign, verify, isBase64 };
