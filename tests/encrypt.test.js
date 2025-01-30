@@ -38,13 +38,13 @@ describe("encrypt", () => {
 	test("returns false because secret is not long enough", () => {
 		const specialPassword = "p@$$w0rd! 特别";
 		const specialSecret = "secrét$ 特别";
-		expect(typeof encrypt(specialPassword, specialSecret)).toBe(false);
+		expect(encrypt(specialPassword, specialSecret)).toBe(false);
 	});
 
 	test("returns false because secret is not in base64", () => {
 		const specialPassword = "p@$$w0rd! 特别";
 		const specialSecret = "secrét$ 特别aaaaaaaaaaaaaaaaaaaaa";
-		expect(typeof encrypt(specialPassword, specialSecret)).toBe(false);
+		expect(encrypt(specialPassword, specialSecret)).toBe(false);
 	});
 
 	test("returns false for non-string inputs", () => {
@@ -52,15 +52,5 @@ describe("encrypt", () => {
 		expect(encrypt(password, null)).toBe(false);
 		expect(encrypt({}, validSecret)).toBe(false);
 		expect(encrypt(password, [])).toBe(false);
-	});
-
-	test("handles secrets of various lengths correctly", () => {
-		const shortSecret = "short";
-		const longSecret = "a".repeat(1024);
-		const normalSecret = "normalLengthSecret";
-
-		expect(typeof encrypt(password, shortSecret)).toBe("string");
-		expect(typeof encrypt(password, longSecret)).toBe("string");
-		expect(typeof encrypt(password, normalSecret)).toBe("string");
 	});
 });

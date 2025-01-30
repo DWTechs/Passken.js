@@ -96,6 +96,6 @@ describe("create", () => {
 			lcase: false,
 			sym: false,
 		});
-		expect(typeof password).toBe();
+		expect(typeof password).toBe("string");
 	});
 });

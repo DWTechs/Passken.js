@@ -6,6 +6,7 @@ import {
 	isArray,
 	isValidInteger,
 	isJson,
+	isPositive,
 } from "@dwtechs/checkard";
 import * as base64 from "./base64";
 import type { Header, Payload } from "./types";
@@ -34,6 +35,8 @@ function sign(
 
 	// Check b64Secrets is an array
 	if (!isArray(b64Secrets, ">=", 1)) return false;
+
+	if (!isPositive(duration, true)) return false;
 
 	header.kid = randomSecret(b64Secrets);
 	const b64Secret = b64Secrets[header.kid];

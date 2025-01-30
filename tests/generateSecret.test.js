@@ -51,4 +51,26 @@ describe("randSecret", () => {
 		const secret2 = randSecret(128);
 		expect(secret1).not.toEqual(secret2);
 	});
+
+	it("should handle a length of 0 without throwing an error", () => {
+		const secret = randSecret(0);
+		expect(secret).toHaveLength(0);
+	});
+
+	it("should return an empty string or throw an error for negative lengths", () => {
+		expect(() => randSecret(-1)).toThrow(
+			'The value of "size" is out of range. It must be >= 0 && <= 2147483647. Received -1',
+		);
+	});
+
+	it("should handle very large lengths", () => {
+		const largeLength = 10000;
+		const secret = randSecret(largeLength);
+		expect(secret.length).toBeGreaterThan(10000);
+	});
+
+	it("should only contain URL-friendly characters", () => {
+		const secret = randSecret();
+		expect(secret).toMatch(/^[A-Za-z0-9_-]*$/);
+	});
 });
