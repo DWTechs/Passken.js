@@ -1,6 +1,6 @@
-
 import { randomBytes, createHmac, getHashes, pbkdf2Sync } from "node:crypto";
 import { isValidInteger, isString } from "@dwtechs/checkard";
+import { checkSecret } from "./secret";
 
 const digests = getHashes();
 let digest = "sha256";
@@ -13,7 +13,7 @@ let saltRnds = 12;
  * @return {integer} The number of salt rounds.
  */
 function getSaltRounds(): number {
-  return saltRnds;
+	return saltRnds;
 }
 
 /**
@@ -24,10 +24,10 @@ function getSaltRounds(): number {
  * @return {integer} The number of salt rounds.
  */
 function setSaltRounds(rnds: number): number | false {
-  if (!isValidInteger(rnds, 12, 100, true)) return false;
+	if (!isValidInteger(rnds, 12, 100, true)) return false;
 
-  saltRnds = rnds;
-  return saltRnds;
+	saltRnds = rnds;
+	return saltRnds;
 }
 
 /**
@@ -36,7 +36,7 @@ function setSaltRounds(rnds: number): number | false {
  * @return {integer} The key length.
  */
 function getKeyLen(): number {
-  return keyLen;
+	return keyLen;
 }
 
 /**
@@ -47,10 +47,10 @@ function getKeyLen(): number {
  * @return {integer} The key length.
  */
 function setKeyLen(len: number): number | false {
-  if (!isValidInteger(len, 2, 256, true)) return false;
+	if (!isValidInteger(len, 2, 256, true)) return false;
 
-  keyLen = len;
-  return keyLen;
+	keyLen = len;
+	return keyLen;
 }
 
 /**
@@ -59,9 +59,8 @@ function setKeyLen(len: number): number | false {
  * @return {string} The hash function.
  */
 function getDigest(): string {
-  return digest;
+	return digest;
 }
-
 
 /**
  * Sets the hash function used for the HMAC hash.
@@ -71,10 +70,10 @@ function getDigest(): string {
  * @return {string|false} The current hash function or `false` if the given value is not valid.
  */
 function setDigest(func: string): string | false {
-  if (!digests.includes(func)) return false;
-     
-  digest = func;
-  return digest;
+	if (!digests.includes(func)) return false;
+
+	digest = func;
+	return digest;
 }
 
 /**
@@ -83,7 +82,7 @@ function setDigest(func: string): string | false {
  * @return {Array} The list of available hash functions.
  */
 function getDigests(): string[] {
-  return digests;
+	return digests;
 }
 
 /**
@@ -94,7 +93,7 @@ function getDigests(): string[] {
  * @return {string} The hashed pepper.
  */
 function hash(pwd: string, secret: string): string {
-  return createHmac(digest, secret).update(pwd).digest("hex");
+	return createHmac(digest, secret).update(pwd).digest("hex");
 }
 
 /**
@@ -106,7 +105,9 @@ function hash(pwd: string, secret: string): string {
  * @return {string} The hashed password.
  */
 function pbkdf2(pwd: string, secret: string, salt: string): string {
-  return pbkdf2Sync(hash(pwd, secret), salt, saltRnds, keyLen, digest).toString("hex");
+	return pbkdf2Sync(hash(pwd, secret), salt, saltRnds, keyLen, digest).toString(
+		"hex",
+	);
 }
 
 /**
@@ -115,13 +116,13 @@ function pbkdf2(pwd: string, secret: string, salt: string): string {
  * @param {type} pwd - The password to encrypt
  * @return {type} The encrypted password hash
  */
-function encrypt(pwd: string, secret: string): string | false {
-  
-  if (!isString(pwd, true) || !isString(secret, true)) return false;
-  
-  const salt = randomBytes(16).toString('hex'); // random salt
-  return salt + pbkdf2(pwd, secret, salt); // salt + hashedPwd
+function encrypt(pwd: string, b64Secret: string): string | false {
+	if (!isString(pwd, true)) return false;
+	const secret = checkSecret(b64Secret);
+	if (!secret) return false;
 
+	const salt = randomBytes(16).toString("hex"); // random salt
+	return salt + pbkdf2(pwd, secret, salt); // salt + hashedPwd
 }
 
 /**
@@ -132,24 +133,22 @@ function encrypt(pwd: string, secret: string): string | false {
  * @return {type} Whether the password matches the stored hash
  */
 function compare(pwd: string, hash: string, secret: string): boolean {
-  
-  if (!isString(pwd, true) || !isString(secret, true)) return false;
-  
-  const hashedPwd = pbkdf2(pwd, secret, hash.slice(0, 32)); // Assuming the salt length is 16 bytes (32 hex characters)
-  const storedHash = hash.slice(32);
-  
-  return hashedPwd === storedHash;
+	if (!isString(pwd, true) || !isString(secret, true)) return false;
 
+	const hashedPwd = pbkdf2(pwd, secret, hash.slice(0, 32)); // Assuming the salt length is 16 bytes (32 hex characters)
+	const storedHash = hash.slice(32);
+
+	return hashedPwd === storedHash;
 }
 
 export {
-  getSaltRounds,
-  setSaltRounds,
-  getKeyLen,
-  setKeyLen,
-  getDigest,
-  setDigest,
-  getDigests,
-  encrypt,
-  compare,
+	getSaltRounds,
+	setSaltRounds,
+	getKeyLen,
+	setKeyLen,
+	getDigest,
+	setDigest,
+	getDigests,
+	encrypt,
+	compare,
 };
