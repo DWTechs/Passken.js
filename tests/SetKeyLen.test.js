@@ -32,7 +32,6 @@ describe('setKeyLen', () => {
     expect(setKeyLen(undefined)).toBe(false);
   });
 
-
   test('returns false when setting a non-number key length', () => {
     expect(setKeyLen('32')).toBe(false);
   });

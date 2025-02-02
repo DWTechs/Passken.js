@@ -1,5 +1,5 @@
 import { createHmac, timingSafeEqual } from "node:crypto";
-import { isNumber, isString, isStringOfLength, isArray, isValidInteger } from "@dwtechs/checkard";
+import { isNumber, isString, isStringOfLength, isArray, isValidInteger, isBase64 } from "@dwtechs/checkard";
 import * as base64 from "./base64";
 import type { Header, Payload } from "./types";
 
@@ -31,7 +31,7 @@ function sign(iss: number | string, duration: number, b64Secrets: string[]): str
   const b64Secret = b64Secrets[header.kid];
 
   // Check selected secret is base64
-  if (!isBase64(b64Secret))
+  if (!isBase64(b64Secret, true))
     return false;
 
   const secret = base64.decode(b64Secret);
@@ -132,11 +132,6 @@ function safeCompare(a: string, b: string): boolean {
 // Generate a random index based on the array length
 function randomSecret(array: string[]): number {
   return Math.floor(Math.random() * array.length);
-}
-
-function isBase64(str: string): boolean {
-  const regex = /^(?:[A-Za-z0-9+\/]{4})*(?:[A-Za-z0-9+\/]{2}==|[A-Za-z0-9+\/]{3}=|[A-Za-z0-9+\/]{4})$/;
-  return regex.test(str);
 }
 
 // Example usage:

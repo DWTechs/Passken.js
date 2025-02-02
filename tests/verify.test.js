@@ -5,18 +5,6 @@ const validToken = 'valid.token.signature';
 const invalidToken = 'invalid.token.signature';
 const b64Secrets = ['your-base64-secret'];
 
-jest.mock('./base64', () => ({
-  decode: jest.fn((str) => {
-    if (str === 'valid.token') {
-      return JSON.stringify({ alg: 'HS256', typ: 'JWT', kid: 0 });
-    }
-    if (str === 'valid.payload') {
-      return JSON.stringify({ iss: 'issuer', iat: 1610000000, exp: 1610003600 });
-    }
-    return '';
-  }),
-}));
-
 describe('verify', () => {
   it('should return false for a token with invalid segments', () => {
     const result = verify('invalid.token', b64Secrets);

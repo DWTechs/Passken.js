@@ -25,7 +25,7 @@ https://github.com/DWTechs/Passken.js
 */
 
 import { getHashes, randomBytes, pbkdf2Sync, createHmac, timingSafeEqual } from 'node:crypto';
-import { isValidInteger, isString, isBoolean, isNumber, isArray, isStringOfLength } from '@dwtechs/checkard';
+import { isValidInteger, isString, isBoolean, isNumber, isArray, isBase64, isStringOfLength } from '@dwtechs/checkard';
 
 const digests = getHashes();
 let digest = "sha256";
@@ -176,7 +176,7 @@ function sign(iss, duration, b64Secrets) {
         return false;
     header.kid = randomSecret(b64Secrets);
     const b64Secret = b64Secrets[header.kid];
-    if (!isBase64(b64Secret))
+    if (!isBase64(b64Secret, true))
         return false;
     const secret = decode(b64Secret);
     if (!isStringOfLength(secret, secretMinLength, undefined))
@@ -236,10 +236,6 @@ function safeCompare(a, b) {
 }
 function randomSecret(array) {
     return Math.floor(Math.random() * array.length);
-}
-function isBase64(str) {
-    const regex = /^(?:[A-Za-z0-9+\/]{4})*(?:[A-Za-z0-9+\/]{2}==|[A-Za-z0-9+\/]{3}=|[A-Za-z0-9+\/]{4})$/;
-    return regex.test(str);
 }
 
 function create(length = 32) {
