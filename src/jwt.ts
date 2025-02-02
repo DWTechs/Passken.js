@@ -7,6 +7,7 @@ import {
 	isValidInteger,
 	isJson,
 	isPositive,
+  isBase64, 
 } from "@dwtechs/checkard";
 import * as base64 from "./base64";
 import type { Header, Payload } from "./types";
@@ -134,13 +135,6 @@ function safeCompare(a: string, b: string): boolean {
 // Generate a random index based on the array length
 function randomSecret(array: string[]): number {
 	return Math.floor(Math.random() * array.length);
-}
-
-function isBase64(str: string, urlEncoded = false): boolean {
-	const regex = urlEncoded
-		? /^(?:[A-Za-z0-9-_]{4})*(?:[A-Za-z0-9-_]{2}(?:==)?|[A-Za-z0-9-_]{3}=?)?$/
-		: /^(?:[A-Za-z0-9+\/]{4})*(?:[A-Za-z0-9+\/]{2}==|[A-Za-z0-9+\/]{3}=)?$/;
-	return regex.test(str);
 }
 
 // Example usage:
