@@ -1,6 +1,5 @@
 const { verify, sign } = require("../dist/passken.js");
 // Mock data
-<<<<<<< HEAD
 const expiredToken =
 	"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6MH0.eyJpc3MiOiJ1c2VyMTIzIiwiaWF0IjoxNzM4MDgzODU2LCJuYmYiOjE3MzgwODM4NTcsImV4cCI6MTczODA4NzQ1Nn0.HycIDXjl_5BWM1Wx4xFWg1MHWCLGa97RCn57srPLKNk";
 const invalidAlgToken =
@@ -14,17 +13,6 @@ const validToken = sign("user123", 3600, b64Secrets);
 function wait(duration = 1000) {
 	return new Promise((resolve) => setTimeout(resolve, duration));
 }
-=======
-const validToken = 'valid.token.signature';
-const invalidToken = 'invalid.token.signature';
-const b64Secrets = ['your-base64-secret'];
-
-describe('verify', () => {
-  it('should return false for a token with invalid segments', () => {
-    const result = verify('invalid.token', b64Secrets);
-    expect(result).toBe(false);
-  });
->>>>>>> main
 
 describe("verify", () => {
 	it("should return false for a token with invalid segments", () => {

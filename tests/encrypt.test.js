@@ -1,11 +1,12 @@
-import { encrypt } from "../dist/passken.js";
+import { encrypt, randSecret } from "../dist/passken.js";
 
 describe("encrypt", () => {
-	const password = "mySecret!/;6[à}Pwd";
-	const InvalidSecret = "mySuperFancySecret";
-	const validSecret = "8zYSoxUV36qy8tiIGytsA7qPdFecywiQs0sHBze_Skg";
+	const password = "mySecret!/;6(A)Pwd";
+	const InvalidSecret = "myInvalidSecret";
+	const validSecret = randSecret();
+  console.log("validSecret", validSecret);
 
-	test("returns a string when password and secret are valid", () => {
+	test("returns a string when password and secret are encrypted", () => {
 		expect(typeof encrypt(password, validSecret)).toBe("string");
 	});
 

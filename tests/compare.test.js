@@ -1,13 +1,16 @@
 import { compare, encrypt } from "../dist/passken.js";
 
 describe("compare", () => {
-	const password = "mySecret!/;6[à}Pwd";
+	const password = "mySecret!/;6(A)Pwd";
 	const wrongPassword = "wr0ngPa55word!";
 	const emptyPassword = "";
 	const secret = "8zYSoxUV36qy8tiIGytsA7qPdFecywiQs0sHBze_Skg";
 	const hashedPassword = encrypt(password, secret);
 	const otherHashedPassword = encrypt(password, secret);
 	const anotherHashedPassword = encrypt(password, secret);
+  console.log("hashedPassword", hashedPassword);
+  console.log("otherHashedPassword", otherHashedPassword);
+  console.log("anotherHashedPassword", anotherHashedPassword);
 
 	test("returns true when comparing with the right password", () => {
 		expect(compare(password, hashedPassword, secret)).toBe(true);

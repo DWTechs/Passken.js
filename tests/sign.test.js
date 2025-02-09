@@ -1,7 +1,8 @@
-import { sign } from "../dist/passken.js";
+import { sign, randSecret } from "../dist/passken.js";
+import { isBase64 } from "@dwtechs/checkard"
 
 describe("encodeBase64", () => {
-	const secret = ["8zYSoxUV36qy8tiIGytsA7qPdFecywiQs0sHBze_Skg"];
+	const secret = [randSecret()];
 	test("generates a token string with valid inputs", () => {
 		const token = sign("user123", 3600, secret); // Assuming duration is in seconds
 		expect(typeof token).toBe("string");
@@ -40,7 +41,7 @@ describe("encodeBase64", () => {
 
 	test("handles a negative duration gracefully", () => {
 		const token = sign("user123", -3600, secret);
-		expect(token).toBe(false); // Ou vérifiez le comportement attendu
+		expect(token).toBe(false);
 	});
 
 	test("returns false if no issuer is provided", () => {
@@ -51,7 +52,7 @@ describe("encodeBase64", () => {
 	test("ensures the signature is Base64 URL-safe encoded", () => {
 		const token = sign("user123", 3600, secret);
 		const signature = token.split(".")[2];
-		expect(signature).toMatch(/^[A-Za-z0-9_-]+$/);
+		expect(isBase64(signature, true).toBe(true));
 	});
 
 	test("handles a very long duration", () => {

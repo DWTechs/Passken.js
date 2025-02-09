@@ -1,6 +1,6 @@
 import { randomBytes, createHmac, getHashes, pbkdf2Sync } from "node:crypto";
-import { isValidInteger, isString } from "@dwtechs/checkard";
-import { checkSecret } from "./secret";
+import { isNumber, isValidInteger, isString } from "@dwtechs/checkard";
+import { decode } from "./secret";
 
 const digests = getHashes();
 let digest = "sha256";
@@ -24,7 +24,8 @@ function getSaltRounds(): number {
  * @return {integer} The number of salt rounds.
  */
 function setSaltRounds(rnds: number): number | false {
-	if (!isValidInteger(rnds, 12, 100, true)) return false;
+	if (!isNumber(rnds, true) || !isValidInteger(rnds, 12, 100, true)) 
+    return false;
 
 	saltRnds = rnds;
 	return saltRnds;
@@ -47,7 +48,8 @@ function getKeyLen(): number {
  * @return {integer} The key length.
  */
 function setKeyLen(len: number): number | false {
-	if (!isValidInteger(len, 2, 256, true)) return false;
+	if (!isNumber(len, true) || !isValidInteger(len, 2, 256, true)) 
+    return false;
 
 	keyLen = len;
 	return keyLen;
@@ -70,7 +72,8 @@ function getDigest(): string {
  * @return {string|false} The current hash function or `false` if the given value is not valid.
  */
 function setDigest(func: string): string | false {
-	if (!digests.includes(func)) return false;
+	if (!digests.includes(func)) 
+    return false;
 
 	digest = func;
 	return digest;
@@ -117,9 +120,12 @@ function pbkdf2(pwd: string, secret: string, salt: string): string {
  * @return {type} The encrypted password hash
  */
 function encrypt(pwd: string, b64Secret: string): string | false {
-	if (!isString(pwd, true)) return false;
-	const secret = checkSecret(b64Secret);
-	if (!secret) return false;
+	if (!isString(pwd, ">", 0)) 
+    return false;
+	
+  const secret = decode(b64Secret);
+	if (!secret) 
+    return false;
 
 	const salt = randomBytes(16).toString("hex"); // random salt
 	return salt + pbkdf2(pwd, secret, salt); // salt + hashedPwd
@@ -133,7 +139,8 @@ function encrypt(pwd: string, b64Secret: string): string | false {
  * @return {type} Whether the password matches the stored hash
  */
 function compare(pwd: string, hash: string, secret: string): boolean {
-	if (!isString(pwd, true) || !isString(secret, true)) return false;
+	if (!isString(pwd, ">", 0) || !isString(secret, ">", 0)) 
+    return false;
 
 	const hashedPwd = pbkdf2(pwd, secret, hash.slice(0, 32)); // Assuming the salt length is 16 bytes (32 hex characters)
 	const storedHash = hash.slice(32);

@@ -24,8 +24,35 @@ SOFTWARE.
 https://github.com/DWTechs/Passken.js
 */
 
-import { getHashes, randomBytes, pbkdf2Sync, createHmac, timingSafeEqual } from 'node:crypto';
-import { isValidInteger, isString, isBoolean, isNumber, isArray, isBase64, isStringOfLength } from '@dwtechs/checkard';
+import { randomBytes, getHashes, pbkdf2Sync, createHmac, timingSafeEqual } from 'node:crypto';
+import { isBase64, isStringOfLength, isValidInteger, isString, isBoolean, isNumber, isArray, isPositive, isJson } from '@dwtechs/checkard';
+
+function decode$1(str) {
+    const base64 = str.replace(/-/g, "+").replace(/_/g, "/");
+    const padding = "=".repeat((4 - (base64.length % 4)) % 4);
+    return Buffer.from(base64 + padding, "base64").toString("utf8");
+}
+function encode(str) {
+    return Buffer.from(str)
+        .toString("base64")
+        .replace(/\+/g, "-")
+        .replace(/\//g, "_")
+        .replace(/=+$/, "");
+}
+
+const secretMinLength = 30;
+function create$1(length = 32) {
+    const b64Secret = randomBytes(length).toString("base64");
+    return b64Secret.replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+}
+function decode(b64Secret) {
+    if (!isBase64(b64Secret, true))
+        throw new Error("Invalid base64 string.");
+    const secret = decode$1(b64Secret);
+    if (!isStringOfLength(secret, secretMinLength, undefined))
+        throw new Error(`Secret must be at least ${secretMinLength} characters long. Received ${secret.length}.`);
+    return secret;
+}
 
 const digests = getHashes();
 let digest = "sha256";
@@ -67,10 +94,13 @@ function hash(pwd, secret) {
 function pbkdf2(pwd, secret, salt) {
     return pbkdf2Sync(hash(pwd, secret), salt, saltRnds, keyLen, digest).toString("hex");
 }
-function encrypt(pwd, secret) {
-    if (!isString(pwd, true) || !isString(secret, true))
+function encrypt(pwd, b64Secret) {
+    if (!isString(pwd, true))
         return false;
-    const salt = randomBytes(16).toString('hex');
+    const secret = decode(b64Secret);
+    if (!secret)
+        return false;
+    const salt = randomBytes(16).toString("hex");
     return salt + pbkdf2(pwd, secret, salt);
 }
 function compare(pwd, hash, secret) {
@@ -100,7 +130,7 @@ const defOpts = {
     strict: PWD_AUTO_STRICT || true,
     similarChars: PWD_AUTO_SIMILAR_CHARS || false,
 };
-function create$1(opts = defOpts) {
+function create(opts = defOpts) {
     const len = isValidInteger(opts.len, 12, 64, true) ? opts.len : defOpts.len;
     const num = isBoolean(opts.num) ? opts.num : defOpts.num;
     const ucase = isBoolean(opts.ucase) ? opts.ucase : defOpts.ucase;
@@ -150,81 +180,77 @@ function shuffleArray(a) {
     return a;
 }
 
-function decode(str) {
-    const base64 = str.replace(/-/g, '+').replace(/_/g, '/');
-    const padding = '='.repeat((4 - (base64.length % 4)) % 4);
-    return Buffer.from(base64 + padding, "base64").toString();
-}
-function encode(str) {
-    return Buffer.from(str)
-        .toString("base64")
-        .replace(/\+/g, '-')
-        .replace(/\//g, '_')
-        .replace(/=+$/, '');
-}
-
-const secretMinLength = 32;
 const header = {
     alg: "HS256",
     typ: "JWT",
     kid: 0,
 };
 function sign(iss, duration, b64Secrets) {
-    if (!isString(iss, true) || !isNumber(iss, true))
+    if (!isString(iss, true) && !isNumber(iss, true))
         return false;
-    if (!isArray(b64Secrets, '>=', 1))
+    if (!isArray(b64Secrets, ">=", 1))
         return false;
-    header.kid = randomSecret(b64Secrets);
+    if (!isPositive(duration, true))
+        return false;
+    header.kid = randomPick(b64Secrets);
     const b64Secret = b64Secrets[header.kid];
-    if (!isBase64(b64Secret, true))
-        return false;
     const secret = decode(b64Secret);
-    if (!isStringOfLength(secret, secretMinLength, undefined))
+    if (!secret)
         return false;
     const iat = Math.floor(Date.now() / 1000);
     const nbf = iat + 1;
-    const exp = (duration && duration > 60) ? iat + duration : iat + 60 * 15;
+    const exp = duration && duration > 60 ? iat + duration : iat + 60 * 15;
     const payload = { iss, iat, nbf, exp };
     const b64Header = encode(JSON.stringify(header));
     const b64Payload = encode(JSON.stringify(payload));
-    const b64Signature = createHmac('sha256', secret)
+    const b64Signature = createHmac("sha256", secret)
         .update(`${b64Header}.${b64Payload}`)
-        .digest('base64')
-        .replace(/=/g, '')
-        .replace(/\+/g, '-')
-        .replace(/\//g, '_');
+        .digest("base64")
+        .replace(/=/g, "")
+        .replace(/\+/g, "-")
+        .replace(/\//g, "_");
     return `${b64Header}.${b64Payload}.${b64Signature}`;
 }
 function verify(token, b64Secrets) {
-    const segments = token.split('.');
+    const segments = token.split(".");
     if (segments.length !== 3)
         return false;
     const [B64Header, B64Payload, B64Signature] = segments;
     if (!B64Header || !B64Payload || !B64Signature)
         return false;
-    if (!isArray(b64Secrets, '>=', 1))
+    if (!isArray(b64Secrets, ">=", 1))
         return false;
-    const header = JSON.parse(decode(B64Header));
-    const payload = JSON.parse(decode(B64Payload));
-    if (header.alg !== 'HS256')
+    const headerString = decode$1(B64Header);
+    const payloadString = decode$1(B64Payload);
+    if (!isJson(headerString)) {
         return false;
-    if (header.typ !== 'JWT')
+    }
+    if (!isJson(payloadString)) {
+        return false;
+    }
+    const header = JSON.parse(headerString);
+    const payload = JSON.parse(payloadString);
+    if (header.alg !== "HS256")
+        return false;
+    if (header.typ !== "JWT")
         return false;
     const secretsLen = b64Secrets.length;
     if (!isValidInteger(header.kid, 0, secretsLen, true))
         return false;
     const now = Math.floor(Date.now() / 1000);
     if (payload.nbf && payload.nbf > now) {
-        console.error('JWT cannot be used yet (nbf claim).');
+        console.error("JWT cannot be used yet (nbf claim).");
         return false;
     }
     if (payload.exp && payload.exp < now)
         return false;
     const b64Secret = b64Secrets[header.kid];
-    if (!isStringOfLength(b64Secret, 44, undefined) && !isBase64(b64Secret))
+    if (!isStringOfLength(b64Secret, 44, undefined) && !isBase64(b64Secret, true))
         return false;
-    const secret = decode(b64Secret);
-    const expectedSignature = createHmac('sha256', secret).update(`${B64Header}.${B64Payload}`).digest('base64');
+    const secret = decode$1(b64Secret);
+    const expectedSignature = createHmac("sha256", secret)
+        .update(`${B64Header}.${B64Payload}`)
+        .digest("base64");
     if (!safeCompare(expectedSignature, B64Signature))
         return false;
     return payload;
@@ -234,13 +260,8 @@ function safeCompare(a, b) {
     const safeB = Buffer.from(b);
     return timingSafeEqual(safeA, safeB);
 }
-function randomSecret(array) {
+function randomPick(array) {
     return Math.floor(Math.random() * array.length);
 }
 
-function create(length = 32) {
-    const b64Secret = randomBytes(length).toString('base64');
-    return b64Secret.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
-}
-
-export { compare, encrypt, getDigest, getDigests, getKeyLen, getSaltRounds, create$1 as randPwd, create as randSecret, setDigest, setKeyLen, setSaltRounds, sign, verify };
+export { compare, encrypt, getDigest, getDigests, getKeyLen, getSaltRounds, create as randPwd, create$1 as randSecret, setDigest, setKeyLen, setSaltRounds, sign, verify };

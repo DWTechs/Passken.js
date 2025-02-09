@@ -11,7 +11,7 @@ import {
 } from "@dwtechs/checkard";
 import * as base64 from "./base64";
 import type { Header, Payload } from "./types";
-import { checkSecret } from "./secret";
+import { decode } from "./secret";
 
 const header: Header = {
 	alg: "HS256",
@@ -32,17 +32,20 @@ function sign(
 	b64Secrets: string[],
 ): string | false {
 	// Check iss is a string or a number
-	if (!isString(iss, true) && !isNumber(iss, true)) return false;
+	if (!isString(iss, ">", 0) && !isNumber(iss, true)) 
+    return false;
 
 	// Check b64Secrets is an array
-	if (!isArray(b64Secrets, ">=", 1)) return false;
+	if (!isArray(b64Secrets, ">", 0)) 
+    return false;
 
-	if (!isPositive(duration, true)) return false;
+	if (!isNumber(duration, false) || !isPositive(duration, true)) 
+    return false;
 
-	header.kid = randomSecret(b64Secrets);
+	header.kid = randomPick(b64Secrets);
 	const b64Secret = b64Secrets[header.kid];
 
-	const secret = checkSecret(b64Secret);
+	const secret = decode(b64Secret);
 	if (!secret) return false;
 
 	const iat = Math.floor(Date.now() / 1000); // Current time in seconds
@@ -71,7 +74,7 @@ function verify(token: string, b64Secrets: string[]): boolean {
 	if (!B64Header || !B64Payload || !B64Signature) return false;
 
 	// Check b64Secrets is an array
-	if (!isArray(b64Secrets, ">=", 1)) return false;
+	if (!isArray(b64Secrets, ">", 0)) return false;
 
 	// Decode and parse the header and payload
 	const headerString = base64.decode(B64Header);
@@ -133,7 +136,7 @@ function safeCompare(a: string, b: string): boolean {
 }
 
 // Generate a random index based on the array length
-function randomSecret(array: string[]): number {
+function randomPick(array: string[]): number {
 	return Math.floor(Math.random() * array.length);
 }
 
