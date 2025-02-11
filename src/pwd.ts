@@ -1,6 +1,6 @@
 
 import type { Options } from "./types";
-import { isValidInteger, isBoolean } from "@dwtechs/checkard";
+import { isNumber, isValidInteger, isBoolean } from "@dwtechs/checkard";
 
 const list = {
   lcase: 'abcdefghijklmnopqrstuvwxyz',
@@ -43,7 +43,7 @@ const defOpts: Options = {
  * 
  */
 function create(opts: Partial<Options> = defOpts): string {
-  const len = isValidInteger(opts.len, 12, 64, true) ? opts.len : defOpts.len;
+  const len = isNumber(opts.len, true) && isValidInteger(opts.len, 12, 64, true) ? opts.len : defOpts.len;
   const num = isBoolean(opts.num) ? opts.num : defOpts.num;
   const ucase = isBoolean(opts.ucase) ? opts.ucase : defOpts.ucase;
   const sym = isBoolean(opts.sym) ? opts.sym : defOpts.sym;

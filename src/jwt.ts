@@ -32,7 +32,7 @@ function sign(
 	b64Secrets: string[],
 ): string | false {
 	// Check iss is a string or a number
-	if (!isString(iss, ">", 0) && !isNumber(iss, true)) 
+	if (!isString(iss, "!empty") && !isNumber(iss, true)) 
     return false;
 
 	// Check b64Secrets is an array

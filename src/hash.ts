@@ -120,7 +120,7 @@ function pbkdf2(pwd: string, secret: string, salt: string): string {
  * @return {type} The encrypted password hash
  */
 function encrypt(pwd: string, b64Secret: string): string | false {
-	if (!isString(pwd, ">", 0)) 
+	if (!isString(pwd, "!empty")) 
     return false;
 	
   const secret = decode(b64Secret);
@@ -139,7 +139,7 @@ function encrypt(pwd: string, b64Secret: string): string | false {
  * @return {type} Whether the password matches the stored hash
  */
 function compare(pwd: string, hash: string, secret: string): boolean {
-	if (!isString(pwd, ">", 0) || !isString(secret, ">", 0)) 
+	if (!isString(pwd, "!empty") || !isString(secret, "!empty")) 
     return false;
 
 	const hashedPwd = pbkdf2(pwd, secret, hash.slice(0, 32)); // Assuming the salt length is 16 bytes (32 hex characters)

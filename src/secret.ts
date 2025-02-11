@@ -1,6 +1,6 @@
 import { randomBytes } from "node:crypto";
 import * as base64 from "./base64";
-import { isStringOfLength, isBase64 } from "@dwtechs/checkard";
+import { isString, isBase64 } from "@dwtechs/checkard";
 
 const secretMinLength = 30;
 
@@ -17,7 +17,7 @@ function decode(b64Secret: string): string {
 	
   const secret = base64.decode(b64Secret);
 	// Check selected secret has the proper length
-	if (!isStringOfLength(secret, secretMinLength, undefined))
+	if (!isString(secret, ">=", secretMinLength))
     throw new Error(`Secret must be at least ${secretMinLength} characters long. Received ${secret.length}.`);
 	
   return secret;
