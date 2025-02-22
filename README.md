@@ -20,7 +20,7 @@
 
 ## Synopsis
 
-**[Passken.js](https://github.com/DWTechs/Passken.js)** is an open source password and JWT management library for Node.js to create, encrypt safely.
+**[Passken.js](https://github.com/DWTechs/Passken.js)** is an open source password and JWT management library for Node.js to create, encrypt and compare safely.
 
 - Only 1 dependency to check inputs variables
 - Very lightweight
@@ -155,6 +155,7 @@ With this strategy you do not need to send options parameter in the randomPwd() 
 
 
 ### Types
+---
 
 ```javascript
 // Password
@@ -188,6 +189,7 @@ type Payload = {
 ```
 
 ### Methods
+---
 
 #### Password
 
