@@ -25,7 +25,7 @@
 - Only 1 dependency to check inputs variables
 - Very lightweight
 - Thoroughly tested
-- Imported as EcmaScrypt module
+- EcmaScrypt module
 - Works in Javascript and Typescript
 - Written in Typescript
 
@@ -34,7 +34,8 @@
 
 - Node.js: 22
 
-This is the oldest targeted versions. The library should not work properly on older versions of Node.js because it uses node:crypto in order to not depend on external dependencies.  
+This is the oldest targeted versions.  
+The library uses node:crypto.  
 
 
 ## Installation
@@ -53,7 +54,7 @@ Example of use with Express.js using ES6 module format
 
 ```javascript
 
-import { compare, create, encrypt, sign, verify } from "@dwtechs/passken";
+import { compare, randomPwd, encrypt, sign, verify } from "@dwtechs/passken";
 
 const { PWD_SECRET, TOKEN_SECRET } = process.env;
 
@@ -75,7 +76,7 @@ function comparePwd(req, res, next) {
 }
 
 /**
- * Generates random passwords for a user and encrypts it.
+ * Generates a random password for a user and encrypts it.
  */
 function createPwd(req, res, next) {
 
@@ -89,7 +90,7 @@ function createPwd(req, res, next) {
     strict: true,
     similarChars: true,
   };
-  user.pwd = create(options);
+  user.pwd = randomPwd(options);
   user.pwdHash = encrypt(user.pwd, PWD_SECRET);
   next();
 
@@ -102,7 +103,7 @@ function signToken(req, res, next) {
 }
 
 function verifyToken(req, res, next) {
-  const decodedToken = verify(req.token, [TOKEN_SECRET]);
+  res.decodedToken = verify(req.token, [TOKEN_SECRET]);
   next();
 }
 
@@ -147,7 +148,7 @@ You can update password configuration using the following environment variables 
 ```
 
 These environment variables will update the default values of the lib at start up.
-With this strategy you do not need to send options parameter in the create() method anymore.
+With this strategy you do not need to send options parameter in the randomPwd() method anymore.
 
 
 ## API Reference
