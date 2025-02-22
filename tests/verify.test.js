@@ -15,51 +15,43 @@ function wait(duration = 1000) {
 }
 
 describe("verify", () => {
-	it("should return false for a token with invalid segments", () => {
-		const result = verify("invalid.token", b64Secrets);
-		expect(result).toBe(false);
+	it("should throw error for a token with invalid segments", () => {
+		expect(() => { verify("invalid.token", b64Secrets)}).toThrow();
 	});
 
-	it("should return false for a token with invalid header", () => {
-		const payload = verify(invalidToken, b64Secrets);
-		expect(payload).toBe(false);
+	it("should throw error for a token with invalid header", () => {
+		expect(() => { verify(invalidToken, b64Secrets)}).toThrow();
 	});
 
-	it("should return false for a token with invalid payload", () => {
-		const result = verify("valid.token.invalidPayload", b64Secrets);
-		expect(result).toBe(false);
+	it("should throw error for a token with invalid payload", () => {
+		expect(() => { verify("valid.token.invalidPayload", b64Secrets)}).toThrow();
 	});
 
-	it("should return false for a token with invalid algorithm", () => {
-		const result = verify(invalidAlgToken, b64Secrets);
-		expect(result).toBe(false);
+	it("should throw error for a token with invalid algorithm", () => {
+		expect(() => { verify(invalidAlgToken, b64Secrets)}).toThrow();
 	});
 
-	it("should return false for a token with invalid typ", () => {
-		const result = verify(invalidTypToken, b64Secrets);
-		expect(result).toBe(false);
+	it("should throw error for a token with invalid typ", () => {
+		expect(() => { verify(invalidTypToken, b64Secrets)}).toThrow();
 	});
 
-	it("should return false for a token with invalid kid", () => {
+	it("should throw error for a token with invalid kid", () => {
 		const invalidKidToken = "invalidKid.token.signature";
-		const result = verify(invalidKidToken, b64Secrets);
-		expect(result).toBe(false);
+		expect(() => { verify(invalidKidToken, b64Secrets)}).toThrow();
 	});
 
-	it("should return false for a token with nbf claim in the future", () => {
-		const result = verify(validToken, b64Secrets);
-		expect(result).toBe(false);
+	it("should throw error for a token with nbf claim in the future", () => {
+		expect(() => { verify(validToken, b64Secrets)}).toThrow();
 	});
 
-	it("should return false for a token with exp claim in the past", () => {
+	it("should throw error for a token with exp claim in the past", () => {
 		const pastExpToken = expiredToken;
-		const result = verify(pastExpToken, b64Secrets);
-		expect(result).toBe(false);
+		expect(() => { verify(pastExpToken, b64Secrets)}).toThrow();
 	});
 
 	it("should return the decoded token for a valid token", async () => {
 		await wait(1000); // Wait to not throw nbf error
 		const result = verify(validToken, b64Secrets);
-		expect(result).toBe(true);
+		expect(result).toBeInstanceOf(Object);
 	});
 });

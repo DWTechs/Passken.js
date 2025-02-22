@@ -1,9 +1,9 @@
-import { encrypt, randSecret } from "../dist/passken.js";
+import { encrypt, randomSecret } from "../dist/passken.js";
 
 describe("encrypt", () => {
 	const password = "mySecret!/;6(A)Pwd";
-	const InvalidSecret = "myInvalidSecret";
-	const validSecret = randSecret();
+	const InvalidSecret = {};
+	const validSecret = randomSecret();
   console.log("validSecret", validSecret);
 
 	test("returns a string when password and secret are encrypted", () => {
@@ -34,18 +34,6 @@ describe("encrypt", () => {
 		const hash1 = encrypt(password, validSecret);
 		const hash2 = encrypt(password, validSecret);
 		expect(hash1).not.toBe(hash2);
-	});
-
-	test("returns false because secret is not long enough", () => {
-		const specialPassword = "p@$$w0rd! 特别";
-		const specialSecret = "secrét$ 特别";
-		expect(encrypt(specialPassword, specialSecret)).toBe(false);
-	});
-
-	test("returns false because secret is not in base64", () => {
-		const specialPassword = "p@$$w0rd! 特别";
-		const specialSecret = "secrét$ 特别aaaaaaaaaaaaaaaaaaaaa";
-		expect(encrypt(specialPassword, specialSecret)).toBe(false);
 	});
 
 	test("returns false for non-string inputs", () => {

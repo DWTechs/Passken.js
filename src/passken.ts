@@ -7,6 +7,6 @@ export {  getSaltRounds,
           getDigests,
           encrypt,
           compare } from './hash';
-export {  create as randPwd } from './pwd';
+export {  create as randomPwd } from './pwd';
 export {  sign, verify } from './jwt';
-export {  create as randSecret } from './secret';
+export {  create as randomSecret } from './secret';

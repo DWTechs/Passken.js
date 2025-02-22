@@ -95,13 +95,14 @@ function createPwd(req, res, next) {
 
 }
 
+// JWT
 function signToken(req, res, next) {
-  res.jwt = sign(req.userId, 3600, TOKEN_SECRET);
+  res.jwt = sign(req.userId, 3600, [TOKEN_SECRET]);
   next();
 }
 
 function verifyToken(req, res, next) {
-  res.jwt = sign(req.userId, 3600, TOKEN_SECRET);
+  const decodedToken = verify(req.token, [TOKEN_SECRET]);
   next();
 }
 
@@ -155,7 +156,7 @@ With this strategy you do not need to send options parameter in the create() met
 ### Types
 
 ```javascript
-
+// Password
 type Options = {
   len: number,
   num: boolean,
@@ -164,6 +165,19 @@ type Options = {
   sym: boolean,
   strict: boolean,
   similarChars: boolean,
+};
+
+// JWT
+export type Header = {
+  alg: string;
+  typ: string;
+  kid: number;
+};
+export type Payload = {
+  iss: number | string;
+  iat: number;
+  nbf: number;
+  exp: number;
 };
 
 ```
@@ -195,17 +209,17 @@ function getDigests(): string[] {}
 
 // Encrypt a string peppered with a secret
 function encrypt( pwd: string, 
-                  secret: string
+                  b64Secret: string
                 ): string | false {}
 
 // Compare a string with a hash
 function compare( pwd: string, 
                   hash: string,
-                  secret: string
+                  b64Secret: string
                 ): boolean {}
 
 // Create a random password
-function randPwd(opts: Partial<Options> = defOpts): string {}
+function randomPwd(opts: Partial<Options> = defOpts): string {}
 
 ```
 
@@ -238,7 +252,7 @@ function verify( token: string,
 ```javascript
 
 // Generate a random 256-bit secret
-randSecret(length = 32): string
+randomSecret(length = 32): string
 
 ```
 

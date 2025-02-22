@@ -6,12 +6,18 @@ describe("compare", () => {
 	const emptyPassword = "";
 	const secret = "8zYSoxUV36qy8tiIGytsA7qPdFecywiQs0sHBze_Skg";
 	const hashedPassword = encrypt(password, secret);
+  const hashedPassword2 = encrypt(password, secret);
 	const otherHashedPassword = encrypt(password, secret);
+  const otherHashedPassword2 = encrypt(password, secret);
 	const anotherHashedPassword = encrypt(password, secret);
+  const anotherHashedPassword2 = encrypt(password, secret);
   console.log("hashedPassword", hashedPassword);
+  console.log("hashedPassword2", hashedPassword2);
   console.log("otherHashedPassword", otherHashedPassword);
+  console.log("otherHashedPassword2", otherHashedPassword2);
   console.log("anotherHashedPassword", anotherHashedPassword);
-
+  console.log("anotherHashedPassword2", anotherHashedPassword2);
+  
 	test("returns true when comparing with the right password", () => {
 		expect(compare(password, hashedPassword, secret)).toBe(true);
 	});

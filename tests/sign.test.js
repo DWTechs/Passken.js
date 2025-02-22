@@ -1,8 +1,9 @@
-import { sign, randSecret } from "../dist/passken.js";
+import { sign, randomSecret } from "../dist/passken.js";
 import { isBase64 } from "@dwtechs/checkard"
 
 describe("encodeBase64", () => {
-	const secret = [randSecret()];
+	const secret = [randomSecret()];
+
 	test("generates a token string with valid inputs", () => {
 		const token = sign("user123", 3600, secret); // Assuming duration is in seconds
 		expect(typeof token).toBe("string");
@@ -34,25 +35,22 @@ describe("encodeBase64", () => {
 		expect(typeof token).toBe("string");
 	});
 
-	test("returns false with an empty secrets array", () => {
-		const token = sign("user123", 3600, []);
-		expect(token).toBe(false);
+	test("Throw error with an empty secrets array", () => {
+		expect(() => {sign("user123", 3600, [])}).toThrow();
 	});
 
-	test("handles a negative duration gracefully", () => {
-		const token = sign("user123", -3600, secret);
-		expect(token).toBe(false);
+	test("Throw error with a negative duration", () => {
+		expect(() => {sign("user123", -3600, secret)}).toThrow()
 	});
 
-	test("returns false if no issuer is provided", () => {
-		const token = sign("", 3600, secret);
-		expect(token).toBe(false);
+	test("Throw error if no issuer is provided", () => {
+		expect(() => {sign("", 3600, secret)}).toThrow();
 	});
 
 	test("ensures the signature is Base64 URL-safe encoded", () => {
 		const token = sign("user123", 3600, secret);
 		const signature = token.split(".")[2];
-		expect(isBase64(signature, true).toBe(true));
+		expect(isBase64(signature, true)).toBe(true);
 	});
 
 	test("handles a very long duration", () => {
@@ -76,9 +74,4 @@ describe("encodeBase64", () => {
 		expect(typeof token).toBe("string");
 	});
 
-	test("rejects entirely non-conforming secrets array", () => {
-		const badSecrets = ["tooShort", "notBase64Encoded"];
-		const token = sign("user123", 3600, badSecrets);
-		expect(token).toBe(false);
-	});
 });

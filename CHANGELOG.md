@@ -1,4 +1,4 @@
-# 0.2.0 (Jan 27th 2025)
+# 0.2.0 (feb 22th 2025)
 
 - Add environement variables support for password options
 - Add JWT support with a sign() and verify() method
