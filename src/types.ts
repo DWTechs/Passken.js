@@ -8,6 +8,8 @@ export type Options = {
   similarChars: boolean,
 };
 
+export type Type = "access" | "refresh";
+
 export type Header = {
   alg: string,
   typ: string,
@@ -19,4 +21,5 @@ export type Payload = {
   iat: number,
   nbf: number,
   exp: number,
+  typ: Type,
 }

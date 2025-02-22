@@ -8,7 +8,7 @@ const invalidTypToken =
 	"eyJhbGciOiJIUzI1NiIsInR5cCI6IklOVkFMSUQiLCJraWQiOjB9.eyJpc3MiOiJ1c2VyMTIzIiwiaWF0IjoxNzM4MjMxNTk0LCJuYmYiOjE3MzgyMzE1OTUsImV4cCI6MTczODIzNTE5NH0.OX2EdvtBv5bQwblpmx0rmLZXWnn-zoGdClYPccRTQ80";
 const invalidToken = "invalid.token.signature";
 const b64Secrets = ["8zYSoxUV36qy8tiIGytsA7qPdFecywiQs0sHBze_Skg"];
-const validToken = sign("user123", 3600, b64Secrets);
+const validToken = sign("user123", 3600, "access", b64Secrets);
 
 function wait(duration = 1000) {
 	return new Promise((resolve) => setTimeout(resolve, duration));

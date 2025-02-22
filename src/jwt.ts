@@ -10,7 +10,7 @@ import {
   b64Encode,
   b64Decode
 } from "@dwtechs/checkard";
-import type { Header, Payload } from "./types";
+import type { Header, Payload, Type } from "./types";
 
 const header: Header = {
 	alg: "HS256",
@@ -28,6 +28,7 @@ const header: Header = {
 function sign(
 	iss: number | string,
 	duration: number,
+  type: Type,
 	b64Secrets: string[],
 ): string | false {
 	// Check iss is a string or a number
@@ -51,7 +52,8 @@ function sign(
 	const iat = Math.floor(Date.now() / 1000); // Current time in seconds
 	const nbf = iat + 1;
 	const exp = duration && duration > 60 ? iat + duration : iat + 60 * 15;
-	const payload: Payload = { iss, iat, nbf, exp };
+  const typ = type === "refresh" ? type : "access";
+	const payload: Payload = { iss, iat, nbf, exp, typ };
 
 	const b64Header = b64Encode(JSON.stringify(header));
 	const b64Payload = b64Encode(JSON.stringify(payload));

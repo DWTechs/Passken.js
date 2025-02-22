@@ -162,7 +162,7 @@ const header = {
     typ: "JWT",
     kid: 0,
 };
-function sign(iss, duration, b64Secrets) {
+function sign(iss, duration, type, b64Secrets) {
     if (!isString(iss, "!0") && !isNumber(iss, true))
         throw new Error("iss must be a string or a number");
     if (!isArray(b64Secrets, ">", 0))
@@ -177,7 +177,8 @@ function sign(iss, duration, b64Secrets) {
     const iat = Math.floor(Date.now() / 1000);
     const nbf = iat + 1;
     const exp = duration && duration > 60 ? iat + duration : iat + 60 * 15;
-    const payload = { iss, iat, nbf, exp };
+    const typ = type === "refresh" ? type : "access";
+    const payload = { iss, iat, nbf, exp, typ };
     const b64Header = b64Encode(JSON.stringify(header));
     const b64Payload = b64Encode(JSON.stringify(payload));
     const signature = hash(`${b64Header}.${b64Payload}`, secret);

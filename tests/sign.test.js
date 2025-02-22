@@ -5,7 +5,7 @@ describe("encodeBase64", () => {
 	const secret = [randomSecret()];
 
 	test("generates a token string with valid inputs", () => {
-		const token = sign("user123", 3600, secret); // Assuming duration is in seconds
+		const token = sign("user123", 3600, "access", secret); // Assuming duration is in seconds
 		expect(typeof token).toBe("string");
 		expect(token.split(".").length).toBe(3); // Basic check for JWT structure
 	});
@@ -20,7 +20,7 @@ describe("encodeBase64", () => {
 	test("correctly sets the expiration based on duration", () => {
 		const currentTime = Math.floor(Date.now() / 1000);
 		const duration = 3600; // 1 hour
-		const token = sign("user123", duration, secret);
+		const token = sign("user123", duration, "access", secret);
 		const payload = JSON.parse(
 			Buffer.from(token.split(".")[1], "base64").toString(),
 		);
@@ -30,37 +30,61 @@ describe("encodeBase64", () => {
 		expect(payload.exp - currentTime).toBeCloseTo(duration, -1); // Allowing some leeway for execution time
 	});
 
+  test("correctly sets the type as access", () => {
+		const currentTime = Math.floor(Date.now() / 1000);
+		const duration = 3600; // 1 hour
+		const token = sign("user123", duration, "access", secret);
+		const payload = JSON.parse(
+			Buffer.from(token.split(".")[1], "base64").toString(),
+		);
+
+		expect(payload.typ).toBeDefined();
+		expect(payload.typ).toBe("access");
+	});
+
+  test("correctly sets the type as refresh", () => {
+		const currentTime = Math.floor(Date.now() / 1000);
+		const duration = 3600; // 1 hour
+		const token = sign("user123", duration, "refresh", secret);
+		const payload = JSON.parse(
+			Buffer.from(token.split(".")[1], "base64").toString(),
+		);
+
+		expect(payload.typ).toBeDefined();
+		expect(payload.typ).toBe("refresh");
+	});
+
 	test("generates a token with numeric issuer", () => {
-		const token = sign(12345, 3600, secret);
+		const token = sign(12345, 3600, "access", secret);
 		expect(typeof token).toBe("string");
 	});
 
 	test("Throw error with an empty secrets array", () => {
-		expect(() => {sign("user123", 3600, [])}).toThrow();
+		expect(() => {sign("user123", 3600, "access", [])}).toThrow();
 	});
 
 	test("Throw error with a negative duration", () => {
-		expect(() => {sign("user123", -3600, secret)}).toThrow()
+		expect(() => {sign("user123", -3600, "access", secret)}).toThrow()
 	});
 
 	test("Throw error if no issuer is provided", () => {
-		expect(() => {sign("", 3600, secret)}).toThrow();
+		expect(() => {sign("", 3600, "access", secret)}).toThrow();
 	});
 
 	test("ensures the signature is Base64 URL-safe encoded", () => {
-		const token = sign("user123", 3600, secret);
+		const token = sign("user123", 3600, "access", secret);
 		const signature = token.split(".")[2];
 		expect(isBase64(signature, true)).toBe(true);
 	});
 
 	test("handles a very long duration", () => {
 		const longDuration = 3600 * 24 * 365; // Un an
-		const token = sign("user123", longDuration, secret);
+		const token = sign("user123", longDuration, "access", secret);
 		expect(typeof token).toBe("string");
 	});
 
 	test("ensures the generated token contains the correct payload structure", () => {
-		const token = sign("user123", 3600, secret);
+		const token = sign("user123", 3600, "access", secret);
 		const payloadBase64 = token.split(".")[1];
 		const payload = JSON.parse(Buffer.from(payloadBase64, "base64").toString());
 		expect(payload).toHaveProperty("iss");
@@ -70,7 +94,7 @@ describe("encodeBase64", () => {
 	});
 
 	test("handles issuer with special characters", () => {
-		const token = sign("user name with spaces & symbols #@", 3600, secret);
+		const token = sign("user name with spaces & symbols #@", 3600, "access", secret);
 		expect(typeof token).toBe("string");
 	});
 

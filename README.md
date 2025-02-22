@@ -98,7 +98,7 @@ function createPwd(req, res, next) {
 
 // JWT
 function signToken(req, res, next) {
-  res.jwt = sign(req.userId, 3600, [TOKEN_SECRET]);
+  res.jwt = sign(req.userId, 3600, "access", [TOKEN_SECRET]);
   next();
 }
 
@@ -169,17 +169,21 @@ type Options = {
 };
 
 // JWT
-export type Header = {
-  alg: string;
-  typ: string;
-  kid: number;
+type Type = "access" | "refresh";
+
+type Header = {
+  alg: string,
+  typ: string,
+  kid: number,
 };
-export type Payload = {
-  iss: number | string;
-  iat: number;
-  nbf: number;
-  exp: number;
-};
+
+type Payload = {
+  iss: number | string,
+  iat: number,
+  nbf: number,
+  exp: number,
+  typ: Type,
+}
 
 ```
 
@@ -238,6 +242,7 @@ const header {
 // Create a JWT
 function sign( iss: number | string, 
                duration: number, 
+               type: Type,
                b64Secrets: string[]
              ): string;
 
