@@ -51,7 +51,7 @@ function sign(
 
 	const iat = Math.floor(Date.now() / 1000); // Current time in seconds
 	const nbf = iat + 1;
-	const exp = duration && duration > 60 ? iat + duration : iat + 60 * 15;
+	const exp = duration > 60 ? iat + duration : iat + 60 * 15;
   const typ = type === "refresh" ? type : "access";
 	const payload: Payload = { iss, iat, nbf, exp, typ };
 
@@ -63,7 +63,7 @@ function sign(
 	return `${b64Header}.${b64Payload}.${b64Signature}`;
 }
 
-function verify(token: string, b64Secrets: string[]): boolean {
+function verify(token: string, b64Secrets: string[], ignoreExpiration = false): boolean {
 	const segments = token.split(".");
 	if (segments.length !== 3)
     throw new Error("Token must have 3 segments");
@@ -105,7 +105,7 @@ function verify(token: string, b64Secrets: string[]): boolean {
     throw new Error("JWT cannot be used yet (nbf claim)");
 
 	// validate the "exp" claim
-	if (payload.exp && payload.exp < now)
+	if (!ignoreExpiration && payload.exp < now)
     throw new Error("JWT has expired (exp claim)");
 
 	const b64Secret = b64Secrets[header.kid];

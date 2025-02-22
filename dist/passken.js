@@ -176,7 +176,7 @@ function sign(iss, duration, type, b64Secrets) {
         throw new Error("could not decode the secret");
     const iat = Math.floor(Date.now() / 1000);
     const nbf = iat + 1;
-    const exp = duration && duration > 60 ? iat + duration : iat + 60 * 15;
+    const exp = duration > 60 ? iat + duration : iat + 60 * 15;
     const typ = type === "refresh" ? type : "access";
     const payload = { iss, iat, nbf, exp, typ };
     const b64Header = b64Encode(JSON.stringify(header));
@@ -185,7 +185,7 @@ function sign(iss, duration, type, b64Secrets) {
     const b64Signature = b64Encode(signature, true);
     return `${b64Header}.${b64Payload}.${b64Signature}`;
 }
-function verify(token, b64Secrets) {
+function verify(token, b64Secrets, ignoreExpiration = false) {
     const segments = token.split(".");
     if (segments.length !== 3)
         throw new Error("Token must have 3 segments");
@@ -209,7 +209,7 @@ function verify(token, b64Secrets) {
     const now = Math.floor(Date.now() / 1000);
     if (payload.nbf && payload.nbf > now)
         throw new Error("JWT cannot be used yet (nbf claim)");
-    if (payload.exp && payload.exp < now)
+    if (!ignoreExpiration && payload.exp < now)
         throw new Error("JWT has expired (exp claim)");
     const b64Secret = b64Secrets[header.kid];
     if (!isString(b64Secret, ">=", 40) || !isBase64(b64Secret, true))

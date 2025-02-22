@@ -91,6 +91,7 @@ describe("encodeBase64", () => {
 		expect(payload).toHaveProperty("iat");
 		expect(payload).toHaveProperty("nbf");
 		expect(payload).toHaveProperty("exp");
+    expect(payload).toHaveProperty("typ");
 	});
 
 	test("handles issuer with special characters", () => {
