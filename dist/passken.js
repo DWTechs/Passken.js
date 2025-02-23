@@ -96,7 +96,7 @@ const list = {
     sucase: 'ABCDEFGHJKLMNPQRSTUVWXYZ',
     num: '0123456789',
     snum: '23456789',
-    sym: '!@#%*_-+=:;?><,./()',
+    sym: '!@#%*_-+=:?><./()',
 };
 const { PWD_AUTO_LENGTH, PWD_AUTO_NUMBERS, PWD_AUTO_UPPERCASE, PWD_AUTO_LOWERCASE, PWD_AUTO_SYMBOLS, PWD_AUTO_STRICT, PWD_AUTO_SIMILAR_CHARS, } = process === null || process === void 0 ? void 0 : process.env;
 const defOpts = {
