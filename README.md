@@ -203,7 +203,7 @@ let keyLen = 64;
 /**
  * Returns the number of salt rounds used for hashing.
  *
- * @return {number} The number of salt rounds.
+ * @returns {number} The number of salt rounds.
  */
 function getSaltRounds(): number {}
 
@@ -218,7 +218,7 @@ function setSaltRounds(rnds: number): boolean {} // between 12 and 100
 /**
  * Returns the key length used for hashing.
  *
- * @return {number} The key length.
+ * @returns {number} The key length.
  */
 function getKeyLen(): number {}
 
@@ -233,7 +233,7 @@ function setKeyLen(r: number): boolean {} // between 2 and 256
 /**
  * Returns the hash function used for hashing.
  *
- * @return {string} The hash function.
+ * @returns {string} The hash function.
  */
 function getDigest(): string {}
 
@@ -249,7 +249,7 @@ function setDigest(d: string): boolean {}
 /**
  * Returns the list of available hash functions.
  *
- * @return {string[]} The list of available hash functions.
+ * @returns {string[]} The list of available hash functions.
  */
 function getDigests(): string[] {}
 
@@ -259,7 +259,7 @@ function getDigests(): string[] {}
  *
  * @param {string} pwd - The password to be peppered.
  * @param {string} secret - The secret to be used as a pepper.
- * @return {string} The hashed pepper.
+ * @returns {string} The hashed pepper.
  */
 function hash(pwd: string, secret: string): string;
 
@@ -292,7 +292,7 @@ function compare( pwd: string,
  * Generate a random password.
  * 
  * @param {Partial<Options>} opts - The options to generate the password.
- * @return {string} The generated password.
+ * @returns {string} The generated password.
  * 
  */
 function randomPwd(opts: Partial<Options> = defOpts): string {}
