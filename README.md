@@ -384,7 +384,7 @@ Any of these can be passed into the options object for each function.
 
 *At least one of those options must be true.  
 
-Symbols used : !@#%*_-+=:;?><,./()
+Symbols used : !@#%*_-+=:;?><,./()  
 Similar characters : l, I, 1, o, O, 0
 
 
