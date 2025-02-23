@@ -48,11 +48,11 @@ export type Payload = {
 };
 
 declare function getSaltRounds(): number;
-declare function setSaltRounds(rnds: number): number | false;
+declare function setSaltRounds(rnds: number): boolean;
 declare function getKeyLen(): number;
-declare function setKeyLen(len: number): number | false;
+declare function setKeyLen(len: number): boolean;
 declare function getDigest(): string;
-declare function setDigest(func: string): string | false;
+declare function setDigest(func: string): boolean;
 declare function getDigests(): string[];
 declare function hash(pwd: string, secret: string): string;
 declare function encrypt(pwd: string, b64Secret: string): string | false;

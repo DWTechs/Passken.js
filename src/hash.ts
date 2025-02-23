@@ -6,6 +6,7 @@ import { randomBytes,
        } from "node:crypto";
 import { isValidInteger, 
          isString, 
+         isIn,
          b64Decode 
        } from "@dwtechs/checkard";
 
@@ -30,12 +31,12 @@ function getSaltRounds(): number {
  * @param {integer} rounds - The number of salt rounds.
  * @return {integer} The number of salt rounds.
  */
-function setSaltRounds(rnds: number): number | false {
+function setSaltRounds(rnds: number): boolean {
 	if (!isValidInteger(rnds, 12, 100, true)) 
     return false;
 
 	saltRnds = rnds;
-	return saltRnds;
+	return true;
 }
 
 /**
@@ -54,12 +55,12 @@ function getKeyLen(): number {
  * @param {integer} len - The key length.
  * @return {integer} The key length.
  */
-function setKeyLen(len: number): number | false {
+function setKeyLen(len: number): boolean {
 	if (!isValidInteger(len, 2, 256, true)) 
     return false;
 
 	keyLen = len;
-	return keyLen;
+	return true;
 }
 
 /**
@@ -78,12 +79,12 @@ function getDigest(): string {
  * @param {string} func - The hash function.
  * @return {string|false} The current hash function or `false` if the given value is not valid.
  */
-function setDigest(func: string): string | false {
-	if (!digests.includes(func)) 
+function setDigest(func: string): boolean {
+	if (!isIn(digests, func)) 
     return false;
 
 	digest = func;
-	return digest;
+	return true;
 }
 
 /**
@@ -104,6 +105,10 @@ function getDigests(): string[] {
  */
 function hash(pwd: string, secret: string): string {
 	return createHmac(digest, secret).update(pwd).digest("hex");
+}
+
+function randomSalt(): string {
+  return randomBytes(16).toString("hex");
 }
 
 /**
@@ -137,7 +142,7 @@ function encrypt(pwd: string, b64Secret: string): string | false {
 	if (!secret) 
     return false;
 
-	const salt = randomBytes(16).toString("hex"); // random salt
+	const salt = randomSalt(); // random salt
 	return salt + pbkdf2(pwd, secret, salt).toString("hex"); // salt + hashedPwd
 }
 

@@ -202,15 +202,15 @@ let keyLen = 64;
 
 function getSaltRounds(): number {}
 
-function setSaltRounds(rnds: number): number {} // between 12 and 100
+function setSaltRounds(rnds: number): boolean {} // between 12 and 100
 
 function getKeyLen(): number {}
 
-function setKeyLen(r: number): number {} // between 2 and 256
+function setKeyLen(r: number): boolean {} // between 2 and 256
 
 function getDigest(): string {}
 
-function setDigest(d: string): string {} // the list of available digests can be given by getDigests()
+function setDigest(d: string): boolean {} // the list of available digests can be given by getDigests()
 
 function getDigests(): string[] {}
 

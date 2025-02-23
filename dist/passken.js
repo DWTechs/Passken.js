@@ -24,8 +24,8 @@ SOFTWARE.
 https://github.com/DWTechs/Passken.js
 */
 
-import { getHashes, randomBytes, timingSafeEqual, createHmac, pbkdf2Sync } from 'node:crypto';
-import { isValidInteger, isString, b64Decode, isBoolean, isNumber, isArray, isPositive, b64Encode, isJson, isBase64 } from '@dwtechs/checkard';
+import { getHashes, timingSafeEqual, createHmac, randomBytes, pbkdf2Sync } from 'node:crypto';
+import { isValidInteger, isIn, isString, b64Decode, isBoolean, isNumber, isArray, isPositive, b64Encode, isJson, isBase64 } from '@dwtechs/checkard';
 
 const digests = getHashes();
 let digest = "sha256";
@@ -38,7 +38,7 @@ function setSaltRounds(rnds) {
     if (!isValidInteger(rnds, 12, 100, true))
         return false;
     saltRnds = rnds;
-    return saltRnds;
+    return true;
 }
 function getKeyLen() {
     return keyLen;
@@ -47,22 +47,25 @@ function setKeyLen(len) {
     if (!isValidInteger(len, 2, 256, true))
         return false;
     keyLen = len;
-    return keyLen;
+    return true;
 }
 function getDigest() {
     return digest;
 }
 function setDigest(func) {
-    if (!digests.includes(func))
+    if (!isIn(digests, func))
         return false;
     digest = func;
-    return digest;
+    return true;
 }
 function getDigests() {
     return digests;
 }
 function hash(pwd, secret) {
     return createHmac(digest, secret).update(pwd).digest("hex");
+}
+function randomSalt() {
+    return randomBytes(16).toString("hex");
 }
 function pbkdf2(pwd, secret, salt) {
     return pbkdf2Sync(hash(pwd, secret), salt, saltRnds, keyLen, digest);
@@ -73,7 +76,7 @@ function encrypt(pwd, b64Secret) {
     const secret = b64Decode(b64Secret, true);
     if (!secret)
         return false;
-    const salt = randomBytes(16).toString("hex");
+    const salt = randomSalt();
     return salt + pbkdf2(pwd, secret, salt).toString("hex");
 }
 function compare(pwd, hash, b64Secret) {

@@ -38,6 +38,6 @@ describe("setDigest", () => {
 		const lowerCaseDigest = "sha256";
 		const upperCaseDigest = "SHA256";
 		expect(setDigest(upperCaseDigest)).toBe(false);
-		expect(setDigest(lowerCaseDigest)).toBe("sha256");
+		expect(setDigest(lowerCaseDigest)).toBe(true);
 	});
 });
