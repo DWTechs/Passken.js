@@ -75,19 +75,19 @@ function sign(
  * @param {string} token - The JWT token to verify.
  * @param {string[]} b64Keys - An array of base64-encoded secrets used for verification.
  * @param {boolean} ignoreExpiration - Optional flag to ignore the expiration time of the token. Defaults to false.
- * @returns {string} The decoded payload of the JWT token as a string.
+ * @returns {Payload} The decoded payload of the JWT token as a string.
  * @throws Will throw an error if the token does not have 3 segments.
  * @throws Will throw an error if the token does not have a header, payload, and signature.
- * @throws Will throw an error if `b64Keys` is not an array.
+ * @throws Will throw an error if b64Keys is not an array.
  * @throws Will throw an error if the header or payload are not valid JSON.
  * @throws Will throw an error if the algorithm or token type are not supported.
- * @throws Will throw an error if the "kid" in the header is invalid.
+ * @throws Will throw an error if the kid in the header is invalid.
  * @throws Will throw an error if the token cannot be used yet (nbf claim).
  * @throws Will throw an error if the token has expired (exp claim).
  * @throws Will throw an error if the secret is not valid base64 url-sale encoded.
  * @throws Will throw an error if the signature is invalid.
  */
-function verify(token: string, b64Keys: string[], ignoreExpiration = false): string {
+function verify(token: string, b64Keys: string[], ignoreExpiration = false): Payload {
 	const segments = token.split(".");
 	if (segments.length !== 3)
     throw new Error("Token must have 3 segments");

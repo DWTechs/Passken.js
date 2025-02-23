@@ -1,3 +1,7 @@
+# 0.2.1 (feb 23th 2025)
+
+- Fix JWT verify() method return type
+
 # 0.2.0 (feb 22th 2025)
 
 - Add environment variables support for password options
