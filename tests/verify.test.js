@@ -11,7 +11,6 @@ const invalidTypToken =
 const invalidToken = "invalid.token.signature";
 const b64Secrets = ["8zYSoxUV36qy8tiIGytsA7qPdFecywiQs0sHBze_Skg"];
 const validToken = sign("user123", 3600, "access", b64Secrets);
-console.log("validToken", validToken);
 
 function wait(duration = 1000) {
 	return new Promise((resolve) => setTimeout(resolve, duration));
@@ -61,7 +60,7 @@ describe("verify", () => {
 	});
 
 	it("should return the decoded token for a valid token", async () => {
-		await wait(1000); // Wait to not throw nbf error
+		await wait(); // Wait to not throw nbf error
 		const result = verify(validToken, b64Secrets);
 		expect(result).toBeInstanceOf(Object);
 	});

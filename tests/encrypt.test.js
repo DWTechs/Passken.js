@@ -10,24 +10,24 @@ describe("encrypt", () => {
 		expect(typeof encrypt(password, validSecret)).toBe("string");
 	});
 
-	test("returns false when password is empty", () => {
-		expect(encrypt("", validSecret)).toBe(false);
+	test("Throw error when password is empty", () => {
+		expect(() => {encrypt("", validSecret)}).toThrow();
 	});
 
-	test("returns false when secret is empty", () => {
-		expect(encrypt(password, "")).toBe(false);
+	test("Throw error when secret is empty", () => {
+		expect(() => {encrypt(password, "")}).toThrow();
 	});
 
-	test("returns false when secret is invalid", () => {
-		expect(encrypt(password, InvalidSecret)).toBe(false);
+	test("Throw error when secret is invalid", () => {
+		expect(() => {encrypt(password, InvalidSecret)}).toThrow();
 	});
 
-	test("returns false when password is not a string", () => {
-		expect(encrypt(123, validSecret)).toBe(false);
+	test("Throw error when password is not a string", () => {
+		expect(() => {encrypt(123, validSecret)}).toThrow();
 	});
 
-	test("returns false when secret is not a string", () => {
-		expect(encrypt(password, 123)).toBe(false);
+	test("Throw error when secret is not a string", () => {
+		expect(() => {encrypt(password, 123)}).toThrow();
 	});
 
 	test("generates different hashes for the same password and secret", () => {
@@ -36,10 +36,10 @@ describe("encrypt", () => {
 		expect(hash1).not.toBe(hash2);
 	});
 
-	test("returns false for non-string inputs", () => {
-		expect(encrypt(null, validSecret)).toBe(false);
-		expect(encrypt(password, null)).toBe(false);
-		expect(encrypt({}, validSecret)).toBe(false);
-		expect(encrypt(password, [])).toBe(false);
+	test("Throw error for non-string inputs", () => {
+		expect(() => {encrypt(null, validSecret)}).toThrow();
+		expect(() => {encrypt(password, null)}).toThrow();
+		expect(() => {encrypt({}, validSecret)}).toThrow();
+		expect(() => {encrypt(password, [])}).toThrow();
 	});
 });

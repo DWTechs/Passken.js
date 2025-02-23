@@ -25,7 +25,7 @@ https://github.com/DWTechs/Passken.js
 */
 
 import { getHashes, timingSafeEqual, createHmac, randomBytes, pbkdf2Sync } from 'node:crypto';
-import { isValidInteger, isIn, isString, b64Decode, isBoolean, isNumber, isArray, isPositive, b64Encode, isJson, isBase64 } from '@dwtechs/checkard';
+import { isValidInteger, isIn, isString, isBase64, b64Decode, isBoolean, isNumber, isArray, isPositive, b64Encode, isJson } from '@dwtechs/checkard';
 
 const digests = getHashes();
 let digest = "sha256";
@@ -71,20 +71,18 @@ function pbkdf2(pwd, secret, salt) {
     return pbkdf2Sync(hash(pwd, secret), salt, saltRnds, keyLen, digest);
 }
 function encrypt(pwd, b64Secret) {
-    if (!isString(pwd, "!0") || !isString(b64Secret, "!0"))
-        return false;
+    if (!isString(pwd, "!0"))
+        throw new Error("pwd must be a non-empty string");
+    if (!isBase64(b64Secret, true))
+        throw new Error("b64Secret must be a base64 encoded string");
     const secret = b64Decode(b64Secret, true);
-    if (!secret)
-        return false;
     const salt = randomSalt();
     return salt + pbkdf2(pwd, secret, salt).toString("hex");
 }
 function compare(pwd, hash, b64Secret) {
-    if (!isString(pwd, "!0") || !isString(hash, "!0") || !isString(b64Secret, "!0"))
+    if (!isString(pwd, "!0") || !isString(hash, "!0") || !isBase64(b64Secret, true))
         return false;
     const secret = b64Decode(b64Secret, true);
-    if (!secret)
-        return false;
     const salt = hash.slice(0, 32);
     const hashedPwd = pbkdf2(pwd, secret, salt);
     const storedHash = Buffer.from(hash.slice(32), "hex");
@@ -165,15 +163,15 @@ const header = {
     typ: "JWT",
     kid: 0,
 };
-function sign(iss, duration, type, b64Secrets) {
+function sign(iss, duration, type, b64Keys) {
     if (!isString(iss, "!0") && !isNumber(iss, true))
         throw new Error("iss must be a string or a number");
-    if (!isArray(b64Secrets, ">", 0))
-        throw new Error("b64Secrets must be an array");
+    if (!isArray(b64Keys, ">", 0))
+        throw new Error("b64Keys must be an array");
     if (!isNumber(duration, false) || !isPositive(duration, true))
         throw new Error("duration must be a positive number");
-    header.kid = randomPick(b64Secrets);
-    const b64Secret = b64Secrets[header.kid];
+    header.kid = randomPick(b64Keys);
+    const b64Secret = b64Keys[header.kid];
     const secret = b64Decode(b64Secret, true);
     if (!secret)
         throw new Error("could not decode the secret");
@@ -188,15 +186,15 @@ function sign(iss, duration, type, b64Secrets) {
     const b64Signature = b64Encode(signature, true);
     return `${b64Header}.${b64Payload}.${b64Signature}`;
 }
-function verify(token, b64Secrets, ignoreExpiration = false) {
+function verify(token, b64Keys, ignoreExpiration = false) {
     const segments = token.split(".");
     if (segments.length !== 3)
         throw new Error("Token must have 3 segments");
     const [b64Header, b64Payload, b64Signature] = segments;
     if (!b64Header || !b64Payload || !b64Signature)
         throw new Error("Token Must have header, payload and signature");
-    if (!isArray(b64Secrets, ">", 0))
-        throw new Error("b64Secrets must be an array");
+    if (!isArray(b64Keys, ">", 0))
+        throw new Error("b64Keys must be an array");
     const headerString = b64Decode(b64Header);
     const payloadString = b64Decode(b64Payload);
     if (!isJson(headerString) || !isJson(payloadString))
@@ -214,9 +212,9 @@ function verify(token, b64Secrets, ignoreExpiration = false) {
         throw new Error("JWT cannot be used yet (nbf claim)");
     if (!ignoreExpiration && payload.exp < now)
         throw new Error("JWT has expired (exp claim)");
-    const b64Secret = b64Secrets[header.kid];
-    if (!isString(b64Secret, ">=", 40) || !isBase64(b64Secret, true))
-        throw new Error("Invalid secret");
+    const b64Secret = b64Keys[header.kid];
+    if (!isBase64(b64Secret, true))
+        throw new Error("Secret must be base64 url-safe encoded");
     const secret = b64Decode(b64Secret);
     const expectedSignature = b64Encode(hash(`${b64Header}.${b64Payload}`, secret), true);
     if (!safeCompare(expectedSignature, b64Signature))

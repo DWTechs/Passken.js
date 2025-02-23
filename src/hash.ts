@@ -7,7 +7,8 @@ import { randomBytes,
 import { isValidInteger, 
          isString, 
          isIn,
-         b64Decode 
+         b64Decode, 
+         isBase64
        } from "@dwtechs/checkard";
 
 const digests = getHashes();
@@ -16,20 +17,20 @@ let keyLen = 64;
 let saltRnds = 12;
 
 /**
- * Returns the number of salt rounds used for the bcrypt hash.
+ * Returns the number of salt rounds used for hashing.
  *
- * @return {integer} The number of salt rounds.
+ * @return {number} The number of salt rounds.
  */
 function getSaltRounds(): number {
 	return saltRnds;
 }
 
+
 /**
- * Sets the number of salt rounds used for the bcrypt hash.
- * If the given value is not a valid integer between 12 and 100, the current value is kept.
+ * Sets the number of salt rounds for hashing.
  *
- * @param {integer} rounds - The number of salt rounds.
- * @return {integer} The number of salt rounds.
+ * @param {number} rnds - The number of salt rounds to set. Must be a valid integer between 12 and 100.
+ * @returns {boolean} True if the salt rounds were successfully set, otherwise false.
  */
 function setSaltRounds(rnds: number): boolean {
 	if (!isValidInteger(rnds, 12, 100, true)) 
@@ -40,20 +41,20 @@ function setSaltRounds(rnds: number): boolean {
 }
 
 /**
- * Returns the key length used for the PBKDF2 hash.
+ * Returns the key length used for hashing.
  *
- * @return {integer} The key length.
+ * @return {number} The key length.
  */
 function getKeyLen(): number {
 	return keyLen;
 }
 
+
 /**
- * Sets the key length used for the PBKDF2 hash.
- * If the given value is not a valid integer between 12 and 100, the current value is kept.
+ * Sets the key length to the specified value for hashing.
  *
- * @param {integer} len - The key length.
- * @return {integer} The key length.
+ * @param {number} len - The desired key length. Must be a valid integer between 2 and 256.
+ * @returns {boolean} True if the key length was successfully set; otherwise false.
  */
 function setKeyLen(len: number): boolean {
 	if (!isValidInteger(len, 2, 256, true)) 
@@ -64,7 +65,7 @@ function setKeyLen(len: number): boolean {
 }
 
 /**
- * Returns the hash function used for the HMAC hash.
+ * Returns the hash function used for hashing.
  *
  * @return {string} The hash function.
  */
@@ -73,11 +74,10 @@ function getDigest(): string {
 }
 
 /**
- * Sets the hash function used for the HMAC hash.
- * If the given value is not in the list of available hash functions, the current value is kept.
+ * Sets the hash function used for hashing.
  *
- * @param {string} func - The hash function.
- * @return {string|false} The current hash function or `false` if the given value is not valid.
+ * @param {string} func - The hash function. Must be a valid value from the list of available hash functions.
+ * @returns {boolean} True if the hash function was successfully set; otherwise false.
  */
 function setDigest(func: string): boolean {
 	if (!isIn(digests, func)) 
@@ -90,7 +90,7 @@ function setDigest(func: string): boolean {
 /**
  * Returns the list of available hash functions.
  *
- * @return {Array} The list of available hash functions.
+ * @return {string[]} The list of available hash functions.
  */
 function getDigests(): string[] {
 	return digests;
@@ -101,6 +101,7 @@ function getDigests(): string[] {
  * Also known as peppering.
  *
  * @param {string} pwd - The password to be peppered.
+ * @param {string} secret - The secret to be used as a pepper.
  * @return {string} The hashed pepper.
  */
 function hash(pwd: string, secret: string): string {
@@ -128,21 +129,25 @@ function pbkdf2(pwd: string, secret: string, salt: string): Buffer {
       digest);
 }
 
-/**
- * Encrypt password in HmacSHA512 with secret (pepper)
- *
- * @param {type} pwd - The password to encrypt
- * @return {type} The encrypted password hash
- */
-function encrypt(pwd: string, b64Secret: string): string | false {
-	if (!isString(pwd, "!0") || !isString(b64Secret, "!0")) 
-    return false;
-	
-  const secret = b64Decode(b64Secret, true);
-	if (!secret) 
-    return false;
 
-	const salt = randomSalt(); // random salt
+
+/**
+ * Encrypts a password using a base64 encoded secret.
+ *
+ * @param {string} pwd - The password to encrypt. Must be a non-empty string.
+ * @param {string} b64Secret - The base64 encoded secret used for encryption. Must be a valid base64 encoded string.
+ * @returns {string} The encrypted password as a hex string prefixed with a random salt.
+ * @throws {Error} If `pwd` is not a non-empty string or `b64Secret` is not a valid base64 encoded string.
+ */
+function encrypt(pwd: string, b64Secret: string): string {
+	if (!isString(pwd, "!0")) 
+    throw new Error("pwd must be a non-empty string");
+	
+  if (!isBase64(b64Secret, true))
+    throw new Error("b64Secret must be a base64 encoded string");
+
+  const secret = b64Decode(b64Secret, true);
+	const salt = randomSalt();
 	return salt + pbkdf2(pwd, secret, salt).toString("hex"); // salt + hashedPwd
 }
 
@@ -155,13 +160,10 @@ function encrypt(pwd: string, b64Secret: string): string | false {
  * @returns {boolean} `true` if the password matches the hash, `false` otherwise.
  */
 function compare(pwd: string, hash: string, b64Secret: string): boolean {
-	if (!isString(pwd, "!0") || !isString(hash, "!0") || !isString(b64Secret, "!0")) 
+	if (!isString(pwd, "!0") || !isString(hash, "!0") || !isBase64(b64Secret, true)) 
     return false;
 
   const secret = b64Decode(b64Secret, true);
-	if (!secret) 
-    return false;
-
   const salt = hash.slice(0, 32); // Assuming the salt length is 16 bytes (32 hex characters)
 	const hashedPwd = pbkdf2(pwd, secret, salt); 
 	const storedHash = Buffer.from(hash.slice(32), "hex");

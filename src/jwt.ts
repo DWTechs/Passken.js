@@ -13,37 +13,43 @@ import {
 import type { Header, Payload, Type } from "./types";
 
 const header: Header = {
-	alg: "HS256",
-	typ: "JWT",
-	kid: 0,
+  alg: "HS256", // HMAC using SHA-256 hash algorithm
+  typ: "JWT", // JSON Web Token
+  kid: 0, // Random key ID
 };
 
 /**
- * Generate a JWT token
+ * Signs a JWT (JSON Web Token) with the given parameters.
  *
- * @param iss - The issuer of the token, can be a number or a string
- * @param duration - The duration of the token in seconds, if not given, the token will not expire
- * @returns The generated JWT token
+ * @param {number|string} iss - The issuer of the token, which can be a string or a number.
+ * @param {number} duration - The duration for which the token is valid, in seconds.
+ * @param {Type} type - The type of the token, either "access" or "refresh".
+ * @param {string[]} b64Keys - An array of base64 encoded secrets used for signing the token.
+ * @returns {string} The signed JWT as a string.
+ * @throws Will throw an error if `iss` is not a string or a number.
+ * @throws Will throw an error if `b64Keys` is not an array.
+ * @throws Will throw an error if `duration` is not a positive number.
+ * @throws Will throw an error if the secret cannot be decoded.
  */
 function sign(
 	iss: number | string,
 	duration: number,
   type: Type,
-	b64Secrets: string[],
-): string | false {
+	b64Keys: string[],
+): string {
 	// Check iss is a string or a number
 	if (!isString(iss, "!0") && !isNumber(iss, true))
     throw new Error("iss must be a string or a number");
 
-	// Check b64Secrets is an array
-	if (!isArray(b64Secrets, ">", 0)) 
-    throw new Error("b64Secrets must be an array");
+	// Check b64Keys is an array
+	if (!isArray(b64Keys, ">", 0)) 
+    throw new Error("b64Keys must be an array");
 
 	if (!isNumber(duration, false) || !isPositive(duration, true)) 
     throw new Error("duration must be a positive number");
 
-	header.kid = randomPick(b64Secrets);
-	const b64Secret = b64Secrets[header.kid];
+	header.kid = randomPick(b64Keys);
+	const b64Secret = b64Keys[header.kid];
 
 	const secret = b64Decode(b64Secret, true);
 	if (!secret)
@@ -63,7 +69,25 @@ function sign(
 	return `${b64Header}.${b64Payload}.${b64Signature}`;
 }
 
-function verify(token: string, b64Secrets: string[], ignoreExpiration = false): boolean {
+/**
+ * Verifies a JWT token using the provided base64-encoded secrets.
+ *
+ * @param {string} token - The JWT token to verify.
+ * @param {string[]} b64Keys - An array of base64-encoded secrets used for verification.
+ * @param {boolean} ignoreExpiration - Optional flag to ignore the expiration time of the token. Defaults to false.
+ * @returns {string} The decoded payload of the JWT token as a string.
+ * @throws Will throw an error if the token does not have 3 segments.
+ * @throws Will throw an error if the token does not have a header, payload, and signature.
+ * @throws Will throw an error if `b64Keys` is not an array.
+ * @throws Will throw an error if the header or payload are not valid JSON.
+ * @throws Will throw an error if the algorithm or token type are not supported.
+ * @throws Will throw an error if the "kid" in the header is invalid.
+ * @throws Will throw an error if the token cannot be used yet (nbf claim).
+ * @throws Will throw an error if the token has expired (exp claim).
+ * @throws Will throw an error if the secret is not valid base64 url-sale encoded.
+ * @throws Will throw an error if the signature is invalid.
+ */
+function verify(token: string, b64Keys: string[], ignoreExpiration = false): string {
 	const segments = token.split(".");
 	if (segments.length !== 3)
     throw new Error("Token must have 3 segments");
@@ -73,9 +97,9 @@ function verify(token: string, b64Secrets: string[], ignoreExpiration = false): 
 	if (!b64Header || !b64Payload || !b64Signature) 
     throw new Error("Token Must have header, payload and signature");
 
-	// Check b64Secrets is an array
-	if (!isArray(b64Secrets, ">", 0)) 
-    throw new Error("b64Secrets must be an array");
+	// Check b64Keys is an array
+	if (!isArray(b64Keys, ">", 0)) 
+    throw new Error("b64Keys must be an array");
 
 	// Decode and parse the header and payload
 	const headerString = b64Decode(b64Header);
@@ -108,9 +132,9 @@ function verify(token: string, b64Secrets: string[], ignoreExpiration = false): 
 	if (!ignoreExpiration && payload.exp < now)
     throw new Error("JWT has expired (exp claim)");
 
-	const b64Secret = b64Secrets[header.kid];
-	if (!isString(b64Secret, ">=", 40) || !isBase64(b64Secret, true))
-    throw new Error("Invalid secret");
+	const b64Secret = b64Keys[header.kid];
+	if (!isBase64(b64Secret, true))
+    throw new Error("Secret must be base64 url-safe encoded");
 
 	const secret = b64Decode(b64Secret);
 

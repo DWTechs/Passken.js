@@ -200,32 +200,101 @@ let saltRnds = 12
 let digest = "sha256";
 let keyLen = 64;
 
+/**
+ * Returns the number of salt rounds used for hashing.
+ *
+ * @return {number} The number of salt rounds.
+ */
 function getSaltRounds(): number {}
 
+/**
+ * Sets the number of salt rounds for hashing.
+ *
+ * @param {number} rnds - The number of salt rounds to set. Must be a valid integer between 12 and 100.
+ * @returns {boolean} True if the salt rounds were successfully set, otherwise false.
+ */
 function setSaltRounds(rnds: number): boolean {} // between 12 and 100
 
+/**
+ * Returns the key length used for hashing.
+ *
+ * @return {number} The key length.
+ */
 function getKeyLen(): number {}
 
+/**
+ * Sets the key length to the specified value for hashing.
+ *
+ * @param {number} len - The desired key length. Must be a valid integer between 2 and 256.
+ * @returns {boolean} True if the key length was successfully set; otherwise false.
+ */
 function setKeyLen(r: number): boolean {} // between 2 and 256
 
+/**
+ * Returns the hash function used for hashing.
+ *
+ * @return {string} The hash function.
+ */
 function getDigest(): string {}
 
-function setDigest(d: string): boolean {} // the list of available digests can be given by getDigests()
+/**
+ * Sets the hash function used for hashing.
+ * the list of available digests is returned by getDigests()
+ *
+ * @param {string} func - The hash function. Must be a valid value from the list of available hash functions.
+ * @returns {boolean} True if the hash function was successfully set; otherwise false.
+ */
+function setDigest(d: string): boolean {}
 
+/**
+ * Returns the list of available hash functions.
+ *
+ * @return {string[]} The list of available hash functions.
+ */
 function getDigests(): string[] {}
 
-// Encrypt a string peppered with a secret
+/**
+ * Generates a hash of the given password with the secret using the HMAC algorithm.
+ * Also known as peppering.
+ *
+ * @param {string} pwd - The password to be peppered.
+ * @param {string} secret - The secret to be used as a pepper.
+ * @return {string} The hashed pepper.
+ */
+function hash(pwd: string, secret: string): string;
+
+/**
+ * Encrypts a password using a base64 encoded secret.
+ *
+ * @param {string} pwd - The password to encrypt. Must be a non-empty string.
+ * @param {string} b64Secret - The base64 encoded secret used for encryption. Must be a valid base64 encoded string.
+ * @returns {string} The encrypted password as a hex string prefixed with a random salt.
+ * @throws {Error} If `pwd` is not a non-empty string or `b64Secret` is not a valid base64 encoded string.
+ */
 function encrypt( pwd: string, 
                   b64Secret: string
                 ): string | false {}
 
-// Compare a string with a hash
+/**
+ * Compares a plaintext password with a hashed password using a secret.
+ *
+ * @param {string} pwd - The plaintext password to compare.
+ * @param {string} hash - The hashed password to compare against.
+ * @param {string} b64Secret - The base64 encoded secret used for hashing.
+ * @returns {boolean} `true` if the password matches the hash, `false` otherwise.
+ */
 function compare( pwd: string, 
                   hash: string,
                   b64Secret: string
                 ): boolean {}
 
-// Create a random password
+/**
+ * Generate a random password.
+ * 
+ * @param {Partial<Options>} opts - The options to generate the password.
+ * @return {string} The generated password.
+ * 
+ */
 function randomPwd(opts: Partial<Options> = defOpts): string {}
 
 ```
@@ -236,21 +305,50 @@ function randomPwd(opts: Partial<Options> = defOpts): string {}
 
 // Default values
 const header {
-  alg: "HS256",
-  typ: "JWT",
-  kid: null,
+  alg: "HS256", // HMAC using SHA-256 hash algorithm
+  typ: "JWT", // JSON Web Token
+  kid: 0, // Random key ID
 };
 
-// Create a JWT
+/**
+ * Signs a JWT (JSON Web Token) with the given parameters.
+ *
+ * @param {number|string} iss - The issuer of the token, which can be a string or a number.
+ * @param {number} duration - The duration for which the token is valid, in seconds.
+ * @param {Type} type - The type of the token, either "access" or "refresh".
+ * @param {string[]} b64Keys - An array of base64 encoded secrets used for signing the token.
+ * @returns {string} The signed JWT as a string.
+ * @throws Will throw an error if `iss` is not a string or a number.
+ * @throws Will throw an error if `b64Secrets` is not an array.
+ * @throws Will throw an error if `duration` is not a positive number.
+ * @throws Will throw an error if the secret cannot be decoded.
+ */
 function sign( iss: number | string, 
                duration: number, 
                type: Type,
-               b64Secrets: string[]
+               b64Keys: string[]
              ): string;
 
-// Verify a JWT
+/**
+ * Verifies a JWT token using the provided base64-encoded secrets.
+ *
+ * @param {string} token - The JWT token to verify.
+ * @param {string[]} b64Keys - An array of base64-encoded secrets used for verification.
+ * @param {boolean} ignoreExpiration - Optional flag to ignore the expiration time of the token. Defaults to false.
+ * @returns {string} The decoded payload of the JWT token as a string.
+ * @throws Will throw an error if the token does not have 3 segments.
+ * @throws Will throw an error if the token does not have a header, payload, and signature.
+ * @throws Will throw an error if `b64Keys` is not an array.
+ * @throws Will throw an error if the header or payload are not valid JSON.
+ * @throws Will throw an error if the algorithm or token type are not supported.
+ * @throws Will throw an error if the "kid" in the header is invalid.
+ * @throws Will throw an error if the token cannot be used yet (nbf claim).
+ * @throws Will throw an error if the token has expired (exp claim).
+ * @throws Will throw an error if the secret is not valid base64 url-sale encoded.
+ * @throws Will throw an error if the signature is invalid.
+ */
 function verify( token: string, 
-                 b64Secrets: string[]
+                 b64Keys: string[]
                ): object | false;
 
 ```
@@ -259,7 +357,12 @@ function verify( token: string,
 
 ```javascript
 
-// Generate a random 256-bit secret
+/**
+ * Generates a random string of the specified length, encoded in base64.
+ *
+ * @param {number} [length=32] - The length of the random string to generate. Defaults to 32 if not specified.
+ * @returns {string} The generated random string encoded in base64.
+ */
 randomSecret(length = 32): string
 
 ```
