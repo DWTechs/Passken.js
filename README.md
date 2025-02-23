@@ -269,7 +269,7 @@ function hash(pwd: string, secret: string): string;
  * @param {string} pwd - The password to encrypt. Must be a non-empty string.
  * @param {string} b64Secret - The base64 encoded secret used for encryption. Must be a valid base64 encoded string.
  * @returns {string} The encrypted password as a hex string prefixed with a random salt.
- * @throws {Error} If `pwd` is not a non-empty string or `b64Secret` is not a valid base64 encoded string.
+ * @throws {Error} If pwd is not a non-empty string or b64Secret is not a valid base64 encoded string.
  */
 function encrypt( pwd: string, 
                   b64Secret: string
@@ -281,7 +281,7 @@ function encrypt( pwd: string,
  * @param {string} pwd - The plaintext password to compare.
  * @param {string} hash - The hashed password to compare against.
  * @param {string} b64Secret - The base64 encoded secret used for hashing.
- * @returns {boolean} `true` if the password matches the hash, `false` otherwise.
+ * @returns {boolean} true if the password matches the hash, false otherwise.
  */
 function compare( pwd: string, 
                   hash: string,
