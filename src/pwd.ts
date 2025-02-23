@@ -2,6 +2,7 @@
 import type { Options } from "./types";
 import { isValidInteger, isBoolean } from "@dwtechs/checkard";
 
+// sxxx lists are free of similar looking characters, e.g. "lI1oO0" characters
 const list = {
   lcase: 'abcdefghijklmnopqrstuvwxyz',
   slcase: 'abcdefghijkmnpqrstuvwxyz',
@@ -11,8 +12,6 @@ const list = {
   snum: '23456789',
   sym: '!@#%*_-+=:?><./()',
 };
-
-// sxxx lists are free of similar looking characters, e.g. "lI1oO0" characters
 
 // check for env variables
 const {   
