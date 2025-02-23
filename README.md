@@ -335,7 +335,7 @@ function sign( iss: number | string,
  * @param {string} token - The JWT token to verify.
  * @param {string[]} b64Keys - An array of base64-encoded secrets used for verification.
  * @param {boolean} ignoreExpiration - Optional flag to ignore the expiration time of the token. Defaults to false.
- * @returns {string} The decoded payload of the JWT token as a string.
+ * @returns {Payload} The decoded payload of the JWT token as a string.
  * @throws Will throw an error if the token does not have 3 segments.
  * @throws Will throw an error if the token does not have a header, payload, and signature.
  * @throws Will throw an error if `b64Keys` is not an array.
@@ -348,8 +348,9 @@ function sign( iss: number | string,
  * @throws Will throw an error if the signature is invalid.
  */
 function verify( token: string, 
-                 b64Keys: string[]
-               ): object | false;
+                 b64Keys: string[],
+                 ignoreExpiration = false
+               ): Payload;
 
 ```
 
