@@ -224,6 +224,8 @@ function verify(token, b64Keys, ignoreExpiration = false) {
 function safeCompare(a, b) {
     const safeA = Buffer.from(a);
     const safeB = Buffer.from(b);
+    if (safeA.length !== safeB.length)
+        return false;
     return timingSafeEqual(safeA, safeB);
 }
 function randomPick(array) {

@@ -1,3 +1,7 @@
+# 0.2.2 (feb 23th 2025)
+
+- Improve JWT verify() method error handling
+
 # 0.2.1 (feb 23th 2025)
 
 - Fix JWT verify() method return type

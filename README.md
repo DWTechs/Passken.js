@@ -135,7 +135,7 @@ Passken will start with the following default password configuration :
 
 ### Environment variables
 
-You can update password configuration using the following environment variables :  
+You can update password default configuration using the following environment variables :  
 
 ```bash
   PWD_LENGTH,
