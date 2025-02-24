@@ -10,7 +10,9 @@ const invalidTypToken =
 	"eyJhbGciOiJIUzI1NiIsInR5cCI6IklOVkFMSUQiLCJraWQiOjB9.eyJpc3MiOiJ1c2VyMTIzIiwiaWF0IjoxNzM4MjMxNTk0LCJuYmYiOjE3MzgyMzE1OTUsImV4cCI6MTczODIzNTE5NH0.OX2EdvtBv5bQwblpmx0rmLZXWnn-zoGdClYPccRTQ80";
 const invalidToken = "invalid.token.signature";
 const b64Secrets = ["8zYSoxUV36qy8tiIGytsA7qPdFecywiQs0sHBze_Skg"];
+const b64Secrets2 = ["RT8zYSoxUV36qy8tiITytsY4qPdFecywiQs0sHBze_Skg"];
 const validToken = sign("user123", 3600, "access", b64Secrets);
+const validTokenWithBadLength = sign("user123", 3600, "access", b64Secrets2);
 
 function wait(duration = 1000) {
 	return new Promise((resolve) => setTimeout(resolve, duration));
@@ -50,12 +52,16 @@ describe("verify", () => {
 		expect(() => { verify(expiredToken, b64Secrets)}).toThrow();
 	});
 
-  it("should throw error when secrets don't match", () => {
+  	it("should throw error when secrets don't match", () => {
 		expect(() => {verify(TokenWithBadSecret, b64Secrets, true)}).toThrow();
 	});
 
-  it("should return the decoded token with exp claim in the past and ignoreExpiration = true", () => {
-    const result = verify(expiredToken, b64Secrets, true);
+	it("should throw error when secrets don't have the same size", () => {
+		expect(() => {verify(validTokenWithBadLength, b64Secrets, true)}).toThrow();
+	});
+
+  	it("should return the decoded token with exp claim in the past and ignoreExpiration = true", () => {
+    	const result = verify(expiredToken, b64Secrets, true);
 		expect(result).toBeInstanceOf(Object);
 	});
 

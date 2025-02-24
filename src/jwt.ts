@@ -155,6 +155,8 @@ function verify(token: string, b64Keys: string[], ignoreExpiration = false): Pay
 function safeCompare(a: string, b: string): boolean {
 	const safeA = Buffer.from(a);
 	const safeB = Buffer.from(b);
+	if (safeA.length !== safeB.length)
+		return false;
 	return timingSafeEqual(safeA, safeB);
 }
 
