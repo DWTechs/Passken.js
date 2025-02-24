@@ -1,4 +1,4 @@
-# 0.2.2 (feb 23th 2025)
+# 0.2.2 (feb 24th 2025)
 
 - Improve JWT verify() method error handling
 
