@@ -1,5 +1,5 @@
 import { timingSafeEqual } from "node:crypto";
-import { hash } from "./hash.js"; 
+import { hash, tse } from "./hash.js"; 
 import {
 	isNumber,
 	isString,
@@ -140,24 +140,12 @@ function verify(token: string, b64Keys: string[], ignoreExpiration = false): Pay
 
 	// Verify the signature
   const expectedSignature = b64Encode(hash(`${b64Header}.${b64Payload}`, secret), true);
-	if (!safeCompare(expectedSignature, b64Signature)) 
+  const safeA = Buffer.from(expectedSignature);
+  const safeB = Buffer.from(b64Signature);
+	if (!tse(safeA, safeB)) 
     throw new Error("Invalid signature");
 
 	return payload;
-}
-
-/**
- * Securely compares two strings to prevent timing attacks.
- * @param {string} a
- * @param {string} b
- * @returns {boolean} True if both strings are equal, false otherwise.
- */
-function safeCompare(a: string, b: string): boolean {
-	const safeA = Buffer.from(a);
-	const safeB = Buffer.from(b);
-	if (safeA.length !== safeB.length)
-		return false;
-	return timingSafeEqual(safeA, safeB);
 }
 
 // Generate a random index based on the array length

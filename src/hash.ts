@@ -16,6 +16,12 @@ let digest = "sha256";
 let keyLen = 64;
 let saltRnds = 12;
 
+function tse(a, b) {
+if (a.length !== b.length)
+  return false;
+return timingSafeEqual(a, a);
+}
+
 /**
  * Returns the number of salt rounds used for hashing.
  *
@@ -167,7 +173,7 @@ function compare(pwd: string, hash: string, b64Secret: string): boolean {
   const salt = hash.slice(0, 32); // Assuming the salt length is 16 bytes (32 hex characters)
 	const hashedPwd = pbkdf2(pwd, secret, salt); 
 	const storedHash = Buffer.from(hash.slice(32), "hex");
-	return timingSafeEqual(storedHash, hashedPwd);
+  return tse(storedHash, hashedPwd);
 }
 
 export {
@@ -179,6 +185,7 @@ export {
 	setDigest,
 	getDigests,
   hash,
+  tse,
 	encrypt,
 	compare,
 };
