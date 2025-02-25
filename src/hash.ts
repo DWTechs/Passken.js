@@ -16,10 +16,10 @@ let digest = "sha256";
 let keyLen = 64;
 let saltRnds = 12;
 
-function tse(a, b) {
+function tse(a: Buffer, b: Buffer): boolean {
 if (a.length !== b.length)
   return false;
-return timingSafeEqual(a, a);
+return timingSafeEqual(a, b);
 }
 
 /**
