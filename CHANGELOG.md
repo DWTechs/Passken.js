@@ -1,3 +1,7 @@
+# 0.2.3 (feb 25th 2025)
+
+- Fix declaration file export for Typescript
+
 # 0.2.2 (feb 24th 2025)
 
 - Improve JWT verify() method error handling

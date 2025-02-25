@@ -254,16 +254,6 @@ function setDigest(d: string): boolean {}
 function getDigests(): string[] {}
 
 /**
- * Generates a hash of the given password with the secret using the HMAC algorithm.
- * Also known as peppering.
- *
- * @param {string} pwd - The password to be peppered.
- * @param {string} secret - The secret to be used as a pepper.
- * @returns {string} The hashed pepper.
- */
-function hash(pwd: string, secret: string): string;
-
-/**
  * Encrypts a password using a base64 encoded secret.
  *
  * @param {string} pwd - The password to encrypt. Must be a non-empty string.
