@@ -62,8 +62,7 @@ function sign(
 
 	const b64Header = b64Encode(JSON.stringify(header));
 	const b64Payload = b64Encode(JSON.stringify(payload));
-  const signature = hash(`${b64Header}.${b64Payload}`, secret);
-	const b64Signature = b64Encode(signature, true);
+  const b64Signature = hash(`${b64Header}.${b64Payload}`, secret);
 
 	return `${b64Header}.${b64Payload}.${b64Signature}`;
 }
@@ -138,9 +137,11 @@ function verify(token: string, b64Keys: string[], ignoreExpiration = false): Pay
 	const secret = b64Decode(b64Secret);
 
 	// Verify the signature
-  const expectedSignature = b64Encode(hash(`${b64Header}.${b64Payload}`, secret), true);
+  const expectedSignature = hash(`${b64Header}.${b64Payload}`, secret);
   const safeA = Buffer.from(expectedSignature);
   const safeB = Buffer.from(b64Signature);
+  // if (safeB.length >= 32)
+  //     throw new Error("Hashes must be at least 256 bits long");
 	if (!tse(safeA, safeB)) 
     throw new Error("Invalid signature");
 

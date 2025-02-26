@@ -1,7 +1,7 @@
 const { verify, sign } = require("../dist/passken.js");
 // Mock data
 const expiredToken = 
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6MH0.eyJpc3MiOiJ1c2VyMTIzIiwiaWF0IjoxNzQwMjU3ODM1LCJuYmYiOjE3NDAyNTc4MzYsImV4cCI6MTc0MDI2MTQzNSwidHlwIjoiYWNjZXNzIn0.NTdhYjZkYjE3MTNkYjg1NTZhYjFlM2Q4Y2EwNmQ3MDJhYWU5MDQ1MzQ2MDQ1MzQyOTkyMDM2YjFlZjBmMGM2OQ";
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6MX0.eyJpc3MiOiJ1c2VyMTIzIiwiaWF0IjoxNzQwNjA1NjUyLCJuYmYiOjE3NDA2MDU2NTMsImV4cCI6MTc0MDYwOTI1MiwidHlwIjoiYWNjZXNzIn0.xpEKqwDu7EOjkYfyZHxCOaikcKzU3zX5mMPu5Can7FU";
 const TokenWithBadSecret =
 	"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6MH0.eyJpc3MiOiJ1c2VyMTIzIiwiaWF0IjoxNzQwMjQ3OTEzLCJuYmYiOjE3NDAyNDc5MTQsImV4cCI6MTc0MDI1MTUxMywidHlwIjoiYWNjZXNzIn0.YTNmYzk3Nzc5NjA5MzY4ZjI0YTdhM2YwNzkyNTk3M2ZlNTM0ZTk2YjkxNWViZjBmYTc5NDliYzE3ZjhjMTIyMg";
 const invalidAlgToken =
@@ -9,10 +9,12 @@ const invalidAlgToken =
 const invalidTypToken =
 	"eyJhbGciOiJIUzI1NiIsInR5cCI6IklOVkFMSUQiLCJraWQiOjB9.eyJpc3MiOiJ1c2VyMTIzIiwiaWF0IjoxNzM4MjMxNTk0LCJuYmYiOjE3MzgyMzE1OTUsImV4cCI6MTczODIzNTE5NH0.OX2EdvtBv5bQwblpmx0rmLZXWnn-zoGdClYPccRTQ80";
 const invalidToken = "invalid.token.signature";
-const b64Secrets = ["8zYSoxUV36qy8tiIGytsA7qPdFecywiQs0sHBze_Skg"];
-const b64Secrets2 = ["RT8zYSoxUV36qy8tiITytsY4qPdFecywiQs0sHBze_Skg"];
+const b64Secrets = [
+  '77-977-9dxlAaDLXv--_ve-_vX3vv73vv73vv70-AxnbuDBAKO-_ve-_vQMGWO-_vWrvv73vv70',
+  'YS1zdHJpbmctc2VjcmV0LWF0LWxlYXN0LTI1Ni1iaXRzLWxvbmc'
+];
 const validToken = sign("user123", 3600, "access", b64Secrets);
-const validTokenWithBadLength = sign("user123", 3600, "access", b64Secrets2);
+const validTokenWithBadLength = sign("user123", 3600, "access", b64Secrets);
 
 function wait(duration = 1000) {
 	return new Promise((resolve) => setTimeout(resolve, duration));
@@ -52,7 +54,7 @@ describe("verify", () => {
 		expect(() => { verify(expiredToken, b64Secrets)}).toThrow();
 	});
 
-  	it("should throw error when secrets don't match", () => {
+  it("should throw error when secrets don't match", () => {
 		expect(() => {verify(TokenWithBadSecret, b64Secrets, true)}).toThrow();
 	});
 
@@ -60,8 +62,8 @@ describe("verify", () => {
 		expect(() => {verify(validTokenWithBadLength, b64Secrets, true)}).toThrow();
 	});
 
-  	it("should return the decoded token with exp claim in the past and ignoreExpiration = true", () => {
-    	const result = verify(expiredToken, b64Secrets, true);
+  it("should return the decoded token with exp claim in the past and ignoreExpiration = true", () => {
+    const result = verify(expiredToken, b64Secrets, true);
 		expect(result).toBeInstanceOf(Object);
 	});
 
