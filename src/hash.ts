@@ -31,7 +31,6 @@ function getSaltRounds(): number {
 	return saltRnds;
 }
 
-
 /**
  * Sets the number of salt rounds for hashing.
  *
@@ -54,7 +53,6 @@ function setSaltRounds(rnds: number): boolean {
 function getKeyLen(): number {
 	return keyLen;
 }
-
 
 /**
  * Sets the key length to the specified value for hashing.
@@ -134,8 +132,6 @@ function pbkdf2(pwd: string, secret: string, salt: string): Buffer {
       keyLen, 
       digest);
 }
-
-
 
 /**
  * Encrypts a password using a base64 encoded secret.
