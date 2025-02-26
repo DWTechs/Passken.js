@@ -31,6 +31,11 @@ const digests = getHashes();
 let digest = "sha256";
 let keyLen = 64;
 let saltRnds = 12;
+function tse(a, b) {
+    if (a.length !== b.length)
+        return false;
+    return timingSafeEqual(a, b);
+}
 function getSaltRounds() {
     return saltRnds;
 }
@@ -86,7 +91,7 @@ function compare(pwd, hash, b64Secret) {
     const salt = hash.slice(0, 32);
     const hashedPwd = pbkdf2(pwd, secret, salt);
     const storedHash = Buffer.from(hash.slice(32), "hex");
-    return timingSafeEqual(storedHash, hashedPwd);
+    return tse(storedHash, hashedPwd);
 }
 
 const list = {
@@ -217,16 +222,11 @@ function verify(token, b64Keys, ignoreExpiration = false) {
         throw new Error("Secret must be base64 url-safe encoded");
     const secret = b64Decode(b64Secret);
     const expectedSignature = b64Encode(hash(`${b64Header}.${b64Payload}`, secret), true);
-    if (!safeCompare(expectedSignature, b64Signature))
+    const safeA = Buffer.from(expectedSignature);
+    const safeB = Buffer.from(b64Signature);
+    if (!tse(safeA, safeB))
         throw new Error("Invalid signature");
     return payload;
-}
-function safeCompare(a, b) {
-    const safeA = Buffer.from(a);
-    const safeB = Buffer.from(b);
-    if (safeA.length !== safeB.length)
-        return false;
-    return timingSafeEqual(safeA, safeB);
 }
 function randomPick(array) {
     return Math.floor(Math.random() * array.length);
