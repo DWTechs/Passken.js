@@ -17,9 +17,9 @@ let keyLen = 64;
 let saltRnds = 12;
 
 function tse(a: Buffer, b: Buffer): boolean {
-if (a.length !== b.length)
-  return false;
-return timingSafeEqual(a, b);
+  if (a.length !== b.length)
+    throw new Error("Hashes must have the same byte length");  
+  return timingSafeEqual(a, b);
 }
 
 /**
@@ -109,7 +109,7 @@ function getDigests(): string[] {
  * @return {string} The hashed pepper.
  */
 function hash(pwd: string, secret: string): string {
-	return createHmac(digest, secret).update(pwd).digest("hex");
+	return createHmac(digest, secret).update(pwd).digest("base64url");
 }
 
 function randomSalt(): string {

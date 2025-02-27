@@ -33,7 +33,7 @@ let keyLen = 64;
 let saltRnds = 12;
 function tse(a, b) {
     if (a.length !== b.length)
-        return false;
+        throw new Error("Hashes must have the same byte length");
     return timingSafeEqual(a, b);
 }
 function getSaltRounds() {
@@ -67,7 +67,7 @@ function getDigests() {
     return digests;
 }
 function hash(pwd, secret) {
-    return createHmac(digest, secret).update(pwd).digest("hex");
+    return createHmac(digest, secret).update(pwd).digest("base64url");
 }
 function randomSalt() {
     return randomBytes(16).toString("hex");
@@ -187,8 +187,7 @@ function sign(iss, duration, type, b64Keys) {
     const payload = { iss, iat, nbf, exp, typ };
     const b64Header = b64Encode(JSON.stringify(header));
     const b64Payload = b64Encode(JSON.stringify(payload));
-    const signature = hash(`${b64Header}.${b64Payload}`, secret);
-    const b64Signature = b64Encode(signature, true);
+    const b64Signature = hash(`${b64Header}.${b64Payload}`, secret);
     return `${b64Header}.${b64Payload}.${b64Signature}`;
 }
 function verify(token, b64Keys, ignoreExpiration = false) {
@@ -221,7 +220,7 @@ function verify(token, b64Keys, ignoreExpiration = false) {
     if (!isBase64(b64Secret, true))
         throw new Error("Secret must be base64 url-safe encoded");
     const secret = b64Decode(b64Secret);
-    const expectedSignature = b64Encode(hash(`${b64Header}.${b64Payload}`, secret), true);
+    const expectedSignature = hash(`${b64Header}.${b64Payload}`, secret);
     const safeA = Buffer.from(expectedSignature);
     const safeB = Buffer.from(b64Signature);
     if (!tse(safeA, safeB))

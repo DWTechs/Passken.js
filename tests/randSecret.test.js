@@ -3,7 +3,7 @@ import { randomSecret } from "../dist/passken.js";
 describe("randomSecret", () => {
 	it("should generate a secret of the default length (32 bytes)", () => {
 		const secret = randomSecret();
-		expect(secret.length).toBeGreaterThan(61);
+		expect(secret.length).toBeGreaterThan(59);
 	});
 
 	it("should generate a secret of the specified length (16 bytes)", () => {

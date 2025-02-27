@@ -1,3 +1,7 @@
+# 0.2.4 (feb 26th 2025)
+
+- Improve hash method for better compatibility with other JWT tools
+
 # 0.2.3 (feb 25th 2025)
 
 - Improve error handling of PWD compare() method
