@@ -1,3 +1,7 @@
+# 0.2.5 (mar 2nd 2025)
+
+- fix declaration file for JWT verify() function
+
 # 0.2.4 (feb 26th 2025)
 
 - Improve hash method for better compatibility with other JWT tools
