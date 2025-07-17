@@ -75,6 +75,7 @@ function comparePwd(req, res, next) {
 
 }
 
+
 /**
  * Generates a random password for a user and encrypts it.
  */
@@ -96,16 +97,25 @@ function createPwd(req, res, next) {
 
 }
 
+
 // JWT
 function signToken(req, res, next) {
   res.jwt = sign(req.userId, 3600, "access", [TOKEN_SECRET]);
   next();
 }
 
+
+function checkAccessToken(req, res, next){
+  const accessToken = parseBearerToken(req.headers.authorization);
+  res.decodedToken = verify(accessToken, [TOKEN_SECRET]);
+}
+
+
 function verifyToken(req, res, next) {
   res.decodedToken = verify(req.token, [TOKEN_SECRET]);
   next();
 }
+
 
 export {
   comparePwd,
@@ -341,6 +351,43 @@ function verify( token: string,
                  b64Keys: string[],
                  ignoreExpiration = false
                ): Payload;
+
+
+/**
+ * Extracts the JWT token from an HTTP Authorization header with Bearer authentication scheme.
+ * 
+ * This function validates that the authorization header follows the correct Bearer token format
+ * ("Bearer <token>") and extracts the token portion for further processing.
+ * 
+ * @param {string} authorization - The Authorization header value from an HTTP request
+ * @returns {string} The extracted JWT token as a string
+ * @throws {Error} Will throw an error if the authorization header is empty or not in the format 'Bearer <token>'
+ * 
+ * @example
+ * ```typescript
+ * // Valid Bearer tokens
+ * const validHeader = "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...";
+ * const token = parseBearerToken(validHeader);
+ * // Returns: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+ * 
+ * // Handles multiple spaces
+ * const headerWithSpaces = "Bearer    token123";
+ * const token2 = parseBearerToken(headerWithSpaces);
+ * // Returns: "token123"
+ * 
+ * // Invalid headers - these will throw errors
+ * try {
+ *   parseBearerToken("Basic dXNlcjpwYXNz"); // Throws Error
+ *   parseBearerToken("Bearer"); // Throws Error
+ *   parseBearerToken("Bearer "); // Throws Error
+ *   parseBearerToken(""); // Throws Error
+ * } catch (error) {
+ *   console.error('Invalid authorization header:', error.message);
+ * }
+ * ```
+ * 
+ */
+function parseBearerToken(authorization: string): string;
 
 ```
 

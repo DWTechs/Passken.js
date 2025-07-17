@@ -1,3 +1,9 @@
+# 0.3.0 (jul 17th 2025)
+
+- Add parseBearerToken function() to extract access token from authorization header
+- Update Checkard dependency to version 3.2.3
+- Update documentation in readme.md
+
 # 0.2.5 (mar 2nd 2025)
 
 - Fix declaration file for JWT verify() function

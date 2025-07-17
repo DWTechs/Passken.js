@@ -148,9 +148,61 @@ function verify(token: string, b64Keys: string[], ignoreExpiration = false): Pay
 	return payload;
 }
 
+/**
+ * Extracts the JWT token from an HTTP Authorization header with Bearer authentication scheme.
+ * 
+ * This function validates that the authorization header follows the correct Bearer token format
+ * ("Bearer <token>") and extracts the token portion for further processing.
+ * 
+ * @param {string} authorization - The Authorization header value from an HTTP request
+ * @returns {string} The extracted JWT token as a string
+ * @throws {Error} Will throw an error if the authorization header is empty or not in the format 'Bearer <token>'
+ * 
+ * @example
+ * ```typescript
+ * // Valid Bearer tokens
+ * const validHeader = "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...";
+ * const token = parseBearerToken(validHeader);
+ * // Returns: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+ * 
+ * // Handles multiple spaces
+ * const headerWithSpaces = "Bearer    token123";
+ * const token2 = parseBearerToken(headerWithSpaces);
+ * // Returns: "token123"
+ * 
+ * // Invalid headers - these will throw errors
+ * try {
+ *   parseBearerToken("Basic dXNlcjpwYXNz"); // Throws Error
+ *   parseBearerToken("Bearer"); // Throws Error
+ *   parseBearerToken("Bearer "); // Throws Error
+ *   parseBearerToken(""); // Throws Error
+ * } catch (error) {
+ *   console.error('Invalid authorization header:', error.message);
+ * }
+ * ```
+ * 
+ */
+const BEARER_TOKEN_ERROR_MESSAGE = "Authorization header must be in the format 'Bearer <token>'";
+
+function parseBearerToken(authorization: string): string {
+  
+  if (!authorization?.startsWith("Bearer "))
+    throw new Error(BEARER_TOKEN_ERROR_MESSAGE);
+
+  // Split by spaces and filter out empty strings to handle multiple spaces
+  const parts = authorization.split(" ").filter(part => part.length > 0);
+  
+  if (parts.length < 2 || !parts[1])
+    throw new Error(BEARER_TOKEN_ERROR_MESSAGE);
+
+  return parts[1];
+
+}
+
+
 // Generate a random index based on the array length
 function randomPick(array: string[]): number {
 	return Math.floor(Math.random() * array.length);
 }
 
-export { sign, verify };
+export { sign, verify, parseBearerToken, BEARER_TOKEN_ERROR_MESSAGE };

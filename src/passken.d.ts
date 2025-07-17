@@ -34,6 +34,7 @@ declare function randomPwd(opts?: Partial<Options>): string;
 declare function randomSecret(length?: number): string;
 declare function sign(iss: number | string, duration: number, type: Type, b64Keys: string[]): string;
 declare function verify(token: string, b64Keys: string[], ignoreExpiration?: boolean): Payload;
+declare function parseBearerToken(authorization: string): string;
 
 export { 
   getSaltRounds,
@@ -49,4 +50,5 @@ export {
   randomSecret,
   sign,
   verify,
+  parseBearerToken,
 };

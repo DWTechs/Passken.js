@@ -227,6 +227,15 @@ function verify(token, b64Keys, ignoreExpiration = false) {
         throw new Error("Invalid signature");
     return payload;
 }
+const BEARER_TOKEN_ERROR_MESSAGE = "Authorization header must be in the format 'Bearer <token>'";
+function parseBearerToken(authorization) {
+    if (!(authorization === null || authorization === void 0 ? void 0 : authorization.startsWith("Bearer ")))
+        throw new Error(BEARER_TOKEN_ERROR_MESSAGE);
+    const parts = authorization.split(" ").filter(part => part.length > 0);
+    if (parts.length < 2 || !parts[1])
+        throw new Error(BEARER_TOKEN_ERROR_MESSAGE);
+    return parts[1];
+}
 function randomPick(array) {
     return Math.floor(Math.random() * array.length);
 }
@@ -235,4 +244,4 @@ function create(length = 32) {
     return b64Encode(randomBytes(length).toString("utf8"), true);
 }
 
-export { compare, encrypt, getDigest, getDigests, getKeyLen, getSaltRounds, create$1 as randomPwd, create as randomSecret, setDigest, setKeyLen, setSaltRounds, sign, verify };
+export { compare, encrypt, getDigest, getDigests, getKeyLen, getSaltRounds, parseBearerToken, create$1 as randomPwd, create as randomSecret, setDigest, setKeyLen, setSaltRounds, sign, verify };
