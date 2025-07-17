@@ -1,6 +1,6 @@
 # 0.3.0 (jul 17th 2025)
 
-- Add parseBearerToken function() to extract access token from authorization header
+- Add parseBearerToken() function to extract access token from authorization header
 - Update Checkard dependency to version 3.2.3
 - Update documentation in readme.md
 
