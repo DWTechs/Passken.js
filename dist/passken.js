@@ -228,8 +228,11 @@ function verify(token, b64Keys, ignoreExpiration = false) {
     return payload;
 }
 const BEARER_TOKEN_ERROR_MESSAGE = "Authorization header must be in the format 'Bearer <token>'";
+const MISSING_AUTHORIZATION_ERROR_MESSAGE = "Authorization header is missing";
 function parseBearerToken(authorization) {
-    if (!(authorization === null || authorization === void 0 ? void 0 : authorization.startsWith("Bearer ")))
+    if (!authorization)
+        throw new Error(MISSING_AUTHORIZATION_ERROR_MESSAGE);
+    if (!authorization.startsWith("Bearer "))
         throw new Error(BEARER_TOKEN_ERROR_MESSAGE);
     const parts = authorization.split(" ").filter(part => part.length > 0);
     if (parts.length < 2 || !parts[1])

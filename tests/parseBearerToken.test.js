@@ -1,4 +1,4 @@
-import { parseBearerToken, BEARER_TOKEN_ERROR_MESSAGE } from "../dist/passken.js";
+import { parseBearerToken, BEARER_TOKEN_ERROR_MESSAGE, MISSING_AUTHORIZATION_ERROR_MESSAGE } from "../dist/passken.js";
 
 describe("parseBearerToken", () => {
   
@@ -50,12 +50,27 @@ describe("parseBearerToken", () => {
     });
   });
 
-  describe("Invalid Bearer tokens - should throw errors", () => {
-    test("throws error for empty string", () => {
+  describe("Missing authorization header - should throw specific errors", () => {
+    test("throws specific error for undefined authorization", () => {
+      expect(() => {
+        parseBearerToken(undefined);
+      }).toThrow(MISSING_AUTHORIZATION_ERROR_MESSAGE);
+    });
+
+    test("throws specific error for null authorization", () => {
+      expect(() => {
+        parseBearerToken(null);
+      }).toThrow(MISSING_AUTHORIZATION_ERROR_MESSAGE);
+    });
+
+    test("throws specific error for empty authorization", () => {
       expect(() => {
         parseBearerToken("");
-      }).toThrow(BEARER_TOKEN_ERROR_MESSAGE);
+      }).toThrow(MISSING_AUTHORIZATION_ERROR_MESSAGE);
     });
+  });
+
+  describe("Invalid Bearer tokens - should throw format errors", () => {
 
     test("throws error for Bearer without token", () => {
       expect(() => {
@@ -103,18 +118,6 @@ describe("parseBearerToken", () => {
       expect(() => {
         parseBearerToken("Token Bearer sometoken123");
       }).toThrow(BEARER_TOKEN_ERROR_MESSAGE);
-    });
-
-    test("throws error for null input", () => {
-      expect(() => {
-        parseBearerToken(null);
-      }).toThrow();
-    });
-
-    test("throws error for undefined input", () => {
-      expect(() => {
-        parseBearerToken(undefined);
-      }).toThrow();
     });
 
     test("throws error for Bearer with tab character", () => {
@@ -186,4 +189,5 @@ describe("parseBearerToken", () => {
       });
     });
   });
+
 });

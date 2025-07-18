@@ -359,9 +359,10 @@ function verify( token: string,
  * This function validates that the authorization header follows the correct Bearer token format
  * ("Bearer <token>") and extracts the token portion for further processing.
  * 
- * @param {string} authorization - The Authorization header value from an HTTP request
+ * @param {string | undefined} authorization - The Authorization header value from an HTTP request
  * @returns {string} The extracted JWT token as a string
- * @throws {Error} Will throw an error if the authorization header is empty or not in the format 'Bearer <token>'
+ * @throws {Error} Will throw an error if the authorization parameter is undefined
+ * @throws {Error} Will throw an error if the format is invalid
  * 
  * @example
  * ```typescript
@@ -375,19 +376,20 @@ function verify( token: string,
  * const token2 = parseBearerToken(headerWithSpaces);
  * // Returns: "token123"
  * 
- * // Invalid headers - these will throw errors
+ * // Invalid headers - these will throw specific errors
  * try {
- *   parseBearerToken("Basic dXNlcjpwYXNz"); // Throws Error
- *   parseBearerToken("Bearer"); // Throws Error
- *   parseBearerToken("Bearer "); // Throws Error
- *   parseBearerToken(""); // Throws Error
+ *   parseBearerToken(undefined); // Throws: "Authorization header is missing"
+ *   parseBearerToken(""); // Throws: "Authorization header must be in the format 'Bearer <token>'"
+ *   parseBearerToken("Basic dXNlcjpwYXNz"); // Throws: "Authorization header must be in the format 'Bearer <token>'"
+ *   parseBearerToken("Bearer"); // Throws: "Authorization header must be in the format 'Bearer <token>'"
+ *   parseBearerToken("Bearer "); // Throws: "Authorization header must be in the format 'Bearer <token>'"
  * } catch (error) {
- *   console.error('Invalid authorization header:', error.message);
+ *   console.error('Authorization error:', error.message);
  * }
  * ```
  * 
  */
-function parseBearerToken(authorization: string): string;
+function parseBearerToken(authorization: string | undefined): string;
 
 ```
 
