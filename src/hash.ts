@@ -10,6 +10,11 @@ import { isValidInteger,
          b64Decode, 
          isBase64
        } from "@dwtechs/checkard";
+import { 
+  HashLengthMismatchError,
+  InvalidPasswordError,
+  InvalidBase64SecretError
+} from "./errors.js";
 
 const digests = getHashes();
 let digest = "sha256";
@@ -18,7 +23,7 @@ let saltRnds = 12;
 
 function tse(a: Buffer, b: Buffer): boolean {
   if (a.length !== b.length)
-    throw new Error("Hashes must have the same byte length");  
+    throw new HashLengthMismatchError();  
   return timingSafeEqual(a, b);
 }
 
@@ -143,14 +148,15 @@ function pbkdf2(pwd: string, secret: string, salt: string): Buffer {
  * @param {string} pwd - The password to encrypt. Must be a non-empty string.
  * @param {string} b64Secret - The base64 encoded secret used for encryption. Must be a valid base64 encoded string.
  * @returns {string} The encrypted password as a hex string prefixed with a random salt.
- * @throws {Error} If `pwd` is not a non-empty string or `b64Secret` is not a valid base64 encoded string.
+ * @throws {InvalidPasswordError} If `pwd` is not a non-empty string.
+ * @throws {InvalidBase64SecretError} If `b64Secret` is not a valid base64 encoded string.
  */
 function encrypt(pwd: string, b64Secret: string): string {
 	if (!isString(pwd, "!0")) 
-    throw new Error("pwd must be a non-empty string");
+    throw new InvalidPasswordError();
 	
   if (!isBase64(b64Secret, true))
-    throw new Error("b64Secret must be a base64 encoded string");
+    throw new InvalidBase64SecretError();
 
   const secret = b64Decode(b64Secret, true);
 	const salt = randomSalt();

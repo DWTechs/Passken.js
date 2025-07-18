@@ -10,6 +10,18 @@ import {
   b64Decode
 } from "@dwtechs/checkard";
 import type { Header, Payload, Type } from "./types";
+import { 
+  MissingAuthorizationError, 
+  InvalidBearerFormatError,
+  InvalidIssuerError,
+  InvalidSecretsError,
+  InvalidDurationError,
+  SecretDecodingError,
+  InvalidTokenError,
+  TokenExpiredError,
+  TokenNotActiveError,
+  InvalidSignatureError
+} from "./errors.js";
 
 const header: Header = {
   alg: "HS256", // HMAC using SHA-256 hash algorithm
@@ -38,21 +50,21 @@ function sign(
 ): string {
 	// Check iss is a string or a number
 	if (!isString(iss, "!0") && !isNumber(iss, true))
-    throw new Error("iss must be a string or a number");
+    throw new InvalidIssuerError();
 
 	// Check b64Keys is an array
 	if (!isArray(b64Keys, ">", 0)) 
-    throw new Error("b64Keys must be an array");
+    throw new InvalidSecretsError();
 
 	if (!isNumber(duration, false) || !isPositive(duration, true)) 
-    throw new Error("duration must be a positive number");
+    throw new InvalidDurationError();
 
 	header.kid = randomPick(b64Keys);
 	const b64Secret = b64Keys[header.kid];
 
 	const secret = b64Decode(b64Secret, true);
 	if (!secret)
-    throw new Error("could not decode the secret");
+    throw new SecretDecodingError();
 
 	const iat = Math.floor(Date.now() / 1000); // Current time in seconds
 	const nbf = iat + 1;
@@ -88,51 +100,51 @@ function sign(
 function verify(token: string, b64Keys: string[], ignoreExpiration = false): Payload {
 	const segments = token.split(".");
 	if (segments.length !== 3)
-    throw new Error("Token must have 3 segments");
+    throw new InvalidTokenError();
 
 	// Split the token into its parts
 	const [b64Header, b64Payload, b64Signature] = segments;
 	if (!b64Header || !b64Payload || !b64Signature) 
-    throw new Error("Token Must have header, payload and signature");
+    throw new InvalidTokenError();
 
 	// Check b64Keys is an array
 	if (!isArray(b64Keys, ">", 0)) 
-    throw new Error("b64Keys must be an array");
+    throw new InvalidSecretsError();
 
 	// Decode and parse the header and payload
 	const headerString = b64Decode(b64Header);
 	const payloadString = b64Decode(b64Payload);
 	if (!isJson(headerString) || !isJson(payloadString))
-    throw new Error("Header and payload must be JSON");
+    throw new InvalidTokenError();
 	
 	const header = JSON.parse(headerString);
 	const payload = JSON.parse(payloadString);
 
 	// Ensure the algorithm in the header is what we expect (HS256)
 	if (header.alg !== "HS256")
-    throw new Error("Algorithm not supported");
+    throw new InvalidTokenError();
 
 	// Ensure the typ in the header is what we expect (JWT)
 	if (header.typ !== "JWT")
-    throw new Error("Token type not supported");
+    throw new InvalidTokenError();
 
 	// Ensure the kid in the header is what we expect (string or number)
   if (!isString(header.kid, "!0") && !isNumber(header.kid, true))
-    throw new Error("Invalid kid in header");
+    throw new InvalidTokenError();
 
 	const now = Math.floor(Date.now() / 1000); // Current time in seconds since epoch
 
 	// Validate "nbf" claim
 	if (payload.nbf && payload.nbf > now)
-    throw new Error("JWT cannot be used yet (nbf claim)");
+    throw new TokenNotActiveError();
 
 	// validate the "exp" claim
 	if (!ignoreExpiration && payload.exp < now)
-    throw new Error("JWT has expired (exp claim)");
+    throw new TokenExpiredError();
 
 	const b64Secret = b64Keys[header.kid];
 	if (!isBase64(b64Secret, true))
-    throw new Error("Secret must be base64 url-safe encoded");
+    throw new SecretDecodingError();
 
 	const secret = b64Decode(b64Secret);
 
@@ -143,7 +155,7 @@ function verify(token: string, b64Keys: string[], ignoreExpiration = false): Pay
   // if (safeB.length >= 32)
   //     throw new Error("Hashes must be at least 256 bits long");
 	if (!tse(safeA, safeB)) 
-    throw new Error("Invalid signature");
+    throw new InvalidSignatureError();
 
 	return payload;
 }
@@ -184,22 +196,20 @@ function verify(token: string, b64Keys: string[], ignoreExpiration = false): Pay
  * ```
  * 
  */
-const BEARER_TOKEN_ERROR_MESSAGE = "Authorization header must be in the format 'Bearer <token>'";
-const MISSING_AUTHORIZATION_ERROR_MESSAGE = "Authorization header is missing";
 
 function parseBearerToken(authorization: string | undefined): string {
   
   if (!authorization)
-    throw new Error(MISSING_AUTHORIZATION_ERROR_MESSAGE);
+    throw new MissingAuthorizationError();
   
   if (!authorization.startsWith("Bearer "))
-    throw new Error(BEARER_TOKEN_ERROR_MESSAGE);
+    throw new InvalidBearerFormatError();
 
   // Split by spaces and filter out empty strings to handle multiple spaces
   const parts = authorization.split(" ").filter(part => part.length > 0);
   
   if (parts.length < 2 || !parts[1])
-    throw new Error(BEARER_TOKEN_ERROR_MESSAGE);
+    throw new InvalidBearerFormatError();
 
   return parts[1];
 
@@ -214,6 +224,6 @@ export {
   sign, 
   verify,
   parseBearerToken,
-  BEARER_TOKEN_ERROR_MESSAGE,
-  MISSING_AUTHORIZATION_ERROR_MESSAGE,
+  MissingAuthorizationError,
+  InvalidBearerFormatError,
 };

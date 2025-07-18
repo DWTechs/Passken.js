@@ -12,6 +12,7 @@
   - [ES6](#es6)
   - [Configure](#configure)
 - [API Reference](#api-reference)
+- [Error Handling](#error-handling)
 - [options](#options)
 - [Express.js](#expressjs)
 - [Contributors](#contributors)
@@ -405,6 +406,156 @@ function parseBearerToken(authorization: string | undefined): string;
  */
 randomSecret(length = 32): string
 
+```
+
+## Error Handling
+
+Passken uses a structured error system that helps you identify and handle specific error cases. All errors extend from a base `PasskenError` class.
+
+### Error Classes Hierarchy
+
+```
+PasskenError (abstract base class)
+├── MissingAuthorizationError
+├── InvalidBearerFormatError
+├── InvalidTokenError
+├── TokenExpiredError
+├── TokenNotActiveError
+├── InvalidSignatureError
+├── MissingClaimsError
+├── InvalidIssuerError
+├── InvalidSecretsError
+├── InvalidDurationError
+├── SecretDecodingError
+├── HashLengthMismatchError
+├── InvalidPasswordError
+└── InvalidBase64SecretError
+```
+
+### Common Properties
+
+All error classes share these properties:
+
+- `message`: Human-readable error description
+- `code`: Machine-readable error code (e.g., "TOKEN_EXPIRED")
+- `statusCode`: Suggested HTTP status code (e.g., 401)
+- `stack`: Error stack trace
+
+### Using Error Handling
+
+```typescript
+import { sign, verify, parseBearerToken, TokenExpiredError, InvalidSignatureError } from "@dwtechs/passken";
+
+try {
+  // Attempt to verify a token
+  const payload = verify(token, secrets);
+  // Token is valid, proceed with the payload
+} catch (error) {
+  if (error instanceof TokenExpiredError) {
+    // Handle expired token (e.g., prompt for reauthentication)
+    console.log('Your session has expired. Please log in again.');
+    console.log(`Status code: ${error.statusCode}`); // 401
+  } else if (error instanceof InvalidSignatureError) {
+    // Handle tampered token
+    console.log('Invalid token signature detected');
+    console.log(`Status code: ${error.statusCode}`); // 401
+  } else {
+    // Handle other verification errors
+    console.log(`Token verification failed: ${error.message}`);
+  }
+}
+```
+
+### Error Types and HTTP Status Codes
+
+| Error Class | Code | Status Code | Description |
+|-------------|------|-------------|-------------|
+| MissingAuthorizationError | MISSING_AUTHORIZATION | 401 | Authorization header is missing |
+| InvalidBearerFormatError | INVALID_BEARER_FORMAT | 401 | Authorization header must be in the format 'Bearer <token>' |
+| InvalidTokenError | INVALID_TOKEN | 401 | Invalid or malformed JWT token |
+| TokenExpiredError | TOKEN_EXPIRED | 401 | JWT token has expired |
+| TokenNotActiveError | TOKEN_NOT_ACTIVE | 401 | JWT token cannot be used yet (nbf claim) |
+| InvalidSignatureError | INVALID_SIGNATURE | 401 | JWT token signature is invalid |
+| MissingClaimsError | MISSING_CLAIMS | 400 | JWT token is missing required claims |
+| InvalidIssuerError | INVALID_ISSUER | 400 | iss must be a string or a number |
+| InvalidSecretsError | INVALID_SECRETS | 500 | b64Keys must be an array |
+| InvalidDurationError | INVALID_DURATION | 400 | duration must be a positive number |
+| SecretDecodingError | SECRET_DECODING_ERROR | 500 | could not decode the secret |
+| HashLengthMismatchError | HASH_LENGTH_MISMATCH | 400 | Hashes must have the same byte length |
+| InvalidPasswordError | INVALID_PASSWORD | 400 | pwd must be a non-empty string |
+| InvalidBase64SecretError | INVALID_BASE64_SECRET | 400 | b64Secret must be a base64 encoded string |
+
+### Express Middleware Example
+
+```typescript
+import express from 'express';
+import { 
+  verify, 
+  parseBearerToken, 
+  PasskenError,
+  MissingAuthorizationError, 
+  InvalidBearerFormatError,
+  TokenExpiredError 
+} from '@dwtechs/passken';
+
+const app = express();
+const secrets = process.env.TOKEN_SECRET ? [process.env.TOKEN_SECRET] : [];
+
+// Authentication middleware
+function authenticate(req, res, next) {
+  try {
+    // Extract token from Bearer header
+    const token = parseBearerToken(req.headers.authorization);
+    
+    // Verify token and decode payload
+    const payload = verify(token, secrets);
+    
+    // Store user info from token in request
+    req.user = { id: payload.iss };
+    
+    next();
+  } catch (error) {
+    if (error instanceof MissingAuthorizationError) {
+      return res.status(error.statusCode).json({ 
+        error: error.code, 
+        message: 'Authentication required' 
+      });
+    }
+    
+    if (error instanceof InvalidBearerFormatError) {
+      return res.status(error.statusCode).json({ 
+        error: error.code, 
+        message: 'Invalid authentication format' 
+      });
+    }
+    
+    if (error instanceof TokenExpiredError) {
+      return res.status(error.statusCode).json({ 
+        error: error.code, 
+        message: 'Session expired, please login again' 
+      });
+    }
+    
+    if (error instanceof PasskenError) {
+      return res.status(error.statusCode).json({
+        error: error.code,
+        message: error.message
+      });
+    }
+    
+    // Unexpected errors
+    console.error('Authentication error:', error);
+    return res.status(500).json({ 
+      error: 'INTERNAL_SERVER_ERROR', 
+      message: 'An unexpected error occurred' 
+    });
+  }
+}
+
+// Protected route
+app.get('/protected', authenticate, (req, res) => {
+  res.json({ message: 'Protected data', userId: req.user.id });
+});
 ```
 
 

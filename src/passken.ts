@@ -10,3 +10,17 @@ export {  getSaltRounds,
 export {  create as randomPwd } from './pwd';
 export {  sign, verify, parseBearerToken } from './jwt';
 export {  create as randomSecret } from './secret';
+export {  
+          PasskenError,
+          MissingAuthorizationError,
+          InvalidBearerFormatError,
+          InvalidTokenError,
+          TokenExpiredError,
+          TokenNotActiveError,
+          InvalidSignatureError,
+          MissingClaimsError,
+          InvalidIssuerError,
+          InvalidSecretsError,
+          InvalidDurationError,
+          SecretDecodingError
+        } from './errors';

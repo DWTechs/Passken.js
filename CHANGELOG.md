@@ -1,3 +1,9 @@
+# 0.4.0 (jul 19th 2025)
+
+- Implement comprehensive error handling architecture with custom error classes
+- Add PasskenError as base error class with standardized properties (code, statusCode)
+- Create specialized error classes for each error scenario
+
 # 0.3.1 (jul 18th 2025)
 
 - Improve parseBearerToken() function to handle undefined authorization properly in Typescript
