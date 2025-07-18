@@ -1,6 +1,6 @@
 # 0.3.1 (jul 18th 2025)
 
-- Improve parseBearerToken() function to handle undefined authorization properly in typescript
+- Improve parseBearerToken() function to handle undefined authorization properly in Typescript
 
 # 0.3.0 (jul 17th 2025)
 
