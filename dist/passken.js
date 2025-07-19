@@ -27,6 +27,7 @@ https://github.com/DWTechs/Passken.js
 import { getHashes, timingSafeEqual, createHmac, randomBytes, pbkdf2Sync } from 'node:crypto';
 import { isValidInteger, isIn, isString, isBase64, b64Decode, isBoolean, isNumber, isArray, isPositive, b64Encode, isJson } from '@dwtechs/checkard';
 
+const PASSKEN_PREFIX = "Passken: ";
 class PasskenError extends Error {
     constructor(message) {
         super(message);
@@ -37,98 +38,98 @@ class PasskenError extends Error {
     }
 }
 class MissingAuthorizationError extends PasskenError {
-    constructor(message = "Authorization header is missing") {
+    constructor(message = `${PASSKEN_PREFIX}Authorization header is missing`) {
         super(message);
         this.code = "MISSING_AUTHORIZATION";
         this.statusCode = 401;
     }
 }
 class InvalidBearerFormatError extends PasskenError {
-    constructor(message = "Authorization header must be in the format 'Bearer <token>'") {
+    constructor(message = `${PASSKEN_PREFIX}Authorization header must be in the format 'Bearer <token>'`) {
         super(message);
         this.code = "INVALID_BEARER_FORMAT";
         this.statusCode = 401;
     }
 }
 class InvalidTokenError extends PasskenError {
-    constructor(message = "Invalid or malformed JWT token") {
+    constructor(message = `${PASSKEN_PREFIX}Invalid or malformed JWT token`) {
         super(message);
         this.code = "INVALID_TOKEN";
         this.statusCode = 401;
     }
 }
 class TokenExpiredError extends PasskenError {
-    constructor(message = "JWT token has expired") {
+    constructor(message = `${PASSKEN_PREFIX}JWT token has expired`) {
         super(message);
         this.code = "TOKEN_EXPIRED";
         this.statusCode = 401;
     }
 }
 class TokenNotActiveError extends PasskenError {
-    constructor(message = "JWT token cannot be used yet (nbf claim)") {
+    constructor(message = `${PASSKEN_PREFIX}JWT token cannot be used yet (nbf claim)`) {
         super(message);
         this.code = "TOKEN_NOT_ACTIVE";
         this.statusCode = 401;
     }
 }
 class InvalidSignatureError extends PasskenError {
-    constructor(message = "JWT token signature is invalid") {
+    constructor(message = `${PASSKEN_PREFIX}JWT token signature is invalid`) {
         super(message);
         this.code = "INVALID_SIGNATURE";
         this.statusCode = 401;
     }
 }
 class MissingClaimsError extends PasskenError {
-    constructor(message = "JWT token is missing required claims") {
+    constructor(message = `${PASSKEN_PREFIX}JWT token is missing required claims`) {
         super(message);
         this.code = "MISSING_CLAIMS";
         this.statusCode = 400;
     }
 }
 class InvalidIssuerError extends PasskenError {
-    constructor(message = "iss must be a string or a number") {
+    constructor(message = `${PASSKEN_PREFIX}iss must be a string or a number`) {
         super(message);
         this.code = "INVALID_ISSUER";
         this.statusCode = 400;
     }
 }
 class InvalidSecretsError extends PasskenError {
-    constructor(message = "b64Keys must be an array") {
+    constructor(message = `${PASSKEN_PREFIX}b64Keys must be an array`) {
         super(message);
         this.code = "INVALID_SECRETS";
         this.statusCode = 500;
     }
 }
 class InvalidDurationError extends PasskenError {
-    constructor(message = "duration must be a positive number") {
+    constructor(message = `${PASSKEN_PREFIX}duration must be a positive number`) {
         super(message);
         this.code = "INVALID_DURATION";
         this.statusCode = 400;
     }
 }
 class SecretDecodingError extends PasskenError {
-    constructor(message = "could not decode the secret") {
+    constructor(message = `${PASSKEN_PREFIX}could not decode the secret`) {
         super(message);
         this.code = "SECRET_DECODING_ERROR";
         this.statusCode = 500;
     }
 }
 class HashLengthMismatchError extends PasskenError {
-    constructor(message = "Hashes must have the same byte length") {
+    constructor(message = `${PASSKEN_PREFIX}Hashes must have the same byte length`) {
         super(message);
         this.code = "HASH_LENGTH_MISMATCH";
         this.statusCode = 400;
     }
 }
 class InvalidPasswordError extends PasskenError {
-    constructor(message = "pwd must be a non-empty string") {
+    constructor(message = `${PASSKEN_PREFIX}pwd must be a non-empty string`) {
         super(message);
         this.code = "INVALID_PASSWORD";
         this.statusCode = 400;
     }
 }
 class InvalidBase64SecretError extends PasskenError {
-    constructor(message = "b64Secret must be a base64 encoded string") {
+    constructor(message = `${PASSKEN_PREFIX}b64Secret must be a base64 encoded string`) {
         super(message);
         this.code = "INVALID_BASE64_SECRET";
         this.statusCode = 400;

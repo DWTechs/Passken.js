@@ -3,6 +3,11 @@
  */
 
 /**
+ * Prefix for all Passken error messages
+ */
+const PASSKEN_PREFIX = "Passken: ";
+
+/**
  * Base class for all Passken authentication errors
  */
 export abstract class PasskenError extends Error {
@@ -39,7 +44,7 @@ export class MissingAuthorizationError extends PasskenError {
   readonly code = "MISSING_AUTHORIZATION";
   readonly statusCode = 401;
   
-  constructor(message = "Authorization header is missing") {
+  constructor(message = `${PASSKEN_PREFIX}Authorization header is missing`) {
     super(message);
   }
 }
@@ -62,8 +67,8 @@ export class MissingAuthorizationError extends PasskenError {
 export class InvalidBearerFormatError extends PasskenError {
   readonly code = "INVALID_BEARER_FORMAT";
   readonly statusCode = 401;
-  
-  constructor(message = "Authorization header must be in the format 'Bearer <token>'") {
+
+  constructor(message = `${PASSKEN_PREFIX}Authorization header must be in the format 'Bearer <token>'`) {
     super(message);
   }
 }
@@ -86,8 +91,8 @@ export class InvalidBearerFormatError extends PasskenError {
 export class InvalidTokenError extends PasskenError {
   readonly code = "INVALID_TOKEN";
   readonly statusCode = 401;
-  
-  constructor(message = "Invalid or malformed JWT token") {
+
+  constructor(message = `${PASSKEN_PREFIX}Invalid or malformed JWT token`) {
     super(message);
   }
 }
@@ -110,8 +115,8 @@ export class InvalidTokenError extends PasskenError {
 export class TokenExpiredError extends PasskenError {
   readonly code = "TOKEN_EXPIRED";
   readonly statusCode = 401;
-  
-  constructor(message = "JWT token has expired") {
+
+  constructor(message = `${PASSKEN_PREFIX}JWT token has expired`) {
     super(message);
   }
 }
@@ -134,8 +139,8 @@ export class TokenExpiredError extends PasskenError {
 export class TokenNotActiveError extends PasskenError {
   readonly code = "TOKEN_NOT_ACTIVE";
   readonly statusCode = 401;
-  
-  constructor(message = "JWT token cannot be used yet (nbf claim)") {
+
+  constructor(message = `${PASSKEN_PREFIX}JWT token cannot be used yet (nbf claim)`) {
     super(message);
   }
 }
@@ -146,8 +151,8 @@ export class TokenNotActiveError extends PasskenError {
 export class InvalidSignatureError extends PasskenError {
   readonly code = "INVALID_SIGNATURE";
   readonly statusCode = 401;
-  
-  constructor(message = "JWT token signature is invalid") {
+
+  constructor(message = `${PASSKEN_PREFIX}JWT token signature is invalid`) {
     super(message);
   }
 }
@@ -158,8 +163,8 @@ export class InvalidSignatureError extends PasskenError {
 export class MissingClaimsError extends PasskenError {
   readonly code = "MISSING_CLAIMS";
   readonly statusCode = 400;
-  
-  constructor(message = "JWT token is missing required claims") {
+
+  constructor(message = `${PASSKEN_PREFIX}JWT token is missing required claims`) {
     super(message);
   }
 }
@@ -182,7 +187,7 @@ export class InvalidIssuerError extends PasskenError {
   readonly code = "INVALID_ISSUER";
   readonly statusCode = 400;
   
-  constructor(message = "iss must be a string or a number") {
+  constructor(message = `${PASSKEN_PREFIX}iss must be a string or a number`) {
     super(message);
   }
 }
@@ -205,7 +210,7 @@ export class InvalidSecretsError extends PasskenError {
   readonly code = "INVALID_SECRETS";
   readonly statusCode = 500;
   
-  constructor(message = "b64Keys must be an array") {
+  constructor(message = `${PASSKEN_PREFIX}b64Keys must be an array`) {
     super(message);
   }
 }
@@ -227,8 +232,8 @@ export class InvalidSecretsError extends PasskenError {
 export class InvalidDurationError extends PasskenError {
   readonly code = "INVALID_DURATION";
   readonly statusCode = 400;
-  
-  constructor(message = "duration must be a positive number") {
+
+  constructor(message = `${PASSKEN_PREFIX}duration must be a positive number`) {
     super(message);
   }
 }
@@ -250,8 +255,8 @@ export class InvalidDurationError extends PasskenError {
 export class SecretDecodingError extends PasskenError {
   readonly code = "SECRET_DECODING_ERROR";
   readonly statusCode = 500;
-  
-  constructor(message = "could not decode the secret") {
+
+  constructor(message = `${PASSKEN_PREFIX}could not decode the secret`) {
     super(message);
   }
 }
@@ -273,8 +278,8 @@ export class SecretDecodingError extends PasskenError {
 export class HashLengthMismatchError extends PasskenError {
   readonly code = "HASH_LENGTH_MISMATCH";
   readonly statusCode = 400;
-  
-  constructor(message = "Hashes must have the same byte length") {
+
+  constructor(message = `${PASSKEN_PREFIX}Hashes must have the same byte length`) {
     super(message);
   }
 }
@@ -296,8 +301,8 @@ export class HashLengthMismatchError extends PasskenError {
 export class InvalidPasswordError extends PasskenError {
   readonly code = "INVALID_PASSWORD";
   readonly statusCode = 400;
-  
-  constructor(message = "pwd must be a non-empty string") {
+
+  constructor(message = `${PASSKEN_PREFIX}pwd must be a non-empty string`) {
     super(message);
   }
 }
@@ -319,8 +324,8 @@ export class InvalidPasswordError extends PasskenError {
 export class InvalidBase64SecretError extends PasskenError {
   readonly code = "INVALID_BASE64_SECRET";
   readonly statusCode = 400;
-  
-  constructor(message = "b64Secret must be a base64 encoded string") {
+
+  constructor(message = `${PASSKEN_PREFIX}b64Secret must be a base64 encoded string`) {
     super(message);
   }
 }
