@@ -98,31 +98,36 @@ function createPwd(req, res, next) {
 
 }
 
+function decodeAccessToken(req, res, next){
+  let accessToken: string;
+  try {
+    accessToken = parseBearerToken(req.headers.authorization);
+  } catch (err: any) {
+    return next(err);
+  }
+  let decodedToken = null;
+  try {
+    decodedToken = verify(accessToken, [TOKEN_SECRET], true);
+  } catch (err: any) {
+    return next(err);
+  }
+  req.body.decodedAccessToken = decodedToken;
+}
 
 // JWT
-function signToken(req, res, next) {
+function refreshToken(req, res, next) {
+  const iss = req.body.decodedAccessToken?.iss;
+  const newAccessToken = sign(iss, ACCESS_TOKEN_DURATION, "access", secrets);
+  const newRefreshToken = sign(iss, REFRESH_TOKEN_DURATION, "refresh", secrets);
   res.jwt = sign(req.userId, 3600, "access", [TOKEN_SECRET]);
   next();
 }
 
-
-function checkAccessToken(req, res, next){
-  const accessToken = parseBearerToken(req.headers.authorization);
-  res.decodedToken = verify(accessToken, [TOKEN_SECRET]);
-}
-
-
-function verifyToken(req, res, next) {
-  res.decodedToken = verify(req.token, [TOKEN_SECRET]);
-  next();
-}
-
-
 export {
   comparePwd,
   createPwd,
-  signToken,
-  verifyToken,
+  decodeAccessToken,
+  refreshToken,
 };
 
 ```
@@ -270,7 +275,8 @@ function getDigests(): string[] {}
  * @param {string} pwd - The password to encrypt. Must be a non-empty string.
  * @param {string} b64Secret - The base64 encoded secret used for encryption. Must be a valid base64 encoded string.
  * @returns {string} The encrypted password as a hex string prefixed with a random salt.
- * @throws {Error} If pwd is not a non-empty string or b64Secret is not a valid base64 encoded string.
+ * @throws {InvalidPasswordError} If `pwd` is not a non-empty string.
+ * @throws {InvalidBase64SecretError} If `b64Secret` is not a valid base64 encoded string.
  */
 function encrypt( pwd: string, 
                   b64Secret: string
@@ -319,10 +325,17 @@ const header {
  * @param {Type} type - The type of the token, either "access" or "refresh".
  * @param {string[]} b64Keys - An array of base64 encoded secrets used for signing the token.
  * @returns {string} The signed JWT as a string.
- * @throws Will throw an error if `iss` is not a string or a number.
- * @throws Will throw an error if `b64Secrets` is not an array.
- * @throws Will throw an error if `duration` is not a positive number.
- * @throws Will throw an error if the secret cannot be decoded.
+ * @throws {InvalidIssuerError} Throws when `iss` is not a string or a number - HTTP 400
+ * @throws {InvalidSecretsError} Throws when `b64Keys` is not an array or is empty - HTTP 500
+ * @throws {InvalidDurationError} Throws when `duration` is not a positive number - HTTP 400
+ * @throws {SecretDecodingError} Throws when the secret cannot be decoded from base64 - HTTP 500
+ * 
+ * // Examples that throw specific errors:
+ * sign(null, 3600, "access", secrets); // Throws InvalidIssuerError
+ * sign("user123", 3600, "access", []); // Throws InvalidSecretsError
+ * sign("user123", -1, "access", secrets); // Throws InvalidDurationError
+ * sign("user123", 3600, "access", ["invalid-base64!"]); // Throws SecretDecodingError
+ * ```
  */
 function sign( iss: number | string, 
                duration: number, 
@@ -336,23 +349,48 @@ function sign( iss: number | string,
  * @param {string} token - The JWT token to verify.
  * @param {string[]} b64Keys - An array of base64-encoded secrets used for verification.
  * @param {boolean} ignoreExpiration - Optional flag to ignore the expiration time of the token. Defaults to false.
- * @returns {Payload} The decoded payload of the JWT token as a string.
- * @throws Will throw an error if the token does not have 3 segments.
- * @throws Will throw an error if the token does not have a header, payload, and signature.
- * @throws Will throw an error if `b64Keys` is not an array.
- * @throws Will throw an error if the header or payload are not valid JSON.
- * @throws Will throw an error if the algorithm or token type are not supported.
- * @throws Will throw an error if the "kid" in the header is invalid.
- * @throws Will throw an error if the token cannot be used yet (nbf claim).
- * @throws Will throw an error if the token has expired (exp claim).
- * @throws Will throw an error if the secret is not valid base64 url-sale encoded.
- * @throws Will throw an error if the signature is invalid.
+ * @returns {Payload} The decoded payload of the JWT token.
+ * @throws {InvalidTokenError} Throws when the token is malformed, has invalid structure, algorithm, or type - HTTP 401
+ * @throws {InvalidSecretsError} Throws when b64Keys is not an array or is empty - HTTP 500
+ * @throws {TokenNotActiveError} Throws when the token cannot be used yet (nbf claim) - HTTP 401
+ * @throws {TokenExpiredError} Throws when the token has expired (exp claim) - HTTP 401
+ * @throws {SecretDecodingError} Throws when the secret is not valid base64 encoded - HTTP 500
+ * @throws {InvalidSignatureError} Throws when the token signature is invalid - HTTP 401
+ * 
+ * // Examples that throw specific errors:
+ * verify("invalid.token", secrets); // Throws InvalidTokenError
+ * verify(validToken, []); // Throws InvalidSecretsError
+ * verify(expiredToken, secrets); // Throws TokenExpiredError
+ * verify(futureToken, secrets); // Throws TokenNotActiveError
+ * verify(tamperedToken, secrets); // Throws InvalidSignatureError
+ * verify(validToken, ["invalid-base64!"]); // Throws SecretDecodingError
+ * ```
  */
 function verify( token: string, 
                  b64Keys: string[],
                  ignoreExpiration = false
                ): Payload;
 
+
+/**
+ * Verifies a JWT token using the provided base64-encoded secrets.
+ *
+ * @param {string} token - The JWT token to verify.
+ * @param {string[]} b64Keys - An array of base64-encoded secrets used for verification.
+ * @param {boolean} ignoreExpiration - Optional flag to ignore the expiration time of the token. Defaults to false.
+ * @returns {Payload} The decoded payload of the JWT token as a string.
+ * @throws Will throw an error if the token does not have 3 segments.
+ * @throws Will throw an error if the token does not have a header, payload, and signature.
+ * @throws Will throw an error if b64Keys is not an array.
+ * @throws Will throw an error if the header or payload are not valid JSON.
+ * @throws Will throw an error if the algorithm or token type are not supported.
+ * @throws Will throw an error if the kid in the header is invalid.
+ * @throws Will throw an error if the token cannot be used yet (nbf claim).
+ * @throws Will throw an error if the token has expired (exp claim).
+ * @throws Will throw an error if the secret is not valid base64 url-sale encoded.
+ * @throws Will throw an error if the signature is invalid.
+ */
+function verify(token: string, b64Keys: string[], ignoreExpiration = false): Payload;
 
 /**
  * Extracts the JWT token from an HTTP Authorization header with Bearer authentication scheme.
@@ -362,11 +400,13 @@ function verify( token: string,
  * 
  * @param {string | undefined} authorization - The Authorization header value from an HTTP request
  * @returns {string} The extracted JWT token as a string
- * @throws {Error} Will throw an error if the authorization parameter is undefined
- * @throws {Error} Will throw an error if the format is invalid
+ * @throws {MissingAuthorizationError} Throws when the authorization parameter is undefined - HTTP 401
+ * @throws {InvalidBearerFormatError} Throws when the format is invalid - HTTP 401
  * 
  * @example
  * ```typescript
+ * import { parseBearerToken, MissingAuthorizationError, InvalidBearerFormatError } from "@dwtechs/passken";
+ * 
  * // Valid Bearer tokens
  * const validHeader = "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...";
  * const token = parseBearerToken(validHeader);
@@ -377,16 +417,12 @@ function verify( token: string,
  * const token2 = parseBearerToken(headerWithSpaces);
  * // Returns: "token123"
  * 
- * // Invalid headers - these will throw specific errors
- * try {
- *   parseBearerToken(undefined); // Throws: "Authorization header is missing"
- *   parseBearerToken(""); // Throws: "Authorization header must be in the format 'Bearer <token>'"
- *   parseBearerToken("Basic dXNlcjpwYXNz"); // Throws: "Authorization header must be in the format 'Bearer <token>'"
- *   parseBearerToken("Bearer"); // Throws: "Authorization header must be in the format 'Bearer <token>'"
- *   parseBearerToken("Bearer "); // Throws: "Authorization header must be in the format 'Bearer <token>'"
- * } catch (error) {
- *   console.error('Authorization error:', error.message);
- * }
+ * // Examples that throw specific errors:
+ * parseBearerToken(undefined); // Throws MissingAuthorizationError: "Authorization header is missing"
+ * parseBearerToken(""); // Throws InvalidBearerFormatError: "Authorization header must be in the format 'Bearer <token>'"
+ * parseBearerToken("Basic dXNlcjpwYXNz"); // Throws InvalidBearerFormatError
+ * parseBearerToken("Bearer"); // Throws InvalidBearerFormatError
+ * parseBearerToken("Bearer "); // Throws InvalidBearerFormatError
  * ```
  * 
  */

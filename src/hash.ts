@@ -21,6 +21,53 @@ let digest = "sha256";
 let keyLen = 64;
 let saltRnds = 12;
 
+/**
+ * Timing-Safe Equality (TSE) function for comparing two buffers in constant time.
+ * 
+ * This function performs a cryptographically secure comparison of two buffers that takes
+ * the same amount of time regardless of where the buffers differ. This prevents timing
+ * attacks where an attacker could determine the correct value by measuring how long
+ * the comparison takes.
+ * 
+ * Regular string or buffer comparison (===, ==, Buffer.compare) can be vulnerable to
+ * timing attacks because they often return early when they find the first differing byte.
+ * This function uses Node.js's built-in `timingSafeEqual` which compares every byte
+ * regardless of differences found.
+ * 
+ * @param {Buffer} a - The first buffer to compare
+ * @param {Buffer} b - The second buffer to compare
+ * @returns {boolean} `true` if the buffers are identical, `false` otherwise
+ * @throws {HashLengthMismatchError} Throws when the buffers have different lengths - HTTP 400
+ * 
+ * // Use case: JWT signature verification (timing-attack resistant)
+ * const expectedSignature = Buffer.from(computedSignature);
+ * const providedSignature = Buffer.from(tokenSignature);
+ * const isValidSignature = tse(expectedSignature, providedSignature);
+ * 
+ * // Use case: Password hash comparison
+ * const storedHash = Buffer.from(hashedPassword, "hex");
+ * const computedHash = Buffer.from(newPasswordHash, "hex");
+ * const passwordMatches = tse(storedHash, computedHash);
+ * 
+ * // Example that throws HashLengthMismatchError:
+ * const shortBuffer = Buffer.from("abc");
+ * const longBuffer = Buffer.from("abcdef");
+ * tse(shortBuffer, longBuffer); // Throws HashLengthMismatchError
+ * ```
+ * 
+ * @security
+ * **Why timing-safe comparison matters:**
+ * - Prevents timing attacks on password verification
+ * - Protects JWT signature validation from side-channel attacks
+ * - Essential for any cryptographic comparison in security-sensitive contexts
+ * - Takes constant time regardless of input differences
+ * 
+ * **When to use:**
+ * - Comparing password hashes
+ * - Validating JWT signatures
+ * - Comparing any cryptographic values (MACs, tokens, etc.)
+ * - Any security-critical buffer comparison
+ */
 function tse(a: Buffer, b: Buffer): boolean {
   if (a.length !== b.length)
     throw new HashLengthMismatchError();  
