@@ -3,6 +3,7 @@
 - Implement comprehensive error handling architecture with custom error classes
 - Add PasskenError as base error class with standardized properties (code, statusCode)
 - Create specialized error classes for each error scenario
+- Rename parseBearerToken() function to parseBearer() for cleaner API
 
 # 0.3.1 (jul 18th 2025)
 

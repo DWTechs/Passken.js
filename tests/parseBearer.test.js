@@ -1,13 +1,13 @@
-import { parseBearerToken, BEARER_TOKEN_ERROR_MESSAGE, MISSING_AUTHORIZATION_ERROR_MESSAGE } from "../dist/passken.js";
+import { parseBearer, BEARER_TOKEN_ERROR_MESSAGE, MISSING_AUTHORIZATION_ERROR_MESSAGE } from "../dist/passken.js";
 
-describe("parseBearerToken", () => {
+describe("parseBearer", () => {
   
   describe("Valid Bearer tokens", () => {
     test("extracts token from valid Bearer authorization header", () => {
       const validHeader = "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c";
       const expectedToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c";
       
-      const result = parseBearerToken(validHeader);
+      const result = parseBearer(validHeader);
       
       expect(result).toBe(expectedToken);
       expect(typeof result).toBe("string");
@@ -17,7 +17,7 @@ describe("parseBearerToken", () => {
       const header = "Bearer abc123def456";
       const expectedToken = "abc123def456";
       
-      const result = parseBearerToken(header);
+      const result = parseBearer(header);
       
       expect(result).toBe(expectedToken);
     });
@@ -26,7 +26,7 @@ describe("parseBearerToken", () => {
       const complexToken = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImp0aSI6IjIzNDU2Nzg5IiwiaWF0IjoxNTE2MjM5MDIyLCJleHAiOjE1MTYyNDI2MjJ9.7V-dJp7J6j7LbJ5r2Q2Q1pQ5yQ6fQ7pQ9rQ3rQ4rQ5r";
       const header = `Bearer ${complexToken}`;
       
-      const result = parseBearerToken(header);
+      const result = parseBearer(header);
       
       expect(result).toBe(complexToken);
     });
@@ -35,7 +35,7 @@ describe("parseBearerToken", () => {
       const token = "validToken123";
       const header = `Bearer  ${token}`; // Two spaces
       
-      const result = parseBearerToken(header);
+      const result = parseBearer(header);
       
       expect(result).toBe(token);
     });
@@ -44,7 +44,7 @@ describe("parseBearerToken", () => {
       const longToken = "a".repeat(1000); // Very long token
       const header = `Bearer ${longToken}`;
       
-      const result = parseBearerToken(header);
+      const result = parseBearer(header);
       
       expect(result).toBe(longToken);
     });
@@ -53,19 +53,19 @@ describe("parseBearerToken", () => {
   describe("Missing authorization header - should throw specific errors", () => {
     test("throws specific error for undefined authorization", () => {
       expect(() => {
-        parseBearerToken(undefined);
+        parseBearer(undefined);
       }).toThrow(MISSING_AUTHORIZATION_ERROR_MESSAGE);
     });
 
     test("throws specific error for null authorization", () => {
       expect(() => {
-        parseBearerToken(null);
+        parseBearer(null);
       }).toThrow(MISSING_AUTHORIZATION_ERROR_MESSAGE);
     });
 
     test("throws specific error for empty authorization", () => {
       expect(() => {
-        parseBearerToken("");
+        parseBearer("");
       }).toThrow(MISSING_AUTHORIZATION_ERROR_MESSAGE);
     });
   });
@@ -74,61 +74,61 @@ describe("parseBearerToken", () => {
 
     test("throws error for Bearer without token", () => {
       expect(() => {
-        parseBearerToken("Bearer");
+        parseBearer("Bearer");
       }).toThrow(BEARER_TOKEN_ERROR_MESSAGE);
     });
 
     test("throws error for Bearer with only space", () => {
       expect(() => {
-        parseBearerToken("Bearer ");
+        parseBearer("Bearer ");
       }).toThrow(BEARER_TOKEN_ERROR_MESSAGE);
     });
 
     test("throws error for Bearer with multiple spaces but no token", () => {
       expect(() => {
-        parseBearerToken("Bearer   ");
+        parseBearer("Bearer   ");
       }).toThrow(BEARER_TOKEN_ERROR_MESSAGE);
     });
 
     test("throws error for Basic authentication", () => {
       expect(() => {
-        parseBearerToken("Basic dXNlcjpwYXNzd29yZA==");
+        parseBearer("Basic dXNlcjpwYXNzd29yZA==");
       }).toThrow(BEARER_TOKEN_ERROR_MESSAGE);
     });
 
     test("throws error for lowercase bearer", () => {
       expect(() => {
-        parseBearerToken("bearer sometoken123");
+        parseBearer("bearer sometoken123");
       }).toThrow(BEARER_TOKEN_ERROR_MESSAGE);
     });
 
     test("throws error for uppercase BEARER", () => {
       expect(() => {
-        parseBearerToken("BEARER sometoken123");
+        parseBearer("BEARER sometoken123");
       }).toThrow(BEARER_TOKEN_ERROR_MESSAGE);
     });
 
     test("throws error for missing Bearer prefix", () => {
       expect(() => {
-        parseBearerToken("sometoken123");
+        parseBearer("sometoken123");
       }).toThrow(BEARER_TOKEN_ERROR_MESSAGE);
     });
 
     test("throws error for malformed header with Bearer in wrong position", () => {
       expect(() => {
-        parseBearerToken("Token Bearer sometoken123");
+        parseBearer("Token Bearer sometoken123");
       }).toThrow(BEARER_TOKEN_ERROR_MESSAGE);
     });
 
     test("throws error for Bearer with tab character", () => {
       expect(() => {
-        parseBearerToken("Bearer\tsometoken");
+        parseBearer("Bearer\tsometoken");
       }).toThrow(BEARER_TOKEN_ERROR_MESSAGE);
     });
 
     test("throws error for Bearer with newline", () => {
       expect(() => {
-        parseBearerToken("Bearer\nsometoken");
+        parseBearer("Bearer\nsometoken");
       }).toThrow(BEARER_TOKEN_ERROR_MESSAGE);
     });
   });
@@ -138,7 +138,7 @@ describe("parseBearerToken", () => {
       const tokenValue = "Bearer_like_token_123";
       const header = `Bearer ${tokenValue}`;
       
-      const result = parseBearerToken(header);
+      const result = parseBearer(header);
       
       expect(result).toBe(tokenValue);
     });
@@ -146,7 +146,7 @@ describe("parseBearerToken", () => {
     test("handles token with spaces in it", () => {
       const header = "Bearer token with spaces";
       
-      const result = parseBearerToken(header);
+      const result = parseBearer(header);
       
       // Should only get the first part after the first space
       expect(result).toBe("token");
@@ -155,7 +155,7 @@ describe("parseBearerToken", () => {
     test("handles multiple Bearer-like words in token", () => {
       const header = "Bearer first-part second-Bearer-part";
       
-      const result = parseBearerToken(header);
+      const result = parseBearer(header);
       
       expect(result).toBe("first-part");
     });
@@ -164,7 +164,7 @@ describe("parseBearerToken", () => {
       const token = "valid-token-123";
       const header = `Bearer    ${token}    extra-content`;
       
-      const result = parseBearerToken(header);
+      const result = parseBearer(header);
       
       // Should extract the first token part after Bearer
       expect(result).toBe(token);
@@ -184,7 +184,7 @@ describe("parseBearerToken", () => {
       ];
 
       testCases.forEach(({ header, expected }) => {
-        const result = parseBearerToken(header);
+        const result = parseBearer(header);
         expect(result).toBe(expected);
       });
     });

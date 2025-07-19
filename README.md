@@ -101,7 +101,7 @@ function createPwd(req, res, next) {
 function decodeAccessToken(req, res, next){
   let accessToken: string;
   try {
-    accessToken = parseBearerToken(req.headers.authorization);
+    accessToken = parseBearer(req.headers.authorization);
   } catch (err: any) {
     return next(err);
   }
@@ -306,6 +306,27 @@ function randomPwd(opts: Partial<Options> = defOpts): string {}
 
 ```
 
+
+## options
+
+Any of these can be passed into the options object for each function.
+
+| Name         | type    |              Description                                     | Default |  
+| :----------- | :------ | :----------------------------------------------------------- | :------ |
+| len	         | Integer | Minimal length of password.                                  | 12      |
+| num*	       | Boolean | use numbers in password.                                     | true    |
+| sym*	       | Boolean | use symbols in password                                      | true    |
+| lcase*	     | Boolean | use lowercase in password                                    | true    |
+| ucase*	     | Boolean | use uppercase letters in password.                           | true    |
+| strict	     | Boolean | password must include at least one character from each pool.	| true    |
+| similarChars | Boolean | allow close looking chars.                                   | false   | 
+
+*At least one of those options must be true.  
+
+- Symbols used : !@#%*_-+=:?><./()  
+- Similar characters : l, I, 1, o, O, 0
+
+
 #### JWT
 
 ```javascript
@@ -405,28 +426,28 @@ function verify(token: string, b64Keys: string[], ignoreExpiration = false): Pay
  * 
  * @example
  * ```typescript
- * import { parseBearerToken, MissingAuthorizationError, InvalidBearerFormatError } from "@dwtechs/passken";
+ * import { parseBearer, MissingAuthorizationError, InvalidBearerFormatError } from "@dwtechs/passken";
  * 
  * // Valid Bearer tokens
  * const validHeader = "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...";
- * const token = parseBearerToken(validHeader);
+ * const token = parseBearer(validHeader);
  * // Returns: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
  * 
  * // Handles multiple spaces
  * const headerWithSpaces = "Bearer    token123";
- * const token2 = parseBearerToken(headerWithSpaces);
+ * const token2 = parseBearer(headerWithSpaces);
  * // Returns: "token123"
  * 
  * // Examples that throw specific errors:
- * parseBearerToken(undefined); // Throws MissingAuthorizationError: "Authorization header is missing"
- * parseBearerToken(""); // Throws InvalidBearerFormatError: "Authorization header must be in the format 'Bearer <token>'"
- * parseBearerToken("Basic dXNlcjpwYXNz"); // Throws InvalidBearerFormatError
- * parseBearerToken("Bearer"); // Throws InvalidBearerFormatError
- * parseBearerToken("Bearer "); // Throws InvalidBearerFormatError
+ * parseBearer(undefined); // Throws MissingAuthorizationError: "Authorization header is missing"
+ * parseBearer(""); // Throws InvalidBearerFormatError: "Authorization header must be in the format 'Bearer <token>'"
+ * parseBearer("Basic dXNlcjpwYXNz"); // Throws InvalidBearerFormatError
+ * parseBearer("Bearer"); // Throws InvalidBearerFormatError
+ * parseBearer("Bearer "); // Throws InvalidBearerFormatError
  * ```
  * 
  */
-function parseBearerToken(authorization: string | undefined): string;
+function parseBearer(authorization: string | undefined): string;
 
 ```
 
@@ -480,7 +501,7 @@ All error classes share these properties:
 ### Using Error Handling
 
 ```typescript
-import { sign, verify, parseBearerToken, TokenExpiredError, InvalidSignatureError } from "@dwtechs/passken";
+import { sign, verify, parseBearer, TokenExpiredError, InvalidSignatureError } from "@dwtechs/passken";
 
 try {
   // Attempt to verify a token
@@ -520,100 +541,6 @@ try {
 | HashLengthMismatchError | HASH_LENGTH_MISMATCH | 400 | Hashes must have the same byte length |
 | InvalidPasswordError | INVALID_PASSWORD | 400 | pwd must be a non-empty string |
 | InvalidBase64SecretError | INVALID_BASE64_SECRET | 400 | b64Secret must be a base64 encoded string |
-
-### Express Middleware Example
-
-```typescript
-import express from 'express';
-import { 
-  verify, 
-  parseBearerToken, 
-  PasskenError,
-  MissingAuthorizationError, 
-  InvalidBearerFormatError,
-  TokenExpiredError 
-} from '@dwtechs/passken';
-
-const app = express();
-const secrets = process.env.TOKEN_SECRET ? [process.env.TOKEN_SECRET] : [];
-
-// Authentication middleware
-function authenticate(req, res, next) {
-  try {
-    // Extract token from Bearer header
-    const token = parseBearerToken(req.headers.authorization);
-    
-    // Verify token and decode payload
-    const payload = verify(token, secrets);
-    
-    // Store user info from token in request
-    req.user = { id: payload.iss };
-    
-    next();
-  } catch (error) {
-    if (error instanceof MissingAuthorizationError) {
-      return res.status(error.statusCode).json({ 
-        error: error.code, 
-        message: 'Authentication required' 
-      });
-    }
-    
-    if (error instanceof InvalidBearerFormatError) {
-      return res.status(error.statusCode).json({ 
-        error: error.code, 
-        message: 'Invalid authentication format' 
-      });
-    }
-    
-    if (error instanceof TokenExpiredError) {
-      return res.status(error.statusCode).json({ 
-        error: error.code, 
-        message: 'Session expired, please login again' 
-      });
-    }
-    
-    if (error instanceof PasskenError) {
-      return res.status(error.statusCode).json({
-        error: error.code,
-        message: error.message
-      });
-    }
-    
-    // Unexpected errors
-    console.error('Authentication error:', error);
-    return res.status(500).json({ 
-      error: 'INTERNAL_SERVER_ERROR', 
-      message: 'An unexpected error occurred' 
-    });
-  }
-}
-
-// Protected route
-app.get('/protected', authenticate, (req, res) => {
-  res.json({ message: 'Protected data', userId: req.user.id });
-});
-```
-
-
-## options
-
-Any of these can be passed into the options object for each function.
-
-| Name         | type    |              Description                                     | Default |  
-| :----------- | :------ | :----------------------------------------------------------- | :------ |
-| len	         | Integer | Minimal length of password.                                  | 12      |
-| num*	       | Boolean | use numbers in password.                                     | true    |
-| sym*	       | Boolean | use symbols in password                                      | true    |
-| lcase*	     | Boolean | use lowercase in password                                    | true    |
-| ucase*	     | Boolean | use uppercase letters in password.                           | true    |
-| strict	     | Boolean | password must include at least one character from each pool.	| true    |
-| similarChars | Boolean | allow close looking chars.                                   | false   | 
-
-*At least one of those options must be true.  
-
-- Symbols used : !@#%*_-+=:?><./()  
-- Similar characters : l, I, 1, o, O, 0
-
 
 ## Express.js
 

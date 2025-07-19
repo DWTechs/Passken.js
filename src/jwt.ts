@@ -185,29 +185,29 @@ function verify(token: string, b64Keys: string[], ignoreExpiration = false): Pay
  * 
  * @example
  * ```typescript
- * import { parseBearerToken, MissingAuthorizationError, InvalidBearerFormatError } from "@dwtechs/passken";
+ * import { parseBearer, MissingAuthorizationError, InvalidBearerFormatError } from "@dwtechs/passken";
  * 
  * // Valid Bearer tokens
  * const validHeader = "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...";
- * const token = parseBearerToken(validHeader);
+ * const token = parseBearer(validHeader);
  * // Returns: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
  * 
  * // Handles multiple spaces
  * const headerWithSpaces = "Bearer    token123";
- * const token2 = parseBearerToken(headerWithSpaces);
+ * const token2 = parseBearer(headerWithSpaces);
  * // Returns: "token123"
  * 
  * // Examples that throw specific errors:
- * parseBearerToken(undefined); // Throws MissingAuthorizationError: "Authorization header is missing"
- * parseBearerToken(""); // Throws InvalidBearerFormatError: "Authorization header must be in the format 'Bearer <token>'"
- * parseBearerToken("Basic dXNlcjpwYXNz"); // Throws InvalidBearerFormatError
- * parseBearerToken("Bearer"); // Throws InvalidBearerFormatError
- * parseBearerToken("Bearer "); // Throws InvalidBearerFormatError
+ * parseBearer(undefined); // Throws MissingAuthorizationError: "Authorization header is missing"
+ * parseBearer(""); // Throws InvalidBearerFormatError: "Authorization header must be in the format 'Bearer <token>'"
+ * parseBearer("Basic dXNlcjpwYXNz"); // Throws InvalidBearerFormatError
+ * parseBearer("Bearer"); // Throws InvalidBearerFormatError
+ * parseBearer("Bearer "); // Throws InvalidBearerFormatError
  * ```
  * 
  */
 
-function parseBearerToken(authorization: string | undefined): string {
+function parseBearer(authorization: string | undefined): string {
   
   if (!authorization)
     throw new MissingAuthorizationError();
@@ -233,7 +233,7 @@ function randomPick(array: string[]): number {
 export { 
   sign, 
   verify,
-  parseBearerToken,
+  parseBearer,
   MissingAuthorizationError,
   InvalidBearerFormatError,
 };

@@ -335,7 +335,7 @@ function verify(token, b64Keys, ignoreExpiration = false) {
         throw new InvalidSignatureError();
     return payload;
 }
-function parseBearerToken(authorization) {
+function parseBearer(authorization) {
     if (!authorization)
         throw new MissingAuthorizationError();
     if (!authorization.startsWith("Bearer "))
@@ -353,4 +353,4 @@ function create(length = 32) {
     return b64Encode(randomBytes(length).toString("utf8"), true);
 }
 
-export { InvalidBearerFormatError, InvalidDurationError, InvalidIssuerError, InvalidSecretsError, InvalidSignatureError, InvalidTokenError, MissingAuthorizationError, MissingClaimsError, PasskenError, SecretDecodingError, TokenExpiredError, TokenNotActiveError, compare, encrypt, getDigest, getDigests, getKeyLen, getSaltRounds, parseBearerToken, create$1 as randomPwd, create as randomSecret, setDigest, setKeyLen, setSaltRounds, sign, verify };
+export { InvalidBearerFormatError, InvalidDurationError, InvalidIssuerError, InvalidSecretsError, InvalidSignatureError, InvalidTokenError, MissingAuthorizationError, MissingClaimsError, PasskenError, SecretDecodingError, TokenExpiredError, TokenNotActiveError, compare, encrypt, getDigest, getDigests, getKeyLen, getSaltRounds, parseBearer, create$1 as randomPwd, create as randomSecret, setDigest, setKeyLen, setSaltRounds, sign, verify };

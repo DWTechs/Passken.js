@@ -26,7 +26,7 @@ export abstract class PasskenError extends Error {
  * @example
  * ```typescript
  * try {
- *   parseBearerToken(undefined);
+ *   parseBearer(undefined);
  * } catch (error) {
  *   if (error instanceof MissingAuthorizationError) {
  *     // Handle missing authorization - typically 401 Unauthorized
@@ -50,7 +50,7 @@ export class MissingAuthorizationError extends PasskenError {
  * @example
  * ```typescript
  * try {
- *   parseBearerToken("Basic dXNlcjpwYXNz");
+ *   parseBearer("Basic dXNlcjpwYXNz");
  * } catch (error) {
  *   if (error instanceof InvalidBearerFormatError) {
  *     // Handle invalid format - typically 401 Unauthorized
