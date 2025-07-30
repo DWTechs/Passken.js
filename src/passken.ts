@@ -8,5 +8,19 @@ export {  getSaltRounds,
           encrypt,
           compare } from './hash';
 export {  create as randomPwd } from './pwd';
-export {  sign, verify } from './jwt';
+export {  sign, verify, parseBearer } from './jwt';
 export {  create as randomSecret } from './secret';
+export {  
+          PasskenError,
+          MissingAuthorizationError,
+          InvalidBearerFormatError,
+          InvalidTokenError,
+          TokenExpiredError,
+          TokenNotActiveError,
+          InvalidSignatureError,
+          MissingClaimsError,
+          InvalidIssuerError,
+          InvalidSecretsError,
+          InvalidDurationError,
+          SecretDecodingError
+        } from './errors';

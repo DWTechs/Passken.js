@@ -1,6 +1,6 @@
 {
   "name": "@dwtechs/passken",
-  "version": "0.2.4",
+  "version": "0.4.0",
   "description": "Open source password and JWT management library for Node.js to create, encrypt and compare safely.",
   "keywords": [
     "passwords",
@@ -35,7 +35,7 @@
     "dist/"
   ],
   "dependencies": {
-    "@dwtechs/checkard": "3.2.2"
+    "@dwtechs/checkard": "3.2.3"
   },
   "devDependencies": {
     "@babel/preset-env": "7.26.0",

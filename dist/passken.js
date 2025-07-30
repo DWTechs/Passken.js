@@ -27,13 +27,122 @@ https://github.com/DWTechs/Passken.js
 import { getHashes, timingSafeEqual, createHmac, randomBytes, pbkdf2Sync } from 'node:crypto';
 import { isValidInteger, isIn, isString, isBase64, b64Decode, isBoolean, isNumber, isArray, isPositive, b64Encode, isJson } from '@dwtechs/checkard';
 
+const PASSKEN_PREFIX = "Passken: ";
+class PasskenError extends Error {
+    constructor(message) {
+        super(message);
+        this.name = this.constructor.name;
+        if (Error.captureStackTrace) {
+            Error.captureStackTrace(this, this.constructor);
+        }
+    }
+}
+class MissingAuthorizationError extends PasskenError {
+    constructor(message = `${PASSKEN_PREFIX}Authorization header is missing`) {
+        super(message);
+        this.code = "MISSING_AUTHORIZATION";
+        this.statusCode = 401;
+    }
+}
+class InvalidBearerFormatError extends PasskenError {
+    constructor(message = `${PASSKEN_PREFIX}Authorization header must be in the format 'Bearer <token>'`) {
+        super(message);
+        this.code = "INVALID_BEARER_FORMAT";
+        this.statusCode = 401;
+    }
+}
+class InvalidTokenError extends PasskenError {
+    constructor(message = `${PASSKEN_PREFIX}Invalid or malformed JWT token`) {
+        super(message);
+        this.code = "INVALID_TOKEN";
+        this.statusCode = 401;
+    }
+}
+class TokenExpiredError extends PasskenError {
+    constructor(message = `${PASSKEN_PREFIX}JWT token has expired`) {
+        super(message);
+        this.code = "TOKEN_EXPIRED";
+        this.statusCode = 401;
+    }
+}
+class TokenNotActiveError extends PasskenError {
+    constructor(message = `${PASSKEN_PREFIX}JWT token cannot be used yet (nbf claim)`) {
+        super(message);
+        this.code = "TOKEN_NOT_ACTIVE";
+        this.statusCode = 401;
+    }
+}
+class InvalidSignatureError extends PasskenError {
+    constructor(message = `${PASSKEN_PREFIX}JWT token signature is invalid`) {
+        super(message);
+        this.code = "INVALID_SIGNATURE";
+        this.statusCode = 401;
+    }
+}
+class MissingClaimsError extends PasskenError {
+    constructor(message = `${PASSKEN_PREFIX}JWT token is missing required claims`) {
+        super(message);
+        this.code = "MISSING_CLAIMS";
+        this.statusCode = 400;
+    }
+}
+class InvalidIssuerError extends PasskenError {
+    constructor(message = `${PASSKEN_PREFIX}iss must be a string or a number`) {
+        super(message);
+        this.code = "INVALID_ISSUER";
+        this.statusCode = 400;
+    }
+}
+class InvalidSecretsError extends PasskenError {
+    constructor(message = `${PASSKEN_PREFIX}b64Keys must be an array`) {
+        super(message);
+        this.code = "INVALID_SECRETS";
+        this.statusCode = 500;
+    }
+}
+class InvalidDurationError extends PasskenError {
+    constructor(message = `${PASSKEN_PREFIX}duration must be a positive number`) {
+        super(message);
+        this.code = "INVALID_DURATION";
+        this.statusCode = 400;
+    }
+}
+class SecretDecodingError extends PasskenError {
+    constructor(message = `${PASSKEN_PREFIX}could not decode the secret`) {
+        super(message);
+        this.code = "SECRET_DECODING_ERROR";
+        this.statusCode = 500;
+    }
+}
+class HashLengthMismatchError extends PasskenError {
+    constructor(message = `${PASSKEN_PREFIX}Hashes must have the same byte length`) {
+        super(message);
+        this.code = "HASH_LENGTH_MISMATCH";
+        this.statusCode = 400;
+    }
+}
+class InvalidPasswordError extends PasskenError {
+    constructor(message = `${PASSKEN_PREFIX}pwd must be a non-empty string`) {
+        super(message);
+        this.code = "INVALID_PASSWORD";
+        this.statusCode = 400;
+    }
+}
+class InvalidBase64SecretError extends PasskenError {
+    constructor(message = `${PASSKEN_PREFIX}b64Secret must be a base64 encoded string`) {
+        super(message);
+        this.code = "INVALID_BASE64_SECRET";
+        this.statusCode = 400;
+    }
+}
+
 const digests = getHashes();
 let digest = "sha256";
 let keyLen = 64;
 let saltRnds = 12;
 function tse(a, b) {
     if (a.length !== b.length)
-        throw new Error("Hashes must have the same byte length");
+        throw new HashLengthMismatchError();
     return timingSafeEqual(a, b);
 }
 function getSaltRounds() {
@@ -77,9 +186,9 @@ function pbkdf2(pwd, secret, salt) {
 }
 function encrypt(pwd, b64Secret) {
     if (!isString(pwd, "!0"))
-        throw new Error("pwd must be a non-empty string");
+        throw new InvalidPasswordError();
     if (!isBase64(b64Secret, true))
-        throw new Error("b64Secret must be a base64 encoded string");
+        throw new InvalidBase64SecretError();
     const secret = b64Decode(b64Secret, true);
     const salt = randomSalt();
     return salt + pbkdf2(pwd, secret, salt).toString("hex");
@@ -170,16 +279,16 @@ const header = {
 };
 function sign(iss, duration, type, b64Keys) {
     if (!isString(iss, "!0") && !isNumber(iss, true))
-        throw new Error("iss must be a string or a number");
+        throw new InvalidIssuerError();
     if (!isArray(b64Keys, ">", 0))
-        throw new Error("b64Keys must be an array");
+        throw new InvalidSecretsError();
     if (!isNumber(duration, false) || !isPositive(duration, true))
-        throw new Error("duration must be a positive number");
+        throw new InvalidDurationError();
     header.kid = randomPick(b64Keys);
     const b64Secret = b64Keys[header.kid];
     const secret = b64Decode(b64Secret, true);
     if (!secret)
-        throw new Error("could not decode the secret");
+        throw new SecretDecodingError();
     const iat = Math.floor(Date.now() / 1000);
     const nbf = iat + 1;
     const exp = duration > 60 ? iat + duration : iat + 60 * 15;
@@ -193,39 +302,49 @@ function sign(iss, duration, type, b64Keys) {
 function verify(token, b64Keys, ignoreExpiration = false) {
     const segments = token.split(".");
     if (segments.length !== 3)
-        throw new Error("Token must have 3 segments");
+        throw new InvalidTokenError();
     const [b64Header, b64Payload, b64Signature] = segments;
     if (!b64Header || !b64Payload || !b64Signature)
-        throw new Error("Token Must have header, payload and signature");
+        throw new InvalidTokenError();
     if (!isArray(b64Keys, ">", 0))
-        throw new Error("b64Keys must be an array");
+        throw new InvalidSecretsError();
     const headerString = b64Decode(b64Header);
     const payloadString = b64Decode(b64Payload);
     if (!isJson(headerString) || !isJson(payloadString))
-        throw new Error("Header and payload must be JSON");
+        throw new InvalidTokenError();
     const header = JSON.parse(headerString);
     const payload = JSON.parse(payloadString);
     if (header.alg !== "HS256")
-        throw new Error("Algorithm not supported");
+        throw new InvalidTokenError();
     if (header.typ !== "JWT")
-        throw new Error("Token type not supported");
+        throw new InvalidTokenError();
     if (!isString(header.kid, "!0") && !isNumber(header.kid, true))
-        throw new Error("Invalid kid in header");
+        throw new InvalidTokenError();
     const now = Math.floor(Date.now() / 1000);
     if (payload.nbf && payload.nbf > now)
-        throw new Error("JWT cannot be used yet (nbf claim)");
+        throw new TokenNotActiveError();
     if (!ignoreExpiration && payload.exp < now)
-        throw new Error("JWT has expired (exp claim)");
+        throw new TokenExpiredError();
     const b64Secret = b64Keys[header.kid];
     if (!isBase64(b64Secret, true))
-        throw new Error("Secret must be base64 url-safe encoded");
+        throw new SecretDecodingError();
     const secret = b64Decode(b64Secret);
     const expectedSignature = hash(`${b64Header}.${b64Payload}`, secret);
     const safeA = Buffer.from(expectedSignature);
     const safeB = Buffer.from(b64Signature);
     if (!tse(safeA, safeB))
-        throw new Error("Invalid signature");
+        throw new InvalidSignatureError();
     return payload;
+}
+function parseBearer(authorization) {
+    if (!authorization)
+        throw new MissingAuthorizationError();
+    if (!authorization.startsWith("Bearer "))
+        throw new InvalidBearerFormatError();
+    const parts = authorization.split(" ").filter(part => part.length > 0);
+    if (parts.length < 2 || !parts[1])
+        throw new InvalidBearerFormatError();
+    return parts[1];
 }
 function randomPick(array) {
     return Math.floor(Math.random() * array.length);
@@ -235,4 +354,4 @@ function create(length = 32) {
     return b64Encode(randomBytes(length).toString("utf8"), true);
 }
 
-export { compare, encrypt, getDigest, getDigests, getKeyLen, getSaltRounds, create$1 as randomPwd, create as randomSecret, setDigest, setKeyLen, setSaltRounds, sign, verify };
+export { InvalidBearerFormatError, InvalidDurationError, InvalidIssuerError, InvalidSecretsError, InvalidSignatureError, InvalidTokenError, MissingAuthorizationError, MissingClaimsError, PasskenError, SecretDecodingError, TokenExpiredError, TokenNotActiveError, compare, encrypt, getDigest, getDigests, getKeyLen, getSaltRounds, parseBearer, create$1 as randomPwd, create as randomSecret, setDigest, setKeyLen, setSaltRounds, sign, verify };
