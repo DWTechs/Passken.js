@@ -23,12 +23,11 @@
 
 **[Passken.js](https://github.com/DWTechs/Passken.js)** is an open source password and JWT management library for Node.js to create, encrypt and compare safely.
 
-- Only 1 dependency to check inputs variables
-- Very lightweight
-- Thoroughly tested
-- EcmaScrypt module
-- Works in Javascript and Typescript
-- Written in Typescript
+- 📦 Only 2 dependencies to check inputs variables and hashes password securely
+- 🪶 Very lightweight
+- 🧪 Thoroughly tested
+- 🚚 Shipped as EcmaScrypt module
+- 📝 Written in Typescript
 
 
 ## Support
