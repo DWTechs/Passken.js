@@ -1,6 +1,6 @@
 # 0.5.0 (Aug 12th 2025)
 
-- Passken now only manage password creation. See **@dwtechs/toker** for JWT features and **@dwtechs/hashitaka** for hashing and encryption features
+- Passken now only manages password creation. See **@dwtechs/toker** for JWT features and **@dwtechs/hashitaka** for hashing and encryption features
 
 # 0.4.0 (jul 19th 2025)
 
