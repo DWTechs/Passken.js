@@ -1,10 +1,9 @@
 {
   "name": "@dwtechs/passken",
-  "version": "0.4.0",
-  "description": "Open source password and JWT management library for Node.js to create, encrypt and compare safely.",
+  "version": "0.5.0",
+  "description": "Open source password generation library for Node.js.",
   "keywords": [
-    "passwords",
-    "jwt"
+    "passwords"
   ],
   "homepage": "https://github.com/DWTechs/Passken.js",
   "main": "dist/passken",
