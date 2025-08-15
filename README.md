@@ -178,6 +178,7 @@ Any of these can be passed into the options object for each function.
 
 You can use Passken directly as Express.js middlewares using [@dwtechs/passken-express library](https://www.npmjs.com/package/@dwtechs/passken-express).
 This way you do not have to write express controllers yourself to use **Passken**.
+[@dwtechs/passken-express library](https://www.npmjs.com/package/@dwtechs/passken-express) brings middleware features for **@dwtechs/passken** and **@dwtechs/hashitaka** libraries. 
 
 
 ## Contributors
