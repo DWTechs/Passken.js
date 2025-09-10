@@ -1,3 +1,7 @@
+# 0.5.1 (Sep 10th 2025)
+
+- Update @dwtechs/checkard dependency to version 3.5.1
+
 # 0.5.0 (Aug 12th 2025)
 
 - Passken now only manages password creation. See **@dwtechs/toker** for JWT features and **@dwtechs/hashitaka** for hashing and encryption features

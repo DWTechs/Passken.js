@@ -1,6 +1,6 @@
 {
   "name": "@dwtechs/passken",
-  "version": "0.5.0",
+  "version": "0.5.1",
   "description": "Open source password generation library for Node.js.",
   "keywords": [
     "passwords"
