@@ -1,4 +1,4 @@
-export type Options = {
+export type RandomOptions = {
   len: number,
   num: boolean,
   ucase: boolean,
@@ -7,3 +7,12 @@ export type Options = {
   strict: boolean,
   similarChars: boolean,
 };
+
+export type ValidationOptions = {
+  lcase: boolean,
+  ucase: boolean,
+  num: boolean,
+  sym: boolean,
+  maxLen: number,
+  minLen: number
+}

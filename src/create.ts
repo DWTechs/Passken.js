@@ -1,5 +1,5 @@
 
-import type { Options } from "./types";
+import type { RandomOptions } from "./types";
 import { isValidInteger, isBoolean } from "@dwtechs/checkard";
 
 // sxxx lists are free of similar looking characters, e.g. "lI1oO0" characters
@@ -24,7 +24,7 @@ const {
   PWD_AUTO_SIMILAR_CHARS,
 } = process?.env;
 
-const defOpts: Options = {
+const defOpts: RandomOptions = {
   len: PWD_AUTO_LENGTH as unknown as number || 12,
   num: PWD_AUTO_NUMBERS as unknown as boolean || true,
   ucase: PWD_AUTO_UPPERCASE as unknown as boolean || true,
@@ -37,11 +37,11 @@ const defOpts: Options = {
 /**
  * Generate a random password.
  * 
- * @param {Partial<Options>} opts - The options to generate the password.
+ * @param {Partial<RandomOptions>} opts - The options to generate the password.
  * @return {string} The generated password.
  * 
  */
-function create(opts: Partial<Options> = defOpts): string {
+function create(opts: Partial<RandomOptions> = defOpts): string {
   const len = opts.len && isValidInteger(opts.len, 12, 64, true) ? opts.len : defOpts.len;
   const num = isBoolean(opts.num) ? opts.num : defOpts.num;
   const ucase = isBoolean(opts.ucase) ? opts.ucase : defOpts.ucase;

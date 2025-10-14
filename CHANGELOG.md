@@ -1,3 +1,7 @@
+# 0.6.0 (Oct 15th 2025)
+
+- 
+
 # 0.5.1 (Sep 10th 2025)
 
 - Update @dwtechs/checkard dependency to version 3.5.1

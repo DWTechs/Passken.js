@@ -1,2 +1,3 @@
 
-export {  create as randomPwd } from './pwd';
+export {  create as randomPwd } from './create';
+export { isValidPassword } from './validate';

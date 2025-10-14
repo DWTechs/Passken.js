@@ -44,7 +44,7 @@ $ npm i @dwtechs/passken
 
 ## Usage
 
-Example of use with Express.js using ES6 module format
+Usage example of use with Express.js using ES6 module format
 
 ```javascript
 
@@ -78,6 +78,29 @@ export {
 };
 
 ```
+
+Usage example for password validation : 
+
+```javascript
+
+import { isValidPassword } from "@dwtechs/passken";
+
+const PwdOptions = {
+  lcase: true,
+  ucase: true,
+  num: true,
+  sym: false,
+  minLen: 12,
+  maxLen: 16,
+};
+const password = 'teSt1234';
+
+if (isValidPassword(password, PwdOptions)) {
+  // check if password is valid compared to PwdOptions
+}
+
+```
+
 
 
 ### Configure
@@ -132,6 +155,15 @@ type Options = {
   similarChars: boolean,
 };
 
+type PasswordOptions = {
+  lcase: boolean,
+  ucase: boolean,
+  num: boolean,
+  sym: boolean,
+  maxLen: number,
+  minLen: number
+}
+
 ```
 
 ### Methods
@@ -150,24 +182,76 @@ type Options = {
  */
 function randomPwd(opts: Partial<Options> = defOpts): string {}
 
+
+const PwdDefaultOptions = {
+  lcase: true,
+  ucase: true,
+  num: true,
+  sym: true,
+  minLen: 12,
+  maxLen: 64,
+};
+
+/**
+ * Checks if a given password string meets the specified validation criteria.
+ *
+ * @param {string} s - The password string to validate.
+ * @param {PasswordOptions} [options=defaultOptions] - Optional configuration object to specify password validation criteria.
+ * @param {boolean} [throwErr=false] - If true, throws an error when password does not meet criteria. If false, returns false.
+ * @returns {boolean} `true` if the password meets all the specified criteria, false if not (when throwErr is false).
+ * @throws {Error} Throws an error if the password does not meet the specified criteria and throwErr is true.
+ *
+ * @example
+ * ```typescript
+ * const options = {
+ *   minLen: 8,
+ *   maxLen: 20,
+ *   lcase: true,
+ *   ucase: true,
+ *   num: true,
+ *   sym: true
+ * };
+ * const isValid = isValidPassword('Password123!', options);
+ * console.log(isValid); // true
+ * ```
+ */
+function isValidPassword(
+  s: string, 
+  options: PasswordOptions = defaultOptions, 
+  throwErr: boolean = false
+): boolean {}
+
+
 ```
 
 
 ## options
 
-Any of these can be passed into the options object for each function.
+**RandomPWD()** :
 
 | Name         | type    |              Description                                     | Default |  
 | :----------- | :------ | :----------------------------------------------------------- | :------ |
-| len	         | Integer | Minimal length of password.                                  | 12      |
-| num*	       | Boolean | use numbers in password.                                     | true    |
+| len	         | Integer | Minimal length of password                                   | 12      |
+| num*	       | Boolean | use numbers in password                                      | true    |
 | sym*	       | Boolean | use symbols in password                                      | true    |
 | lcase*	     | Boolean | use lowercase in password                                    | true    |
-| ucase*	     | Boolean | use uppercase letters in password.                           | true    |
-| strict	     | Boolean | password must include at least one character from each pool.	| true    |
-| similarChars | Boolean | allow close looking chars.                                   | false   | 
+| ucase*	     | Boolean | use uppercase letters in password                            | true    |
+| strict	     | Boolean | password must include at least one character from each pool 	| true    |
+| similarChars | Boolean | allow close looking chars                                    | false   | 
 
 *At least one of those options must be true.  
+
+
+**isValidPassword()** :
+
+| Name    | type    |              Description           | Default |  
+| :------ | :------ | :--------------------------------- | :------ |
+| minLen  | Integer | Minimal length of password         | 12      |
+| maxLen  | Integer | Maximal length of password         | 64      |
+| num 	  | Boolean | use numbers in password            | true    |
+| sym	    | Boolean | use symbols in password            | true    |
+| lcase 	| Boolean | use lowercase in password          | true    |
+| ucase 	| Boolean | use uppercase letters in password  | true    |
 
 - Symbols used : !@#%*_-+=:?><./()  
 - Similar characters : l, I, 1, o, O, 0
