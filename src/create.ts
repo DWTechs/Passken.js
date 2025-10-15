@@ -15,23 +15,23 @@ const list = {
 
 // check for env variables
 const {   
-  PWD_AUTO_LENGTH,
-  PWD_AUTO_NUMBERS,
-  PWD_AUTO_UPPERCASE,
-  PWD_AUTO_LOWERCASE,
-  PWD_AUTO_SYMBOLS,
-  PWD_AUTO_STRICT,
-  PWD_AUTO_SIMILAR_CHARS,
+  PWD_RAND_LENGTH,
+  PWD_RAND_NUMBERS,
+  PWD_RAND_UPPERCASE,
+  PWD_RAND_LOWERCASE,
+  PWD_RAND_SYMBOLS,
+  PWD_RAND_STRICT,
+  PWD_RAND_SIMILAR_CHARS,
 } = process?.env;
 
 const defOpts: RandomOptions = {
-  len: PWD_AUTO_LENGTH as unknown as number || 12,
-  num: PWD_AUTO_NUMBERS as unknown as boolean || true,
-  ucase: PWD_AUTO_UPPERCASE as unknown as boolean || true,
-  lcase: PWD_AUTO_LOWERCASE as unknown as boolean || true,
-  sym: PWD_AUTO_SYMBOLS as unknown as boolean || false,
-  strict: PWD_AUTO_STRICT as unknown as boolean || true,
-  similarChars: PWD_AUTO_SIMILAR_CHARS as unknown as boolean || false,
+  len: PWD_RAND_LENGTH as unknown as number || 12,
+  num: PWD_RAND_NUMBERS as unknown as boolean || true,
+  ucase: PWD_RAND_UPPERCASE as unknown as boolean || true,
+  lcase: PWD_RAND_LOWERCASE as unknown as boolean || true,
+  sym: PWD_RAND_SYMBOLS as unknown as boolean || false,
+  strict: PWD_RAND_STRICT as unknown as boolean || true,
+  similarChars: PWD_RAND_SIMILAR_CHARS as unknown as boolean || false,
 };
 
 /**

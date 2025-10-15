@@ -9,7 +9,7 @@
  */
 function throwError(expectedType: string, actualValue: unknown, causedBy?: string): string {
   const c = causedBy ? `. ${causedBy}` : '';
-  throw new Error(`Checkard: Expected ${expectedType}, but received ${typeof actualValue}: ${String(actualValue)}${c}`);
+  throw new Error(`Passken: Expected ${expectedType}, but received ${typeof actualValue}: ${String(actualValue)}${c}`);
 }
 
 

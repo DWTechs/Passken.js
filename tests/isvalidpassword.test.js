@@ -347,5 +347,109 @@ describe('isValidPassword', () => {
       expect(() => isValidPassword('ValidPass123', { specialCharacter: true }, true)).toThrow('special characters');
     });
   });
+
+  describe('Partial options validation', () => {
+    test('should validate password with only length requirements', () => {
+      const lengthOnlyOptions = {
+        minLength: 8,
+        maxLength: 16
+      };
+      
+      expect(isValidPassword('password', lengthOnlyOptions)).toBe(true);
+      expect(isValidPassword('short', lengthOnlyOptions)).toBe(false);
+      expect(isValidPassword('verylongpasswordthatexceedslimit', lengthOnlyOptions)).toBe(false);
+    });
+
+    test('should validate password with only lowercase requirement', () => {
+      const lowerCaseOnlyOptions = {
+        lowerCase: true
+      };
+      
+      expect(isValidPassword('HasLowerCase', lowerCaseOnlyOptions)).toBe(true);
+      expect(isValidPassword('NOLOWERCASE', lowerCaseOnlyOptions)).toBe(false);
+      expect(isValidPassword('alllowercase', lowerCaseOnlyOptions)).toBe(true);
+    });
+
+    test('should validate password with only uppercase requirement', () => {
+      const upperCaseOnlyOptions = {
+        upperCase: true
+      };
+      
+      expect(isValidPassword('HasUpperCase', upperCaseOnlyOptions)).toBe(true);
+      expect(isValidPassword('nouppercase', upperCaseOnlyOptions)).toBe(false);
+      expect(isValidPassword('ALLUPPERCASE', upperCaseOnlyOptions)).toBe(true);
+    });
+
+    test('should validate password with only number requirement', () => {
+      const numberOnlyOptions = {
+        number: true
+      };
+      
+      expect(isValidPassword('Password123', numberOnlyOptions)).toBe(true);
+      expect(isValidPassword('NoNumbers', numberOnlyOptions)).toBe(false);
+      expect(isValidPassword('123456', numberOnlyOptions)).toBe(true);
+    });
+
+    test('should validate password with only special character requirement', () => {
+      const specialCharOnlyOptions = {
+        specialCharacter: true
+      };
+      
+      expect(isValidPassword('Password!', specialCharOnlyOptions)).toBe(true);
+      expect(isValidPassword('NoSpecialChars', specialCharOnlyOptions)).toBe(false);
+      expect(isValidPassword('!@#$%', specialCharOnlyOptions)).toBe(true);
+    });
+
+    test('should validate password with mixed partial requirements', () => {
+      // Only length and lowercase
+      const lengthAndLowerOptions = {
+        minLength: 10,
+        lowerCase: true
+      };
+      
+      expect(isValidPassword('LONGPASSWORD', lengthAndLowerOptions)).toBe(false); // no lowercase
+      expect(isValidPassword('longpassword', lengthAndLowerOptions)).toBe(true);
+      expect(isValidPassword('short', lengthAndLowerOptions)).toBe(false); // too short
+      
+      // Only uppercase and numbers
+      const upperAndNumberOptions = {
+        upperCase: true,
+        number: true
+      };
+      
+      expect(isValidPassword('PASSWORD123', upperAndNumberOptions)).toBe(true);
+      expect(isValidPassword('password123', upperAndNumberOptions)).toBe(false); // no uppercase
+      expect(isValidPassword('PASSWORD', upperAndNumberOptions)).toBe(false); // no numbers
+      
+      // Only special chars and length
+      const specialAndLengthOptions = {
+        specialCharacter: true,
+        maxLength: 15
+      };
+      
+      expect(isValidPassword('password!', specialAndLengthOptions)).toBe(true);
+      expect(isValidPassword('password', specialAndLengthOptions)).toBe(false); // no special chars
+      expect(isValidPassword('verylongpassword!', specialAndLengthOptions)).toBe(false); // too long
+    });
+
+    test('should validate password with minimal options (empty object)', () => {
+      const emptyOptions = {};
+      
+      // Should use default behavior - typically requiring basic validation
+      expect(isValidPassword('password', emptyOptions)).toBe(false);
+      expect(isValidPassword('Password123!', emptyOptions)).toBe(true);
+      expect(isValidPassword('', emptyOptions)).toBe(false);
+    });
+
+    test('should validate password with single false option', () => {
+      const singleFalseOption = {
+        lowerCase: false
+      };
+      
+      // Should validate other default requirements
+      expect(isValidPassword('PASSWORD123!', singleFalseOption)).toBe(true);
+      expect(isValidPassword('password123!', singleFalseOption)).toBe(true);
+    });
+  });
   
 });

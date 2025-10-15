@@ -2,20 +2,31 @@ import { containsLowerCase, containsNumber, containsSpecialCharacter, containsUp
 import { throwError } from './error';
 import type { ValidationOptions } from './types';
 
-const defaultOptions: ValidationOptions = {
-  lcase: true,
-  ucase: true,
-  num: true,
-  sym: true,
-  minLen: 12,
-  maxLen: 64,
+// check for env variables
+const {   
+  PWD_VALID_MINLENGTH,
+  PWD_VALID_MAXLENGTH,
+  PWD_VALID_NUMBERS,
+  PWD_VALID_UPPERCASE,
+  PWD_VALID_LOWERCASE,
+  PWD_VALID_SYMBOLS,
+} = process?.env;
+
+
+const defOpts: ValidationOptions = {
+  lcase: PWD_VALID_LOWERCASE as unknown as boolean || true,
+  ucase: PWD_VALID_UPPERCASE as unknown as boolean || true,
+  num: PWD_VALID_NUMBERS as unknown as boolean || true,
+  sym: PWD_VALID_SYMBOLS as unknown as boolean || true,
+  minLen: PWD_VALID_MINLENGTH as unknown as number || 12,
+  maxLen: PWD_VALID_MAXLENGTH as unknown as number || 64,
 };
 
 /**
  * Checks if a given password string meets the specified validation criteria.
  *
  * @param {string} s - The password string to validate.
- * @param {ValidationOptions} [options=defaultOptions] - Optional configuration object to specify password validation criteria.
+ * @param {ValidationOptions} [options=defOpts] - Optional configuration object to specify password validation criteria.
  * @param {boolean} [throwErr=false] - If true, throws an error when password does not meet criteria. If false, returns false.
  * @returns {boolean} `true` if the password meets all the specified criteria, false if not (when throwErr is false).
  * @throws {Error} Throws an error if the password does not meet the specified criteria and throwErr is true.
@@ -36,10 +47,10 @@ const defaultOptions: ValidationOptions = {
  */
 function isValidPassword(
   s: string, 
-  options: ValidationOptions = defaultOptions, 
+  opts: Partial<ValidationOptions> = defOpts, 
   throwErr: boolean = false
 ): boolean {
-  const o = { ...defaultOptions, ...options };
+  const o = { ...defOpts, ...opts };
   const l = s.length;
   
   // Check length

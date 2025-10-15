@@ -105,10 +105,10 @@ if (isValidPassword(password, PwdOptions)) {
 
 ### Configure
 
-Passken will start with the following default password configuration : 
+For password creation Passken will start with the following default configuration : 
 
 ```Javascript
-  Options = {
+  RandomDefaultOptions = {
     len: 12,
     num: true,
     ucase: true,
@@ -119,18 +119,42 @@ Passken will start with the following default password configuration :
   };
 ```
 
+For password validation Passken will start with the following default configuration : 
+
+```Javascript
+  ValidationDefaultOptions = {
+    lcase: true,
+    ucase: true,
+    num: true,
+    sym: true,
+    minLen: 12,
+    maxLen: 64,
+  };
+```
+
 ### Environment variables
 
-You can update password default configuration using the following environment variables :  
+You can update random password configuration using the following environment variables :  
 
 ```bash
-  PWD_LENGTH,
-  PWD_NUMBERS,
-  PWD_UPPERCASE,
-  PWD_LOWERCASE,
-  PWD_SYMBOLS,
-  PWD_STRICT,
-  PWD_SIMILAR_CHARS,
+  PWD_RAND_LENGTH,
+  PWD_RAND_NUMBERS,
+  PWD_RAND_UPPERCASE,
+  PWD_RAND_LOWERCASE,
+  PWD_RAND_SYMBOLS,
+  PWD_RAND_STRICT,
+  PWD_RAND_SIMILAR_CHARS,
+```
+
+You can update password validation configuration using the following environment variables :  
+
+```bash
+  PWD_VALID_MINLENGTH,
+  PWD_VALID_MAXLENGTH,
+  PWD_VALID_NUMBERS,
+  PWD_VALID_UPPERCASE,
+  PWD_VALID_LOWERCASE,
+  PWD_VALID_SYMBOLS,
 ```
 
 These environment variables will update the default values of the lib at start up.
@@ -145,7 +169,7 @@ With this strategy you do not need to send options parameter in the randomPwd() 
 
 ```javascript
 
-type Options = {
+type RandomOptions = {
   len: number,
   num: boolean,
   ucase: boolean,
@@ -155,7 +179,7 @@ type Options = {
   similarChars: boolean,
 };
 
-type PasswordOptions = {
+type ValidationOptions = {
   lcase: boolean,
   ucase: boolean,
   num: boolean,
@@ -180,17 +204,7 @@ type PasswordOptions = {
  * @returns {string} The generated password.
  * 
  */
-function randomPwd(opts: Partial<Options> = defOpts): string {}
-
-
-const PwdDefaultOptions = {
-  lcase: true,
-  ucase: true,
-  num: true,
-  sym: true,
-  minLen: 12,
-  maxLen: 64,
-};
+function randomPwd(opts: Partial<RandomOptions> = RandomDefaultOptions): string {}
 
 /**
  * Checks if a given password string meets the specified validation criteria.
@@ -217,7 +231,7 @@ const PwdDefaultOptions = {
  */
 function isValidPassword(
   s: string, 
-  options: PasswordOptions = defaultOptions, 
+  opts: Partial<ValidationOptions> = ValidationDefaultOptions, 
   throwErr: boolean = false
 ): boolean {}
 

@@ -1,6 +1,8 @@
 # 0.6.0 (Oct 15th 2025)
 
-- 
+- Add isValidPassword() function to validate password security level against configurable character type requirements
+- Update @dwtechs/checkard dependency to version 3.6.0
+- Update environment variable names for random password options.
 
 # 0.5.1 (Sep 10th 2025)
 
