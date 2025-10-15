@@ -1,13 +1,13 @@
-import { isValidPassword } from "../../dist/passken";
+import { isValidPassword } from "../dist/passken";
 
 describe("isValidPassword throwErr behavior", () => {
   const defaultOptions = {
-    lowerCase: true,
-    upperCase: true,
-    number: true,
-    specialCharacter: true,
-    minLength: 12,
-    maxLength: 64,
+    lcase: true,
+    ucase: true,
+    num: true,
+    sym: true,
+    minLen: 12,
+    maxLen: 64,
   };
 
   it("throws error when password is too short", () => {
@@ -20,37 +20,37 @@ describe("isValidPassword throwErr behavior", () => {
   });
 
   it("throws error when password lacks lowercase letters", () => {
-    const options = { ...defaultOptions, lowerCase: true };
+    const options = { ...defaultOptions, lcase: true };
     expect(() => isValidPassword("PASSWORD123!", options, true)).toThrow();
   });
 
   it("throws error when password lacks uppercase letters", () => {
-    const options = { ...defaultOptions, upperCase: true };
+    const options = { ...defaultOptions, ucase: true };
     expect(() => isValidPassword("password123!", options, true)).toThrow();
   });
 
   it("throws error when password lacks numbers", () => {
-    const options = { ...defaultOptions, number: true };
+    const options = { ...defaultOptions, num: true };
     expect(() => isValidPassword("PasswordABC!", options, true)).toThrow();
   });
 
   it("throws error when password lacks special characters", () => {
-    const options = { ...defaultOptions, specialCharacter: true };
+    const options = { ...defaultOptions, sym: true };
     expect(() => isValidPassword("Password123", options, true)).toThrow();
   });
 
   it("throws error when password is exactly at minimum length but missing requirements", () => {
-    const shortOptions = { ...defaultOptions, minLength: 8 };
+    const shortOptions = { ...defaultOptions, minLen: 8 };
     expect(() => isValidPassword("password", shortOptions, true)).toThrow();
   });
 
   it("throws error when password has insufficient length", () => {
-    const options = { ...defaultOptions, minLength: 15 };
+    const options = { ...defaultOptions, minLen: 15 };
     expect(() => isValidPassword("Pass123!", options, true)).toThrow();
   });
 
   it("throws error when password exceeds maximum length", () => {
-    const options = { ...defaultOptions, maxLength: 10 };
+    const options = { ...defaultOptions, maxLen: 10 };
     expect(() => isValidPassword("Password123!", options, true)).toThrow();
   });
 
@@ -61,8 +61,8 @@ describe("isValidPassword throwErr behavior", () => {
   describe("Partial options throw behavior", () => {
     it("throws error with only length requirement", () => {
       const lengthOnlyOptions = {
-        minLength: 10,
-        maxLength: 20
+        minLen: 10,
+        maxLen: 20
       };
       
       expect(() => isValidPassword("short", lengthOnlyOptions, true)).toThrow();
@@ -71,7 +71,7 @@ describe("isValidPassword throwErr behavior", () => {
 
     it("throws error with only lowercase requirement", () => {
       const lowerCaseOnlyOptions = {
-        lowerCase: true
+        lcase: true
       };
       
       expect(() => isValidPassword("NOLOWERCASE", lowerCaseOnlyOptions, true)).toThrow();
@@ -79,7 +79,7 @@ describe("isValidPassword throwErr behavior", () => {
 
     it("throws error with only uppercase requirement", () => {
       const upperCaseOnlyOptions = {
-        upperCase: true
+        ucase: true
       };
       
       expect(() => isValidPassword("nouppercase", upperCaseOnlyOptions, true)).toThrow();
@@ -87,7 +87,7 @@ describe("isValidPassword throwErr behavior", () => {
 
     it("throws error with only number requirement", () => {
       const numberOnlyOptions = {
-        number: true
+        num: true
       };
       
       expect(() => isValidPassword("NoNumbers", numberOnlyOptions, true)).toThrow();
@@ -95,7 +95,7 @@ describe("isValidPassword throwErr behavior", () => {
 
     it("throws error with only special character requirement", () => {
       const specialCharOnlyOptions = {
-        specialCharacter: true
+        sym: true
       };
       
       expect(() => isValidPassword("NoSpecialChars", specialCharOnlyOptions, true)).toThrow();
@@ -104,8 +104,8 @@ describe("isValidPassword throwErr behavior", () => {
     it("throws error with mixed partial requirements", () => {
       // Length and lowercase only
       const lengthAndLowerOptions = {
-        minLength: 12,
-        lowerCase: true
+        minLen: 12,
+        lcase: true
       };
       
       expect(() => isValidPassword("LONGPASSWORD", lengthAndLowerOptions, true)).toThrow(); // no lowercase
@@ -113,8 +113,8 @@ describe("isValidPassword throwErr behavior", () => {
       
       // Uppercase and numbers only
       const upperAndNumberOptions = {
-        upperCase: true,
-        number: true
+        ucase: true,
+        num: true
       };
       
       expect(() => isValidPassword("password123", upperAndNumberOptions, true)).toThrow(); // no uppercase
@@ -122,8 +122,8 @@ describe("isValidPassword throwErr behavior", () => {
       
       // Special chars and length only
       const specialAndLengthOptions = {
-        specialCharacter: true,
-        maxLength: 10
+        sym: true,
+        maxLen: 10
       };
       
       expect(() => isValidPassword("password", specialAndLengthOptions, true)).toThrow(); // no special chars
@@ -140,21 +140,21 @@ describe("isValidPassword throwErr behavior", () => {
 
     it("throws error with single requirement violation", () => {
       // Test individual requirements in isolation
-      expect(() => isValidPassword("UPPERCASE123!", { lowerCase: true }, true)).toThrow();
-      expect(() => isValidPassword("lowercase123!", { upperCase: true }, true)).toThrow();
-      expect(() => isValidPassword("Password!", { number: true }, true)).toThrow();
-      expect(() => isValidPassword("Password123", { specialCharacter: true }, true)).toThrow();
-      expect(() => isValidPassword("short", { minLength: 10 }, true)).toThrow();
-      expect(() => isValidPassword("toolongpassword", { maxLength: 8 }, true)).toThrow();
+      expect(() => isValidPassword("UPPERCASE123!", { lcase: true }, true)).toThrow();
+      expect(() => isValidPassword("lowercase123!", { ucase: true }, true)).toThrow();
+      expect(() => isValidPassword("Password!", { num: true }, true)).toThrow();
+      expect(() => isValidPassword("Password123", { sym: true }, true)).toThrow();
+      expect(() => isValidPassword("short", { minLen: 10 }, true)).toThrow();
+      expect(() => isValidPassword("toolongpassword", { maxLen: 8 }, true)).toThrow();
     });
 
     it("throws specific error messages for partial options", () => {
       // Verify specific error messages are thrown for each requirement
-      expect(() => isValidPassword("NOLOWER", { lowerCase: true }, true)).toThrow(/lowercase/);
-      expect(() => isValidPassword("noupper", { upperCase: true }, true)).toThrow(/uppercase/);
-      expect(() => isValidPassword("NoNumbers", { number: true }, true)).toThrow(/numbers/);
-      expect(() => isValidPassword("NoSpecial", { specialCharacter: true }, true)).toThrow(/special/);
-      expect(() => isValidPassword("short", { minLength: 10 }, true)).toThrow(/length/);
+      expect(() => isValidPassword("NOLOWERCASE123456789", { lcase: true, ucase: false, num: false, sym: false, minLen: 1, maxLen: 100 }, true)).toThrow(/lowercase/);
+      expect(() => isValidPassword("nouppercase123456789", { ucase: true, lcase: false, num: false, sym: false, minLen: 1, maxLen: 100 }, true)).toThrow(/uppercase/);
+      expect(() => isValidPassword("NoNumbersHereAtAll", { num: true, lcase: false, ucase: false, sym: false, minLen: 1, maxLen: 100 }, true)).toThrow(/numbers/);
+      expect(() => isValidPassword("NoSpecialCharsHere", { sym: true, lcase: false, ucase: false, num: false, minLen: 1, maxLen: 100 }, true)).toThrow(/special/);
+      expect(() => isValidPassword("short", { minLen: 10 }, true)).toThrow(/length/);
     });
   });
 });

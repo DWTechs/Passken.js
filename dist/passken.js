@@ -24,7 +24,7 @@ SOFTWARE.
 https://github.com/DWTechs/Passken.js
 */
 
-import { isValidInteger, isBoolean } from '@dwtechs/checkard';
+import { isValidInteger, isBoolean, containsLowerCase, containsUpperCase, containsNumber, containsSpecialCharacter } from '@dwtechs/checkard';
 
 const list = {
     lcase: 'abcdefghijklmnopqrstuvwxyz',
@@ -35,24 +35,24 @@ const list = {
     snum: '23456789',
     sym: '!@#%*_-+=:?><./()',
 };
-const { PWD_AUTO_LENGTH, PWD_AUTO_NUMBERS, PWD_AUTO_UPPERCASE, PWD_AUTO_LOWERCASE, PWD_AUTO_SYMBOLS, PWD_AUTO_STRICT, PWD_AUTO_SIMILAR_CHARS, } = process === null || process === void 0 ? void 0 : process.env;
-const defOpts = {
-    len: PWD_AUTO_LENGTH || 12,
-    num: PWD_AUTO_NUMBERS || true,
-    ucase: PWD_AUTO_UPPERCASE || true,
-    lcase: PWD_AUTO_LOWERCASE || true,
-    sym: PWD_AUTO_SYMBOLS || false,
-    strict: PWD_AUTO_STRICT || true,
-    similarChars: PWD_AUTO_SIMILAR_CHARS || false,
+const { PWD_RAND_LENGTH, PWD_RAND_NUMBERS, PWD_RAND_UPPERCASE, PWD_RAND_LOWERCASE, PWD_RAND_SYMBOLS, PWD_RAND_STRICT, PWD_RAND_SIMILAR_CHARS, } = process === null || process === void 0 ? void 0 : process.env;
+const defOpts$1 = {
+    len: PWD_RAND_LENGTH || 12,
+    num: PWD_RAND_NUMBERS || true,
+    ucase: PWD_RAND_UPPERCASE || true,
+    lcase: PWD_RAND_LOWERCASE || true,
+    sym: PWD_RAND_SYMBOLS || false,
+    strict: PWD_RAND_STRICT || true,
+    similarChars: PWD_RAND_SIMILAR_CHARS || false,
 };
-function create(opts = defOpts) {
-    const len = opts.len && isValidInteger(opts.len, 12, 64, true) ? opts.len : defOpts.len;
-    const num = isBoolean(opts.num) ? opts.num : defOpts.num;
-    const ucase = isBoolean(opts.ucase) ? opts.ucase : defOpts.ucase;
-    const sym = isBoolean(opts.sym) ? opts.sym : defOpts.sym;
-    const strict = isBoolean(opts.strict) ? opts.strict : defOpts.strict;
-    const similarChars = opts.similarChars ? opts.similarChars : defOpts.similarChars;
-    let lcase = isBoolean(opts.lcase) ? opts.lcase : defOpts.lcase;
+function create(opts = defOpts$1) {
+    const len = opts.len && isValidInteger(opts.len, 12, 64, true) ? opts.len : defOpts$1.len;
+    const num = isBoolean(opts.num) ? opts.num : defOpts$1.num;
+    const ucase = isBoolean(opts.ucase) ? opts.ucase : defOpts$1.ucase;
+    const sym = isBoolean(opts.sym) ? opts.sym : defOpts$1.sym;
+    const strict = isBoolean(opts.strict) ? opts.strict : defOpts$1.strict;
+    const similarChars = opts.similarChars ? opts.similarChars : defOpts$1.similarChars;
+    let lcase = isBoolean(opts.lcase) ? opts.lcase : defOpts$1.lcase;
     if (!lcase && !num && !ucase && !sym)
         lcase = true;
     const chars = [];
@@ -95,4 +95,49 @@ function shuffleArray(a) {
     return a;
 }
 
-export { create as randomPwd };
+function throwError(expectedType, actualValue, causedBy) {
+    const c = '';
+    throw new Error(`Passken: Expected ${expectedType}, but received ${typeof actualValue}: ${String(actualValue)}${c}`);
+}
+
+const { PWD_VALID_MINLENGTH, PWD_VALID_MAXLENGTH, PWD_VALID_NUMBERS, PWD_VALID_UPPERCASE, PWD_VALID_LOWERCASE, PWD_VALID_SYMBOLS, } = process === null || process === void 0 ? void 0 : process.env;
+const defOpts = {
+    lcase: PWD_VALID_LOWERCASE || true,
+    ucase: PWD_VALID_UPPERCASE || true,
+    num: PWD_VALID_NUMBERS || true,
+    sym: PWD_VALID_SYMBOLS || true,
+    minLen: PWD_VALID_MINLENGTH || 12,
+    maxLen: PWD_VALID_MAXLENGTH || 64,
+};
+function isValidPassword(s, opts = defOpts, throwErr = false) {
+    const o = Object.assign(Object.assign({}, defOpts), opts);
+    const l = s.length;
+    if (!(l >= o.minLen && l <= o.maxLen)) {
+        if (throwErr)
+            throwError(`password with length in range [${o.minLen}, ${o.maxLen}] (actual length: ${l})`, s);
+        return false;
+    }
+    if (o.lcase && !containsLowerCase(s)) {
+        if (throwErr)
+            throwError('password containing lowercase letters', s);
+        return false;
+    }
+    if (o.ucase && !containsUpperCase(s)) {
+        if (throwErr)
+            throwError('password containing uppercase letters', s);
+        return false;
+    }
+    if (o.num && !containsNumber(s, 1, null)) {
+        if (throwErr)
+            throwError('password containing numbers', s);
+        return false;
+    }
+    if (o.sym && !containsSpecialCharacter(s)) {
+        if (throwErr)
+            throwError('password containing special characters', s);
+        return false;
+    }
+    return true;
+}
+
+export { isValidPassword, create as randomPwd };

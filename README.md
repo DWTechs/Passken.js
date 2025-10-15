@@ -2,7 +2,7 @@
 [![License: MIT](https://img.shields.io/npm/l/@dwtechs/passken.svg?color=brightgreen)](https://opensource.org/licenses/MIT)
 [![npm version](https://badge.fury.io/js/%40dwtechs%2Fpassken.svg)](https://www.npmjs.com/package/@dwtechs/passken)
 [![last version release date](https://img.shields.io/github/release-date/DWTechs/Passken.js)](https://www.npmjs.com/package/@dwtechs/passken)
-![Jest:coverage](https://img.shields.io/badge/Jest:coverage-95%25-brightgreen.svg)
+![Jest:coverage](https://img.shields.io/badge/Jest:coverage-97%25-brightgreen.svg)
 
 - [Synopsis](#synopsis)
 - [Support](#support)
