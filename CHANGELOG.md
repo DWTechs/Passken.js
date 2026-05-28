@@ -1,3 +1,10 @@
+# 0.6.1 (May 28th 2026)
+
+- Fix missing isValidPassword() and ValidationOptions export in type declaration file
+- Improve cryptographically secure password generation
+- Improve shuffle performance by pre-generating all random values in a single getRandomValues() call
+- Improve performance by pre-computing character pool string before generation loops
+
 # 0.6.0 (Oct 15th 2025)
 
 - Add isValidPassword() function to validate password security level against configurable character type requirements

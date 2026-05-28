@@ -61,6 +61,8 @@ function create(opts: Partial<RandomOptions> = defOpts): string {
   if (num) chars.push(...similarChars ? list.snum : list.num);
   if (sym) chars.push(...list.sym);
 
+  const charPool = chars.join('');
+
   if (strict) {
     // Ensure password includes at least one of each required character type
     const pwd: string[] = [];
@@ -71,7 +73,7 @@ function create(opts: Partial<RandomOptions> = defOpts): string {
 
     // Fill the rest of the password length with random characters
     for (let i = pwd.length; i < len; i++) {
-      pwd.push(getRandChar(chars.join('')));
+      pwd.push(getRandChar(charPool));
     }
 
     return shuffleArray(pwd).join('');
@@ -80,13 +82,15 @@ function create(opts: Partial<RandomOptions> = defOpts): string {
   // Generate a password with random characters
   return Array(len)
     .fill(null)
-    .map(() => getRandChar(chars.join('')))
+    .map(() => getRandChar(charPool))
     .join('');
 }
 
-// Get a random character from a string
+// Get a cryptographically secure random character from a string
 function getRandChar(str: string): string {
-  return str.charAt(Math.floor(Math.random() * str.length));
+  const arr = new Uint32Array(1);
+  crypto.getRandomValues(arr);
+  return str.charAt(arr[0] % str.length);
 }
 
 /**
@@ -96,8 +100,10 @@ function getRandChar(str: string): string {
 * in a random order.
 */
 function shuffleArray(a: string[]): string[] {
+  const arr = new Uint32Array(a.length);
+  crypto.getRandomValues(arr);
   for (let i = a.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
+    const j = arr[i] % (i + 1);
     [a[i], a[j]] = [a[j], a[i]];
   }
   return a;

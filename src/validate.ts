@@ -34,12 +34,12 @@ const defOpts: ValidationOptions = {
  * @example
  * ```typescript
  * const options = {
- *   minLength: 8,
- *   maxLength: 20,
- *   lowerCase: true,
- *   upperCase: true,
- *   number: true,
- *   specialCharacter: true
+ *   minLen: 8,
+ *   maxLen: 20,
+ *   lcase: true,
+ *   ucase: true,
+ *   num: true,
+ *   sym: true
  * };
  * const isValid = isValidPassword('Password123!', options);
  * console.log(isValid); // true
