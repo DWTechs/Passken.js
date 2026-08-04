@@ -1,3 +1,7 @@
+# 0.6.2 (Aug 01st 2026)
+
+- Update @dwtechs/checkard dependency to version 3.6.1
+
 # 0.6.1 (May 28th 2026)
 
 - Fix missing isValidPassword() and ValidationOptions export in type declaration file
