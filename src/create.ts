@@ -24,14 +24,25 @@ const {
   PWD_RAND_SIMILAR_CHARS,
 } = process?.env;
 
+// Env vars are always strings, so they must be parsed before use
+function envBool(v: string | undefined, def: boolean): boolean {
+  return v === undefined ? def : v === 'true';
+}
+
+function envInt(v: string | undefined, def: number): number {
+  if (v === undefined) return def;
+  const n = parseInt(v, 10);
+  return isValidInteger(n, 12, 64, true) ? n : def;
+}
+
 const defOpts: RandomOptions = {
-  len: PWD_RAND_LENGTH as unknown as number || 12,
-  num: PWD_RAND_NUMBERS as unknown as boolean || true,
-  ucase: PWD_RAND_UPPERCASE as unknown as boolean || true,
-  lcase: PWD_RAND_LOWERCASE as unknown as boolean || true,
-  sym: PWD_RAND_SYMBOLS as unknown as boolean || false,
-  strict: PWD_RAND_STRICT as unknown as boolean || true,
-  similarChars: PWD_RAND_SIMILAR_CHARS as unknown as boolean || false,
+  len: envInt(PWD_RAND_LENGTH, 12),
+  num: envBool(PWD_RAND_NUMBERS, true),
+  ucase: envBool(PWD_RAND_UPPERCASE, true),
+  lcase: envBool(PWD_RAND_LOWERCASE, true),
+  sym: envBool(PWD_RAND_SYMBOLS, false),
+  strict: envBool(PWD_RAND_STRICT, true),
+  similarChars: envBool(PWD_RAND_SIMILAR_CHARS, false),
 };
 
 /**

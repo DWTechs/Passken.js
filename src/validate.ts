@@ -13,13 +13,24 @@ const {
 } = process?.env;
 
 
+// Env vars are always strings, so they must be parsed before use
+function envBool(v: string | undefined, def: boolean): boolean {
+  return v === undefined ? def : v === 'true';
+}
+
+function envInt(v: string | undefined, def: number): number {
+  if (v === undefined) return def;
+  const n = parseInt(v, 10);
+  return Number.isInteger(n) ? n : def;
+}
+
 const defOpts: ValidationOptions = {
-  lcase: PWD_VALID_LOWERCASE as unknown as boolean || true,
-  ucase: PWD_VALID_UPPERCASE as unknown as boolean || true,
-  num: PWD_VALID_NUMBERS as unknown as boolean || true,
-  sym: PWD_VALID_SYMBOLS as unknown as boolean || true,
-  minLen: PWD_VALID_MINLENGTH as unknown as number || 12,
-  maxLen: PWD_VALID_MAXLENGTH as unknown as number || 64,
+  lcase: envBool(PWD_VALID_LOWERCASE, true),
+  ucase: envBool(PWD_VALID_UPPERCASE, true),
+  num: envBool(PWD_VALID_NUMBERS, true),
+  sym: envBool(PWD_VALID_SYMBOLS, true),
+  minLen: envInt(PWD_VALID_MINLENGTH, 12),
+  maxLen: envInt(PWD_VALID_MAXLENGTH, 64),
 };
 
 /**
